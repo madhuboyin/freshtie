@@ -13,6 +13,7 @@ import Contacts
 struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(ContactDetectionService.self) private var detectionService
     @Query private var allPeople: [Person]
 
     @State private var showAddPerson     = false
@@ -36,6 +37,13 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    if let trigger = detectionService.activeTrigger {
+                        triggerBanner(trigger)
+                            .padding(.horizontal, AppSpacing.md)
+                            .padding(.top, AppSpacing.md)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
                     headerSection
                         .padding(.horizontal, AppSpacing.md)
                         .padding(.top, AppSpacing.lg)
@@ -95,6 +103,46 @@ struct HomeView: View {
     }
 
     // MARK: - Sections
+
+    @ViewBuilder
+    private func triggerBanner(_ trigger: ContactDetectionService.CandidateTrigger) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            HStack(alignment: .top, spacing: AppSpacing.sm) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(AppColors.accent)
+                    .font(.system(size: 18, weight: .semibold))
+                
+                Text(trigger.message)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.label)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            HStack(spacing: AppSpacing.md) {
+                Button("Add") {
+                    let person = ContactMapper.findOrCreate(contact: trigger.contact, in: modelContext)
+                    detectionService.dismissTrigger() // Clear it
+                    navigateToPerson = person
+                    showAddPerson = false // Just in case
+                }
+                .font(AppTypography.callout)
+                .fontWeight(.bold)
+                .foregroundStyle(AppColors.accent)
+                
+                Button("Not now") {
+                    withAnimation {
+                        detectionService.dismissTrigger()
+                    }
+                }
+                .font(AppTypography.callout)
+                .foregroundStyle(AppColors.secondaryLabel)
+            }
+            .padding(.leading, 26) // Align with text start
+        }
+        .padding(AppSpacing.md)
+        .background(AppColors.accent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+    }
 
     /// Greeting line (quiet, temporal) + primary product question (dominant).
     private var headerSection: some View {

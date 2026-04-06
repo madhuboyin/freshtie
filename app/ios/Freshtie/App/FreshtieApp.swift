@@ -4,15 +4,19 @@ import SwiftData
 @main
 struct FreshtieApp: App {
     @Environment(\.modelContext) private var modelContext
+    @State private var detectionService = ContactDetectionService()
 
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(detectionService)
                 .onAppear {
                     handleSharedPayloads()
+                    Task { await detectionService.performDetection() }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                     handleSharedPayloads()
+                    Task { await detectionService.performDetection() }
                 }
         }
         .modelContainer(.freshtie)

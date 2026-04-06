@@ -57,6 +57,9 @@
 		CAFEBABECAFEBABE000000A3 /* SharedContactExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
 		CAFEBABECAFEBABE000000A5 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFEBABE000000A7 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
+		CAFEBABECAFEBABE000000B1 /* ContactDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */; };
+		CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */; };
+		CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +115,9 @@
 		CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContactExtractor.swift; sourceTree = "<group>"; }; 
 		CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionRootView.swift; sourceTree = "<group>"; }; 
 		CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetectionService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSnapshotStore.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTimingModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -217,8 +223,19 @@
 				CAFEBABECAFEBABE0000004E /* Contacts */,
 				CAFEBABECAFEBABE00000057 /* PromptEngine */,
 				CAFEBABECAFEBABE000000A8 /* ShareExtension */,
+				CAFEBABECAFEBABE000000B6 /* ContactDetection */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000B6 /* ContactDetection */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */,
+				CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */,
+				CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */,
+			);
+			path = ContactDetection;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE000000A8 /* ShareExtension */ = {
