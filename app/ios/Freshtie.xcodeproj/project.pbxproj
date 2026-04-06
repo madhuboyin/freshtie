@@ -60,6 +60,15 @@
 		CAFEBABECAFEBABE000000B1 /* ContactDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */; };
 		CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */; };
 		CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */; };
+		CAFEBABECAFEBABE000000C0 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B7 /* AnalyticsService.swift */; };
+		CAFEBABECAFEBABE000000C1 /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B8 /* AnalyticsEvent.swift */; };
+		CAFEBABECAFEBABE000000C2 /* AnalyticsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B9 /* AnalyticsConstants.swift */; };
+		CAFEBABECAFEBABE000000C3 /* AnalyticsEventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BA /* AnalyticsEventStore.swift */; };
+		CAFEBABECAFEBABE000000C4 /* PermissionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BB /* PermissionState.swift */; };
+		CAFEBABECAFEBABE000000C5 /* MicrophonePermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BC /* MicrophonePermissionService.swift */; };
+		CAFEBABECAFEBABE000000C6 /* SpeechPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */; };
+		CAFEBABECAFEBABE000000C7 /* ContactTriggerEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */; };
+		CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +127,15 @@
 		CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetectionService.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSnapshotStore.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTimingModel.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B7 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B8 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000B9 /* AnalyticsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsConstants.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BA /* AnalyticsEventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEventStore.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BB /* PermissionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionState.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BC /* MicrophonePermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophonePermissionService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPermissionService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTriggerEvaluator.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -224,6 +242,9 @@
 				CAFEBABECAFEBABE00000057 /* PromptEngine */,
 				CAFEBABECAFEBABE000000A8 /* ShareExtension */,
 				CAFEBABECAFEBABE000000B6 /* ContactDetection */,
+				CAFEBABECAFEBABE000000C9 /* Analytics */,
+				CAFEBABECAFEBABE000000CA /* Permissions */,
+				CAFEBABECAFEBABE000000CB /* Validation */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -233,6 +254,7 @@
 			children = (
 				CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */,
 				CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */,
+				CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */,
 				CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */,
 			);
 			path = ContactDetection;
@@ -285,6 +307,9 @@
 			children = (
 				CAFEBABECAFEBABE00000019 /* CaptureView.swift */,
 				CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */,
+				CAFEBABECAFEBABE0000007D /* SpeechService.swift */,
+				CAFEBABECAFEBABE0000007E /* CaptureViewModel.swift */,
+				CAFEBABECAFEBABE000000CC /* Components */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -379,6 +404,45 @@
 				CAFEBABECAFEBABE00000045 /* SeedData.swift */,
 			);
 			path = Seed;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000CC /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */,
+				CAFEBABECAFEBABE00000081 /* ListeningIndicator.swift */,
+				CAFEBABECAFEBABE00000082 /* TextInputField.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000C9 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000B7 /* AnalyticsService.swift */,
+				CAFEBABECAFEBABE000000B8 /* AnalyticsEvent.swift */,
+				CAFEBABECAFEBABE000000B9 /* AnalyticsConstants.swift */,
+				CAFEBABECAFEBABE000000BA /* AnalyticsEventStore.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000CA /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000BB /* PermissionState.swift */,
+				CAFEBABECAFEBABE000000BC /* MicrophonePermissionService.swift */,
+				CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */,
+			);
+			path = Permissions;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000CB /* Validation */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */,
+			);
+			path = Validation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -511,6 +575,26 @@
 				CAFEBABECAFEBABE00000079 /* PromptSection.swift in Sources */,
 				CAFEBABECAFEBABE0000007A /* PromptRefreshButton.swift in Sources */,
 				CAFEBABECAFEBABE0000007B /* CaptureCTA.swift in Sources */,
+				CAFEBABECAFEBABE00000083 /* SpeechService.swift in Sources */,
+				CAFEBABECAFEBABE00000084 /* CaptureViewModel.swift in Sources */,
+				CAFEBABECAFEBABE00000085 /* MicrophoneButton.swift in Sources */,
+				CAFEBABECAFEBABE00000086 /* ListeningIndicator.swift in Sources */,
+				CAFEBABECAFEBABE00000087 /* TextInputField.swift in Sources */,
+				CAFEBABECAFEBABE000000A1 /* ShareExtensionStore.swift in Sources */,
+				CAFEBABECAFEBABE000000A3 /* SharedContactExtractor.swift in Sources */,
+				CAFEBABECAFEBABE000000A5 /* ShareExtensionRootView.swift in Sources */,
+				CAFEBABECAFEBABE000000B1 /* ContactDetectionService.swift in Sources */,
+				CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */,
+				CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */,
+				CAFEBABECAFEBABE000000C0 /* AnalyticsService.swift in Sources */,
+				CAFEBABECAFEBABE000000C1 /* AnalyticsEvent.swift in Sources */,
+				CAFEBABECAFEBABE000000C2 /* AnalyticsConstants.swift in Sources */,
+				CAFEBABECAFEBABE000000C3 /* AnalyticsEventStore.swift in Sources */,
+				CAFEBABECAFEBABE000000C4 /* PermissionState.swift in Sources */,
+				CAFEBABECAFEBABE000000C5 /* MicrophonePermissionService.swift in Sources */,
+				CAFEBABECAFEBABE000000C6 /* SpeechPermissionService.swift in Sources */,
+				CAFEBABECAFEBABE000000C7 /* ContactTriggerEvaluator.swift in Sources */,
+				CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
