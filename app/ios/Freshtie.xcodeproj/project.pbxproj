@@ -43,6 +43,11 @@
 		CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005D /* PromptEngine.swift */; };
 		CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */; };
 		CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */; };
+		CAFEBABECAFEBABE00000077 /* PersonHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000072 /* PersonHeader.swift */; };
+		CAFEBABECAFEBABE00000078 /* LastContextBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000073 /* LastContextBlock.swift */; };
+		CAFEBABECAFEBABE00000079 /* PromptSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000074 /* PromptSection.swift */; };
+		CAFEBABECAFEBABE0000007A /* PromptRefreshButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000075 /* PromptRefreshButton.swift */; };
+		CAFEBABECAFEBABE0000007B /* CaptureCTA.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000076 /* CaptureCTA.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +89,11 @@
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEmptyState.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000072 /* PersonHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonHeader.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000073 /* LastContextBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastContextBlock.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000074 /* PromptSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSection.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000075 /* PromptRefreshButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptRefreshButton.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000076 /* CaptureCTA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureCTA.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -206,8 +216,21 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000018 /* PersonView.swift */,
+				CAFEBABECAFEBABE0000007C /* Components */,
 			);
 			path = Person;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE0000007C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000072 /* PersonHeader.swift */,
+				CAFEBABECAFEBABE00000073 /* LastContextBlock.swift */,
+				CAFEBABECAFEBABE00000074 /* PromptSection.swift */,
+				CAFEBABECAFEBABE00000075 /* PromptRefreshButton.swift */,
+				CAFEBABECAFEBABE00000076 /* CaptureCTA.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE00000009 /* Capture */ = {
@@ -436,6 +459,11 @@
 				CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */,
 				CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */,
 				CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */,
+				CAFEBABECAFEBABE00000077 /* PersonHeader.swift in Sources */,
+				CAFEBABECAFEBABE00000078 /* LastContextBlock.swift in Sources */,
+				CAFEBABECAFEBABE00000079 /* PromptSection.swift in Sources */,
+				CAFEBABECAFEBABE0000007A /* PromptRefreshButton.swift in Sources */,
+				CAFEBABECAFEBABE0000007B /* CaptureCTA.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
