@@ -26,6 +26,17 @@ struct SettingsView: View {
                     )
                 }
 
+                Section("Tips") {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        Text("Share from Contacts")
+                            .font(AppTypography.body)
+                        Text("You can also add people directly to Freshtie by sharing a contact from the iOS Contacts app.")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.secondaryLabel)
+                    }
+                    .padding(.vertical, AppSpacing.xxs)
+                }
+
                 Section("About") {
                     settingsRow(
                         icon: "info.circle",

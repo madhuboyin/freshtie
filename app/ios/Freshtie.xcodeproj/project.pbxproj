@@ -53,6 +53,10 @@
 		CAFEBABECAFEBABE00000085 /* MicrophoneButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */; };
 		CAFEBABECAFEBABE00000086 /* ListeningIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000081 /* ListeningIndicator.swift */; };
 		CAFEBABECAFEBABE00000087 /* TextInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000082 /* TextInputField.swift */; };
+		CAFEBABECAFEBABE000000A1 /* ShareExtensionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
+		CAFEBABECAFEBABE000000A3 /* SharedContactExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
+		CAFEBABECAFEBABE000000A5 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
+		CAFEBABECAFEBABE000000A7 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,6 +108,10 @@
 		CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneButton.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000081 /* ListeningIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningIndicator.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000082 /* TextInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputField.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionStore.swift; sourceTree = "<group>"; }; 
+		CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContactExtractor.swift; sourceTree = "<group>"; }; 
+		CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionRootView.swift; sourceTree = "<group>"; }; 
+		CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -208,8 +216,20 @@
 				CAFEBABECAFEBABE0000000A /* Settings */,
 				CAFEBABECAFEBABE0000004E /* Contacts */,
 				CAFEBABECAFEBABE00000057 /* PromptEngine */,
+				CAFEBABECAFEBABE000000A8 /* ShareExtension */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000A8 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */,
+				CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */,
+				CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */,
+				CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */,
+			);
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE00000007 /* Home */ = {

@@ -51,6 +51,10 @@ struct HomeView: View {
                         recentSection
                             .padding(.top, AppSpacing.lg)
                     }
+
+                    discoverabilityTip
+                        .padding(.horizontal, AppSpacing.md)
+                        .padding(.top, AppSpacing.xxl)
                 }
                 .padding(.bottom, AppSpacing.xxl)
             }
@@ -141,6 +145,29 @@ struct HomeView: View {
 
     private var emptyState: some View {
         HomeEmptyState { showPickerOptions = true }
+    }
+
+    private var discoverabilityTip: some View {
+        HStack(spacing: AppSpacing.md) {
+            Image(systemName: "lightbulb.fill")
+                .foregroundStyle(AppColors.accent)
+                .font(.system(size: 20))
+
+            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                Text("Did you know?")
+                    .font(AppTypography.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(AppColors.label)
+
+                Text("You can also share a contact directly to Freshtie from your Contacts app.")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.secondaryLabel)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(AppSpacing.md)
+        .background(AppColors.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
     }
 
     // MARK: - Contacts flow
