@@ -32,3 +32,11 @@ docker buildx build \
   app/backend
 
 echo "✅ Build and push complete!"
+
+echo "🔄 Triggering rolling restart of Kubernetes deployment..."
+kubectl -n freshtie rollout restart deployment/freshtie-api
+
+echo "⏳ Waiting for pods to restart with the new image..."
+kubectl -n freshtie rollout status deployment/freshtie-api --timeout=60s
+
+echo "✅ Update successfully deployed!"
