@@ -149,13 +149,9 @@ struct HomeView: View {
         }
     }
 
-    /// Greeting line (quiet, temporal) + primary product question (dominant).
+    /// Primary question (dominant).
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-            Text(greetingText)
-                .font(AppTypography.subheadline)
-                .foregroundStyle(AppColors.tertiaryLabel)
-
             Text("Who are you talking to?")
                 .font(AppTypography.title2)
                 .foregroundStyle(AppColors.label)

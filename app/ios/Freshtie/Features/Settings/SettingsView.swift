@@ -5,6 +5,9 @@ import Contacts
 /// Allows recovery via System Settings when permissions are denied.
 struct SettingsView: View {
 
+    @Environment(\.modelContext) private var modelContext
+    @State private var showValidationMenu = false
+    
     @State private var contactStatus = ContactPermissionService.status
     @State private var micStatus = MicrophonePermissionService.status
     @State private var speechStatus = SpeechPermissionService.status
@@ -74,10 +77,17 @@ struct SettingsView: View {
                             .font(AppTypography.subheadline)
                             .foregroundStyle(AppColors.tertiaryLabel)
                     }
+                    .contentShape(Rectangle())
+                    .onLongPressGesture(minimumDuration: 2.0) {
+                        showValidationMenu = true
+                    }
                 }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Settings")
+            .sheet(isPresented: $showValidationMenu) {
+                validationMenu
+            }
             .onAppear(perform: refreshStatuses)
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 refreshStatuses()
@@ -96,6 +106,43 @@ struct SettingsView: View {
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
+        }
+    }
+
+    // MARK: - Validation Menu
+
+    private var validationMenu: some View {
+        NavigationStack {
+            List {
+                Section("Tester Actions") {
+                    Button("Reset Everything", role: .destructive) {
+                        ValidationSupport.shared.resetEverything(modelContext: modelContext)
+                        showValidationMenu = false
+                    }
+                    
+                    Button("Seed Rich Scenario") {
+                        ValidationSupport.shared.seedRichScenario(modelContext: modelContext)
+                        showValidationMenu = false
+                    }
+                }
+                
+                Section(header: Text("Recent Events"), footer: Text("Inspect local behavior for validation.")) {
+                    ForEach(AnalyticsEventStore.shared.fetchRecent(limit: 10)) { event in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(event.eventName)
+                                .font(AppTypography.caption)
+                                .fontWeight(.bold)
+                            Text(event.timestamp.formatted(date: .omitted, time: .shortened))
+                                .font(.system(size: 10))
+                                .foregroundStyle(AppColors.tertiaryLabel)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Validation Support")
+            .toolbar {
+                Button("Done") { showValidationMenu = false }
+            }
         }
     }
 

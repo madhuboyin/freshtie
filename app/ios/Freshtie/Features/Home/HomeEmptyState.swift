@@ -13,7 +13,7 @@ struct HomeEmptyState: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundStyle(AppColors.tertiaryLabel)
 
-            Text("Pick someone you're about to talk to")
+            Text("Add someone you're about to talk to")
                 .font(AppTypography.subheadline)
                 .foregroundStyle(AppColors.secondaryLabel)
                 .multilineTextAlignment(.center)
