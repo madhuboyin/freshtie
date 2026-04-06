@@ -84,7 +84,9 @@ struct HomeView: View {
         .sheet(isPresented: $showContactPicker) {
             ContactPickerRepresentable(
                 onSelect: { contact in
-                    pendingPerson = ContactMapper.findOrCreate(contact: contact, in: modelContext)
+                    let person = ContactMapper.findOrCreate(contact: contact, in: modelContext)
+                    AnalyticsService.shared.track(.contact_person_selected, metadata: [AnalyticsMetadata.personID: person.id.uuidString])
+                    pendingPerson = person
                     showContactPicker = false
                 },
                 onCancel: { showContactPicker = false }

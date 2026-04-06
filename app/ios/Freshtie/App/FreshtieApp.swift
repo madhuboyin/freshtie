@@ -40,8 +40,9 @@ struct FreshtieApp: App {
 
         for payload in payloads {
             process(payload)
+            AnalyticsService.shared.track(.share_extension_used)
         }
-        
+
         ShareExtensionStore.clearAll()
     }
 
