@@ -1,85 +1,78 @@
 'use strict';
 
 const http = require('http');
+const config = require('./utils/config');
+const router = require('./utils/router');
 
-const PORT = Number(process.env.PORT || 3000);
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const APP_NAME = process.env.APP_NAME || 'freshtie';
-const STARTED_AT = new Date().toISOString();
+// Import routes
+const healthHandler = require('./routes/health');
+const versionHandler = require('./routes/version');
+const configHandler = require('./routes/config');
+const eventsHandler = require('./routes/events');
 
-/**
- * Send a JSON response with standard headers.
- * @param {http.ServerResponse} res
- * @param {number} statusCode
- * @param {object} payload
- */
-function sendJson(res, statusCode, payload) {
-    const body = JSON.stringify(payload);
+// Register routes
+router.get('/health', healthHandler);
+router.get('/version', versionHandler);
+router.get('/config/prompts', configHandler);
+router.post('/events', eventsHandler);
 
-    res.writeHead(statusCode, {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Content-Length': Buffer.byteLength(body),
-        'Cache-Control': 'no-store'
+// Root path
+router.get('/', (req, res) => {
+    const { sendJson } = require('./utils/response');
+    sendJson(res, 200, {
+        app: config.APP_NAME,
+        message: 'Freshtie backend is running',
+        endpoints: ['/health', '/version', '/config/prompts', '/events']
     });
+});
 
-    res.end(body);
-}
+const server = http.createServer((req, res) => router.handle(req, res));
 
-/**
- * Basic request router.
- * @param {http.IncomingMessage} req
- * @param {http.ServerResponse} res
- */
-function requestHandler(req, res) {
-    const method = req.method || 'GET';
-    const url = req.url || '/';
-
-    if (method === 'GET' && url === '/health') {
-        return sendJson(res, 200, {
-            status: 'ok',
-            app: APP_NAME,
-            env: NODE_ENV,
-            uptimeSeconds: Math.floor(process.uptime()),
-            startedAt: STARTED_AT,
-            timestamp: new Date().toISOString()
-        });
-    }
-
-    if (method === 'GET' && url === '/') {
-        return sendJson(res, 200, {
-            app: APP_NAME,
-            message: 'Freshtie backend is running',
-            health: '/health'
-        });
-    }
-
-    return sendJson(res, 404, {
-        error: 'Not Found',
-        path: url
-    });
-}
-
-const server = http.createServer(requestHandler);
-
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[${APP_NAME}] listening on port ${PORT} in ${NODE_ENV}`);
+server.listen(config.PORT, '0.0.0.0', () => {
+    console.log(JSON.stringify({
+        level: 'info',
+        msg: 'server_started',
+        app: config.APP_NAME,
+        port: config.PORT,
+        env: config.NODE_ENV,
+        version: config.APP_VERSION,
+        timestamp: new Date().toISOString()
+    }));
 });
 
 function shutdown(signal) {
-    console.log(`[${APP_NAME}] received ${signal}, shutting down...`);
+    console.log(JSON.stringify({
+        level: 'info',
+        msg: 'server_shutting_down',
+        signal,
+        timestamp: new Date().toISOString()
+    }));
 
     server.close((err) => {
         if (err) {
-            console.error(`[${APP_NAME}] shutdown error`, err);
+            console.error(JSON.stringify({
+                level: 'error',
+                msg: 'shutdown_error',
+                error: err.message,
+                timestamp: new Date().toISOString()
+            }));
             process.exit(1);
         }
 
-        console.log(`[${APP_NAME}] shutdown complete`);
+        console.log(JSON.stringify({
+            level: 'info',
+            msg: 'shutdown_complete',
+            timestamp: new Date().toISOString()
+        }));
         process.exit(0);
     });
 
     setTimeout(() => {
-        console.error(`[${APP_NAME}] forced shutdown after timeout`);
+        console.error(JSON.stringify({
+            level: 'error',
+            msg: 'forced_shutdown',
+            timestamp: new Date().toISOString()
+        }));
         process.exit(1);
     }, 10000).unref();
 }

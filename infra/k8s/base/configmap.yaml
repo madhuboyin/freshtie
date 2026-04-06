@@ -7,3 +7,6 @@ data:
   NODE_ENV: "production"
   PORT: "3000"
   APP_NAME: "freshtie"
+  LOG_LEVEL: "info"
+  EVENTS_ENABLED: "true"
+  PROMPT_CONFIG_VERSION: "1.0.0"
