@@ -14,6 +14,7 @@ extension ModelContainer {
 
     /// In-memory container pre-populated with seed data.
     /// Use `.modelContainer(.preview)` in SwiftUI previews.
+    @MainActor
     static let preview: ModelContainer = {
         let schema = Schema([Person.self, Note.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
