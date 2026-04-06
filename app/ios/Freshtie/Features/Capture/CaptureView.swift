@@ -28,20 +28,28 @@ struct CaptureView: View {
                 mainContent
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) {
-                            Button("Cancel") {
-                                viewModel.cancel()
-                                dismiss()
+                            Button("Done") {
+                                // Manual dismissal: save immediately and close
+                                performSave(isManual: true)
                             }
-                            .foregroundStyle(AppColors.secondaryLabel)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(AppColors.accent)
                         }
                     }
                     .navigationTitle(person.displayName)
                     .navigationBarTitleDisplayMode(.inline)
             }
+            .onDisappear {
+                // Background/Swipe dismissal: save if not already saved
+                performSave(isManual: false)
+            }
         } else {
             mainContent
                 .navigationTitle(person.displayName)
                 .navigationBarTitleDisplayMode(.inline)
+                .onDisappear {
+                    performSave(isManual: false)
+                }
         }
     }
 
@@ -58,16 +66,20 @@ struct CaptureView: View {
             Spacer()
 
             if viewModel.captureState != .saved {
-                TextInputField(text: $viewModel.inputText, onSubmit: performSave)
+                TextInputField(text: $viewModel.inputText, onSubmit: { performSave(isManual: true) })
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.bottom, AppSpacing.xl)
             }
         }
         .frame(maxWidth: .infinity)
         .background(AppColors.background)
+        // Ensure speech is stopped when view goes away
+        .onDisappear {
+            viewModel.cancel()
+        }
         // Silence timer or manual stop fires triggerSave — view handles the actual persist.
         .onChange(of: viewModel.triggerSave) { _, shouldSave in
-            if shouldSave { performSave() }
+            if shouldSave { performSave(isManual: false) }
         }
     }
 
@@ -142,7 +154,7 @@ struct CaptureView: View {
 
     // MARK: - Save
 
-    private func performSave() {
+    private func performSave(isManual: Bool = false) {
         guard viewModel.captureState != .saved else { return }
 
         let text = viewModel.effectiveText
@@ -155,14 +167,22 @@ struct CaptureView: View {
             )
         }
 
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             viewModel.markSaved()
         }
 
         if isSheet {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { dismiss() }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            if isManual || text.isEmpty {
+                dismiss()
+            } else {
+                // Silence-trigger: show checkmark briefly before auto-dismiss
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                    dismiss()
+                }
+            }
+        } else if !isManual {
+            // Inline tab: reset state for next capture if they stay on this screen
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 withAnimation { viewModel.reset() }
             }
         }

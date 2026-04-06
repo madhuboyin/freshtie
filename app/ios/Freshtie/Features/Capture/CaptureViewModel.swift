@@ -96,7 +96,7 @@ final class CaptureViewModel {
     // MARK: - Post-save lifecycle
 
     func markSaved() {
-        silenceTimer?.invalidate()
+        stopSpeech()
         triggerSave = false
         captureState = .saved
     }

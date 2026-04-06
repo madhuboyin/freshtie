@@ -44,12 +44,14 @@ final class SpeechService {
     /// Starts the audio engine and recognition task.
     /// Throws `SpeechError.unavailable` if the recognizer is unavailable.
     func start() throws {
+        stop() // Ensure clean state
+
         guard let recognizer, recognizer.isAvailable else {
             throw SpeechError.unavailable
         }
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
         let req = SFSpeechAudioBufferRecognitionRequest()
@@ -57,7 +59,8 @@ final class SpeechService {
         request = req
 
         let inputNode = audioEngine.inputNode
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputNode.outputFormat(forBus: 0)) { [weak self] buf, _ in
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 
@@ -70,9 +73,12 @@ final class SpeechService {
                     self?.onTranscript?(text)
                 }
                 if let error {
-                    let code = (error as NSError).code
-                    // 203 = request cancelled, 216 = no speech, 301 = audio interrupted
-                    if code != 203 && code != 216 && code != 301 {
+                    let nsError = error as NSError
+                    // 203 = user cancelled, 216 = no speech, 301 = audio interrupted
+                    if nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 203 || nsError.code == 216) {
+                        return
+                    }
+                    if nsError.code != 301 {
                         self?.onError?()
                     }
                 }
@@ -82,15 +88,20 @@ final class SpeechService {
 
     /// Stops audio engine and cancels the recognition task cleanly.
     func stop() {
-        request?.endAudio()
-        if audioEngine.isRunning {
-            audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
-        }
         task?.cancel()
         task = nil
+        request?.endAudio()
         request = nil
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
+        audioEngine.inputNode.removeTap(onBus: 0)
+
+        // Reset session category to avoid keeping the mic 'active' in the system status bar
+        let session = AVAudioSession.sharedInstance()
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        try? session.setCategory(.ambient)
     }
 
     // MARK: - Error
