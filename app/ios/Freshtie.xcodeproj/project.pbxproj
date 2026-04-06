@@ -35,6 +35,13 @@
 		CAFEBABECAFEBABE00000054 /* ContactPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000050 /* ContactPermissionService.swift */; };
 		CAFEBABECAFEBABE00000055 /* ContactMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000051 /* ContactMapper.swift */; };
 		CAFEBABECAFEBABE00000056 /* ContactDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000052 /* ContactDeniedView.swift */; };
+		CAFEBABECAFEBABE0000005E /* PromptTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000058 /* PromptTypes.swift */; };
+		CAFEBABECAFEBABE0000005F /* KeywordExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000059 /* KeywordExtractor.swift */; };
+		CAFEBABECAFEBABE00000060 /* PromptCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005A /* PromptCategorizer.swift */; };
+		CAFEBABECAFEBABE00000061 /* TemporalLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */; };
+		CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */; };
+		CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005D /* PromptEngine.swift */; };
+		CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,7 +74,33 @@
 		CAFEBABECAFEBABE00000050 /* ContactPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPermissionService.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000051 /* ContactMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactMapper.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000052 /* ContactDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDeniedView.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000058 /* PromptTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTypes.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000059 /* KeywordExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeywordExtractor.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000005A /* PromptCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptCategorizer.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporalLogic.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplateLibrary.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000005D /* PromptEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngine.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		CAFEBABECAFEBABE0000006D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAFEBABECAFEBABE0000003C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CAFEBABECAFEBABE0000003B;
+			remoteInfo = Freshtie;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		CAFEBABECAFEBABE0000006E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CAFEBABECAFEBABE0000003B /* Freshtie */;
+			targetProxy = CAFEBABECAFEBABE0000006D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		CAFEBABECAFEBABE00000033 /* Frameworks */ = {
@@ -84,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000001 /* Freshtie */,
+				CAFEBABECAFEBABE00000064 /* FreshtieTests */,
 				CAFEBABECAFEBABE00000002 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -106,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE0000001F /* Freshtie.app */,
+				CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,6 +185,7 @@
 				CAFEBABECAFEBABE00000009 /* Capture */,
 				CAFEBABECAFEBABE0000000A /* Settings */,
 				CAFEBABECAFEBABE0000004E /* Contacts */,
+				CAFEBABECAFEBABE00000057 /* PromptEngine */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -217,6 +253,27 @@
 			path = Contacts;
 			sourceTree = "<group>";
 		};
+		CAFEBABECAFEBABE00000057 /* PromptEngine */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000058 /* PromptTypes.swift */,
+				CAFEBABECAFEBABE00000059 /* KeywordExtractor.swift */,
+				CAFEBABECAFEBABE0000005A /* PromptCategorizer.swift */,
+				CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */,
+				CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */,
+				CAFEBABECAFEBABE0000005D /* PromptEngine.swift */,
+			);
+			path = PromptEngine;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE00000064 /* FreshtieTests */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */,
+			);
+			path = FreshtieTests;
+			sourceTree = "<group>";
+		};
 		CAFEBABECAFEBABE0000003E /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -271,6 +328,23 @@
 			productReference = CAFEBABECAFEBABE0000001F /* Freshtie.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CAFEBABECAFEBABE00000069 /* FreshtieTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAFEBABECAFEBABE0000006C /* Build configuration list for PBXNativeTarget "FreshtieTests" */;
+			buildPhases = (
+				CAFEBABECAFEBABE00000067 /* Sources */,
+				CAFEBABECAFEBABE00000068 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CAFEBABECAFEBABE0000006E /* PBXTargetDependency */,
+			);
+			name = FreshtieTests;
+			productName = FreshtieTests;
+			productReference = CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -283,6 +357,10 @@
 				TargetAttributes = {
 					CAFEBABECAFEBABE0000003B = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					CAFEBABECAFEBABE00000069 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = CAFEBABECAFEBABE0000003B;
 					};
 				};
 			};
@@ -300,6 +378,7 @@
 			projectRoot = "";
 			targets = (
 				CAFEBABECAFEBABE0000003B /* Freshtie */,
+				CAFEBABECAFEBABE00000069 /* FreshtieTests */,
 			);
 		};
 /* End PBXProject section */
@@ -347,6 +426,27 @@
 				CAFEBABECAFEBABE00000054 /* ContactPermissionService.swift in Sources */,
 				CAFEBABECAFEBABE00000055 /* ContactMapper.swift in Sources */,
 				CAFEBABECAFEBABE00000056 /* ContactDeniedView.swift in Sources */,
+				CAFEBABECAFEBABE0000005E /* PromptTypes.swift in Sources */,
+				CAFEBABECAFEBABE0000005F /* KeywordExtractor.swift in Sources */,
+				CAFEBABECAFEBABE00000060 /* PromptCategorizer.swift in Sources */,
+				CAFEBABECAFEBABE00000061 /* TemporalLogic.swift in Sources */,
+				CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */,
+				CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAFEBABECAFEBABE00000067 /* Sources (FreshtieTests) */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAFEBABECAFEBABE00000068 /* Frameworks (FreshtieTests) */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +622,40 @@
 			};
 			name = Release;
 		};
+		CAFEBABECAFEBABE0000006A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshtie.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Freshtie.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Freshtie";
+			};
+			name = Debug;
+		};
+		CAFEBABECAFEBABE0000006B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshtie.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Freshtie.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Freshtie";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -539,6 +673,15 @@
 			buildConfigurations = (
 				CAFEBABECAFEBABE00000037 /* Debug */,
 				CAFEBABECAFEBABE00000038 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAFEBABECAFEBABE0000006C /* Build configuration list for PBXNativeTarget "FreshtieTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAFEBABECAFEBABE0000006A /* Debug */,
+				CAFEBABECAFEBABE0000006B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

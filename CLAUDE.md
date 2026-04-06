@@ -49,7 +49,7 @@ The repo has three active layers:
 
 2. **`infra/k8s`** — Kustomize-based Kubernetes manifests. Structure is `base/` + `overlays/prod/`. Deployed to a Raspberry Pi K3s cluster in the `freshtie` namespace. Single replica. Health/liveness probes hit `/health`. Env vars come from a ConfigMap (`freshtie-config`) and a Secret (`freshtie-secrets`).
 
-3. **`app/ios`** — Native Swift/SwiftUI. Phase 3 (contacts) complete (see below).
+3. **`app/ios`** — Native Swift/SwiftUI. Phase 4 (prompt engine) complete (see below).
 
 ### iOS architecture
 
@@ -72,6 +72,7 @@ Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 | `Features/Capture/` | `CaptureView` + `CapturePersonPickerView` — mic button, waveform animation, text fallback |
 | `Features/Settings/` | `SettingsView` — contacts permission status + version rows |
 | `Features/Contacts/` | `ContactPickerRepresentable`, `ContactPermissionService`, `ContactMapper`, `ContactDeniedView` |
+| `Features/PromptEngine/` | `PromptTypes`, `KeywordExtractor`, `PromptCategorizer`, `TemporalLogic`, `PromptTemplateLibrary`, `PromptEngine` |
 | `Models/` | `Person` (@Model), `Note` (@Model), `Prompt` (plain struct) |
 | `PreviewSupport/` | `PreviewData` — bare instances for component previews; screens use `.modelContainer(.preview)` |
 
@@ -84,6 +85,8 @@ Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 **Design tokens**: `AppColors.accent = Color.indigo`. All spacing from `AppSpacing`, corner radii from `AppRadius`, fixed sizes from `AppSize`.
 
 **Contacts integration** (Phase 3): `SearchSelectRow` → `.confirmationDialog` → "Pick from Contacts" or "Add Manually". `ContactPermissionService` checks/requests `CNContactStore` auth before presenting `ContactPickerRepresentable` (UIKit bridge). `ContactMapper.findOrCreate` deduplicates by `contactIdentifier`. Denied/restricted paths show `ContactDeniedView` with a Settings deep-link and manual fallback. `NSContactsUsageDescription` is set via `INFOPLIST_KEY_` build setting (no manual Info.plist).
+
+**Prompt engine** (Phase 4): `PromptEngine.prompts(for:sortedNotes:)` and `refreshedPrompts(for:sortedNotes:excluding:)` drive `PersonView`. Pipeline: `KeywordExtractor` → `PromptCategorizer` (8 categories) → `TemporalLogic` (future/past via phrase + date arithmetic) → `PromptTemplateLibrary` (pool with `{entity}` substitution) → 2 prompts. Second-note fallback if primary is generic. Test target `FreshtieTests` with `PromptEngineTests.swift` (27 tests covering categories, temporal, entity extraction, refresh, quality).
 
 **TODOs for future phases** (left as `// TODO:` comments in code):
 - Phase 4: Replace static `prompts` array with `PromptEngine.prompts(for:)`
