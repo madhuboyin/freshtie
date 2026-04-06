@@ -22,6 +22,8 @@ spec:
         app: freshtie-api
     spec:
       terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: freshtie-api
           image: ghcr.io/madhuboyin/freshtie/freshtie-api:latest

@@ -5,10 +5,21 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 echo "🚀 Validating manifests..."
-kubectl apply -k infra/k8s/overlays/prod --dry-run=client
+kubectl apply \
+  -f infra/k8s/namespace.yaml \
+  -f infra/k8s/configmap.yaml \
+  -f infra/k8s/deployment.yaml \
+  -f infra/k8s/service.yaml \
+  -f infra/k8s/ingress.yaml \
+  --dry-run=client
 
 echo "🚀 Deploying to Production (K3s)..."
-kubectl apply -k infra/k8s/overlays/prod
+kubectl apply \
+  -f infra/k8s/namespace.yaml \
+  -f infra/k8s/configmap.yaml \
+  -f infra/k8s/deployment.yaml \
+  -f infra/k8s/service.yaml \
+  -f infra/k8s/ingress.yaml
 
 echo "⏳ Waiting for rollout..."
 kubectl -n freshtie rollout status deployment/freshtie-api --timeout=60s
