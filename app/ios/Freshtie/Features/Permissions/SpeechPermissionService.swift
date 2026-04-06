@@ -17,15 +17,18 @@ enum SpeechPermissionService {
         status == .authorized
     }
     
+    @MainActor
     static func requestAccess() async -> Bool {
         AnalyticsService.shared.track(.microphone_permission_requested, metadata: [AnalyticsMetadata.sourceType: "speech_recognition"])
         return await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
                 let granted = status == .authorized
-                AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
-                    AnalyticsMetadata.sourceType: "speech_recognition",
-                    AnalyticsMetadata.status: String(granted)
-                ])
+                Task { @MainActor in
+                    AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
+                        AnalyticsMetadata.sourceType: "speech_recognition",
+                        AnalyticsMetadata.status: String(granted)
+                    ])
+                }
                 continuation.resume(returning: granted)
             }
         }

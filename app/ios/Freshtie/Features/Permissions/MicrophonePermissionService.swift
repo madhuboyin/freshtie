@@ -16,14 +16,17 @@ enum MicrophonePermissionService {
         status == .authorized
     }
     
+    @MainActor
     static func requestAccess() async -> Bool {
         AnalyticsService.shared.track(.microphone_permission_requested, metadata: [AnalyticsMetadata.sourceType: "microphone"])
         return await withCheckedContinuation { continuation in
             AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
-                    AnalyticsMetadata.sourceType: "microphone",
-                    AnalyticsMetadata.status: String(granted)
-                ])
+                Task { @MainActor in
+                    AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
+                        AnalyticsMetadata.sourceType: "microphone",
+                        AnalyticsMetadata.status: String(granted)
+                    ])
+                }
                 continuation.resume(returning: granted)
             }
         }
