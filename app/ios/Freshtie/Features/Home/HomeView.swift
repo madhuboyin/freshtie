@@ -1,12 +1,24 @@
 import SwiftUI
 import SwiftData
+import Contacts
 
 /// Entry point of the app. Calm, lightweight, immediate.
 /// Shows a time-aware greeting, a search/pick row, and recent people.
 struct HomeView: View {
 
+    @Environment(\.modelContext) private var modelContext
     @Query private var allPeople: [Person]
+
+    // Sheet state
     @State private var showAddPerson = false
+    @State private var showContactPicker = false
+    @State private var showContactDenied = false
+    @State private var showPickerOptions = false
+
+    // Programmatic navigation after a contact is picked.
+    // Set via onChange after the picker sheet fully dismisses.
+    @State private var navigateToPerson: Person? = nil
+    @State private var pendingPerson: Person? = nil
 
     private var recentPeople: [Person] {
         PersonRepository.sortedForHome(allPeople)
@@ -36,9 +48,41 @@ struct HomeView: View {
             }
             .background(AppColors.background)
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(item: $navigateToPerson) { person in
+                PersonView(person: person)
+            }
+        }
+        // Options: pick from contacts or add manually
+        .confirmationDialog("Add someone", isPresented: $showPickerOptions) {
+            Button("Pick from Contacts") { handlePickFromContacts() }
+            Button("Add Manually") { showAddPerson = true }
+            Button("Cancel", role: .cancel) {}
         }
         .sheet(isPresented: $showAddPerson) {
             AddPersonSheet()
+        }
+        .sheet(isPresented: $showContactPicker) {
+            ContactPickerRepresentable(
+                onSelect: { contact in
+                    pendingPerson = ContactMapper.findOrCreate(contact: contact, in: modelContext)
+                    showContactPicker = false
+                },
+                onCancel: {
+                    showContactPicker = false
+                }
+            )
+            .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showContactDenied) {
+            ContactDeniedView {
+                showAddPerson = true
+            }
+        }
+        // Navigate after the picker sheet finishes dismissing.
+        .onChange(of: showContactPicker) { _, isShowing in
+            guard !isShowing, let person = pendingPerson else { return }
+            pendingPerson = nil
+            navigateToPerson = person
         }
     }
 
@@ -58,8 +102,7 @@ struct HomeView: View {
 
     private var searchSection: some View {
         SearchSelectRow {
-            showAddPerson = true
-            // TODO: Phase 3 — present CNContactPickerViewController alongside manual entry
+            showPickerOptions = true
         }
     }
 
@@ -99,7 +142,7 @@ struct HomeView: View {
                 .foregroundStyle(AppColors.secondaryLabel)
 
             Button {
-                showAddPerson = true
+                showPickerOptions = true
             } label: {
                 Text("Add someone")
                     .font(AppTypography.callout)
@@ -107,6 +150,29 @@ struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Contacts flow
+
+    private func handlePickFromContacts() {
+        Task {
+            switch ContactPermissionService.status {
+            case .authorized:
+                showContactPicker = true
+            case .notDetermined:
+                let granted = await ContactPermissionService.requestAccess()
+                if granted {
+                    showContactPicker = true
+                } else {
+                    showContactDenied = true
+                }
+            case .denied, .restricted:
+                showContactDenied = true
+            @unknown default:
+                // Treat any future limited-access states as accessible.
+                showContactPicker = true
+            }
+        }
     }
 
     // MARK: - Helpers

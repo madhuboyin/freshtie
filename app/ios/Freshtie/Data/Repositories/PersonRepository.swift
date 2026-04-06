@@ -29,9 +29,15 @@ enum PersonRepository {
     @discardableResult
     static func createPerson(
         displayName: String,
+        contactIdentifier: String? = nil,
+        creationSource: PersonCreationSource = .manual,
         in context: ModelContext
     ) -> Person {
-        let person = Person(displayName: displayName.trimmingCharacters(in: .whitespaces))
+        let person = Person(
+            displayName: displayName.trimmingCharacters(in: .whitespaces),
+            contactIdentifier: contactIdentifier,
+            creationSource: creationSource
+        )
         context.insert(person)
         try? context.save()
         return person

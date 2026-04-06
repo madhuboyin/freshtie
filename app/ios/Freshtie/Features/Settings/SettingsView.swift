@@ -1,7 +1,8 @@
 import SwiftUI
+import Contacts
 
-/// Minimal settings shell. Permission rows are placeholders —
-/// real permission logic arrives in Phase 10.
+/// Minimal settings shell. Contacts row reflects live authorization status.
+/// Notifications permission row remains a placeholder until Phase 10.
 struct SettingsView: View {
 
     private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
@@ -15,7 +16,7 @@ struct SettingsView: View {
                         icon: "person.crop.circle",
                         color: .blue,
                         title: "Contacts",
-                        detail: "Not requested"
+                        detail: contactsStatusLabel
                     )
                     settingsRow(
                         icon: "bell",
@@ -36,6 +37,18 @@ struct SettingsView: View {
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Settings")
+        }
+    }
+
+    // MARK: - Contacts status
+
+    private var contactsStatusLabel: String {
+        switch ContactPermissionService.status {
+        case .authorized:           return "Allowed"
+        case .denied:               return "Denied"
+        case .restricted:           return "Restricted"
+        case .notDetermined:        return "Not requested"
+        @unknown default:           return "Limited"
         }
     }
 

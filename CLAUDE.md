@@ -49,7 +49,7 @@ The repo has three active layers:
 
 2. **`infra/k8s`** — Kustomize-based Kubernetes manifests. Structure is `base/` + `overlays/prod/`. Deployed to a Raspberry Pi K3s cluster in the `freshtie` namespace. Single replica. Health/liveness probes hit `/health`. Env vars come from a ConfigMap (`freshtie-config`) and a Secret (`freshtie-secrets`).
 
-3. **`app/ios`** — Native Swift/SwiftUI. Phase 1 shell complete (see below).
+3. **`app/ios`** — Native Swift/SwiftUI. Phase 3 (contacts) complete (see below).
 
 ### iOS architecture
 
@@ -70,7 +70,8 @@ Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 | `Features/Home/` | `HomeView` + `AddPersonSheet` — greeting, search row, recent-people list |
 | `Features/Person/` | `PersonView` — avatar header, context summary, prompt chips, notes section, capture CTA |
 | `Features/Capture/` | `CaptureView` + `CapturePersonPickerView` — mic button, waveform animation, text fallback |
-| `Features/Settings/` | `SettingsView` — placeholder permission + version rows |
+| `Features/Settings/` | `SettingsView` — contacts permission status + version rows |
+| `Features/Contacts/` | `ContactPickerRepresentable`, `ContactPermissionService`, `ContactMapper`, `ContactDeniedView` |
 | `Models/` | `Person` (@Model), `Note` (@Model), `Prompt` (plain struct) |
 | `PreviewSupport/` | `PreviewData` — bare instances for component previews; screens use `.modelContainer(.preview)` |
 
@@ -82,11 +83,12 @@ Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 
 **Design tokens**: `AppColors.accent = Color.indigo`. All spacing from `AppSpacing`, corner radii from `AppRadius`, fixed sizes from `AppSize`.
 
+**Contacts integration** (Phase 3): `SearchSelectRow` → `.confirmationDialog` → "Pick from Contacts" or "Add Manually". `ContactPermissionService` checks/requests `CNContactStore` auth before presenting `ContactPickerRepresentable` (UIKit bridge). `ContactMapper.findOrCreate` deduplicates by `contactIdentifier`. Denied/restricted paths show `ContactDeniedView` with a Settings deep-link and manual fallback. `NSContactsUsageDescription` is set via `INFOPLIST_KEY_` build setting (no manual Info.plist).
+
 **TODOs for future phases** (left as `// TODO:` comments in code):
-- Phase 3: Wire `SearchSelectRow` to `CNContactPickerViewController`
 - Phase 4: Replace static `prompts` array with `PromptEngine.prompts(for:)`
 - Phase 7: Integrate `AVAudioSession` + `SFSpeechRecognizer` in `CaptureView`
-- Phase 10: Real permission checks in `SettingsView`
+- Phase 10: Full notification permission checks in `SettingsView`
 
 **Planned (not yet built)**: `PromptCache` model, `PromptEngine`, Share Extension.
 

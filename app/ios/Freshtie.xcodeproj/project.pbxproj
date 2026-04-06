@@ -31,6 +31,10 @@
 		CAFEBABECAFEBABE0000004B /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000045 /* SeedData.swift */; };
 		CAFEBABECAFEBABE0000004C /* AddPersonSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */; };
 		CAFEBABECAFEBABE0000004D /* CapturePersonPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */; };
+		CAFEBABECAFEBABE00000053 /* ContactPickerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000004F /* ContactPickerRepresentable.swift */; };
+		CAFEBABECAFEBABE00000054 /* ContactPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000050 /* ContactPermissionService.swift */; };
+		CAFEBABECAFEBABE00000055 /* ContactMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000051 /* ContactMapper.swift */; };
+		CAFEBABECAFEBABE00000056 /* ContactDeniedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000052 /* ContactDeniedView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +63,10 @@
 		CAFEBABECAFEBABE00000045 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonSheet.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePersonPickerView.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000004F /* ContactPickerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPickerRepresentable.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000050 /* ContactPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPermissionService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000051 /* ContactMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactMapper.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000052 /* ContactDeniedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDeniedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +149,7 @@
 				CAFEBABECAFEBABE00000008 /* Person */,
 				CAFEBABECAFEBABE00000009 /* Capture */,
 				CAFEBABECAFEBABE0000000A /* Settings */,
+				CAFEBABECAFEBABE0000004E /* Contacts */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -195,6 +204,17 @@
 				CAFEBABECAFEBABE0000001D /* PreviewData.swift */,
 			);
 			path = PreviewSupport;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE0000004E /* Contacts */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE0000004F /* ContactPickerRepresentable.swift */,
+				CAFEBABECAFEBABE00000050 /* ContactPermissionService.swift */,
+				CAFEBABECAFEBABE00000051 /* ContactMapper.swift */,
+				CAFEBABECAFEBABE00000052 /* ContactDeniedView.swift */,
+			);
+			path = Contacts;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE0000003E /* Data */ = {
@@ -323,6 +343,10 @@
 				CAFEBABECAFEBABE0000004B /* SeedData.swift in Sources */,
 				CAFEBABECAFEBABE0000004C /* AddPersonSheet.swift in Sources */,
 				CAFEBABECAFEBABE0000004D /* CapturePersonPickerView.swift in Sources */,
+				CAFEBABECAFEBABE00000053 /* ContactPickerRepresentable.swift in Sources */,
+				CAFEBABECAFEBABE00000054 /* ContactPermissionService.swift in Sources */,
+				CAFEBABECAFEBABE00000055 /* ContactMapper.swift in Sources */,
+				CAFEBABECAFEBABE00000056 /* ContactDeniedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +477,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Freshtie uses Contacts so you can quickly add the people you talk to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -479,6 +504,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Freshtie uses Contacts so you can quickly add the people you talk to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
