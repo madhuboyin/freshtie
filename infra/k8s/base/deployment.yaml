@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshtie-api
+  namespace: freshtie
+  labels:
+    app: freshtie-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freshtie-api
+  template:
+    metadata:
+      labels:
+        app: freshtie-api
+    spec:
+      containers:
+        - name: freshtie-api
+          image: your-registry/freshtie-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: freshtie-config
+            - secretRef:
+                name: freshtie-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20

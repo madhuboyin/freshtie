@@ -1,0 +1,14 @@
+{
+    "name": "freshtie-backend",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Tiny Freshtie backend service",
+    "main": "src/server.js",
+    "scripts": {
+        "start": "node src/server.js",
+        "dev": "node --watch src/server.js"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}

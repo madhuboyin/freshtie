@@ -1,0 +1,5 @@
+namespace: freshtie
+resources:
+  - ../../base
+patches:
+  - path: patch-prod.yaml

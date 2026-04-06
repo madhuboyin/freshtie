@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: freshtie-api
+  namespace: freshtie
+  labels:
+    app: freshtie-api
+spec:
+  rules:
+    - host: freshtie.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: freshtie-api
+                port:
+                  number: 80
