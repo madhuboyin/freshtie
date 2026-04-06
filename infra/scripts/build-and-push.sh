@@ -16,7 +16,7 @@ echo "🚀 Building and pushing Docker image: ${FULL_IMAGE_NAME}"
 # Ensure we have a dedicated builder for multi-platform support (docker-container driver)
 BUILDER_NAME="freshtie-builder"
 
-if ! docker buildx ls | grep -q "^${BUILDER_NAME} "; then
+if ! docker buildx inspect "${BUILDER_NAME}" >/dev/null 2>&1; then
   echo "🔧 Creating new buildx builder '${BUILDER_NAME}' for multi-architecture support..."
   docker buildx create --name "${BUILDER_NAME}" --driver docker-container --use
   docker buildx inspect --bootstrap
