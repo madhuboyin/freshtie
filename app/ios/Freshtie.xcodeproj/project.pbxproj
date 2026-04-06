@@ -69,6 +69,14 @@
 		CAFEBABECAFEBABE000000C6 /* SpeechPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */; };
 		CAFEBABECAFEBABE000000C7 /* ContactTriggerEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */; };
 		CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */; };
+		CAFEBABECAFE1005 /* ShareViewController.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
+		CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
+		CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
+		CAFEBABECAFE1008 /* SharedContactExtractor.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
+		CAFEBABECAFE1009 /* AppColors.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000000F /* AppColors.swift */; };
+		CAFEBABECAFE100A /* AppSpacing.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000011 /* AppSpacing.swift */; };
+		CAFEBABECAFE100B /* AppTypography.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000010 /* AppTypography.swift */; };
+		CAFEBABECAFE100C /* FreshtieShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFE1001 /* FreshtieShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -136,6 +144,10 @@
 		CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPermissionService.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTriggerEvaluator.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationSupport.swift; sourceTree = "<group>"; };
+		CAFEBABECAFE1001 /* FreshtieShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FreshtieShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAFEBABECAFE1002 /* FreshtieShare-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FreshtieShare/Info.plist"; sourceTree = "<group>"; };
+		CAFEBABECAFE1003 /* Freshtie.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Freshtie/Freshtie.entitlements"; sourceTree = "<group>"; };
+		CAFEBABECAFE1004 /* FreshtieShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "FreshtieShare/FreshtieShare.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -147,6 +159,22 @@
 			remoteInfo = Freshtie;
 		};
 /* End PBXContainerItemProxy section */
+/* Begin PBXContainerItemProxy section (FreshtieShare) */
+		CAFEBABECAFE1015 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAFEBABECAFEBABE0000003C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CAFEBABECAFE1014;
+			remoteInfo = FreshtieShare;
+		};
+/* End PBXContainerItemProxy section (FreshtieShare) */
+/* Begin PBXTargetDependency section (FreshtieShare) */
+		CAFEBABECAFE1016 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CAFEBABECAFE1014 /* FreshtieShare */;
+			targetProxy = CAFEBABECAFE1015 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section (FreshtieShare) */
 
 /* Begin PBXTargetDependency section */
 		CAFEBABECAFEBABE0000006E /* PBXTargetDependency */ = {
@@ -173,6 +201,7 @@
 				CAFEBABECAFEBABE00000001 /* Freshtie */,
 				CAFEBABECAFEBABE00000064 /* FreshtieTests */,
 				CAFEBABECAFEBABE00000002 /* Products */,
+				CAFEBABECAFE1017 /* FreshtieShare */,
 			);
 			sourceTree = "<group>";
 		};
@@ -186,6 +215,7 @@
 				CAFEBABECAFEBABE0000000B /* Models */,
 				CAFEBABECAFEBABE0000000C /* PreviewSupport */,
 				CAFEBABECAFEBABE0000001E /* Assets.xcassets */,
+				CAFEBABECAFE1003 /* Freshtie.entitlements */,
 			);
 			path = Freshtie;
 			sourceTree = "<group>";
@@ -195,6 +225,7 @@
 			children = (
 				CAFEBABECAFEBABE0000001F /* Freshtie.app */,
 				CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */,
+				CAFEBABECAFE1001 /* FreshtieShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -445,6 +476,15 @@
 			path = Validation;
 			sourceTree = "<group>";
 		};
+		CAFEBABECAFE1017 /* FreshtieShare */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFE1002 /* Info.plist */,
+				CAFEBABECAFE1004 /* FreshtieShare.entitlements */,
+			);
+			path = FreshtieShare;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -455,10 +495,12 @@
 				CAFEBABECAFEBABE00000032 /* Sources */,
 				CAFEBABECAFEBABE00000033 /* Frameworks */,
 				CAFEBABECAFEBABE00000034 /* Resources */,
+				CAFEBABECAFE1010 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CAFEBABECAFE1016 /* PBXTargetDependency */,
 			);
 			name = Freshtie;
 			productName = Freshtie;
@@ -482,6 +524,25 @@
 			productReference = CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+
+		CAFEBABECAFE1014 /* FreshtieShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAFEBABECAFE1013 /* Build configuration list for PBXNativeTarget "FreshtieShare" */;
+			buildPhases = (
+				CAFEBABECAFE100D /* Sources */,
+				CAFEBABECAFE100E /* Frameworks */,
+				CAFEBABECAFE100F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FreshtieShare;
+			productName = FreshtieShare;
+			productReference = CAFEBABECAFE1001 /* FreshtieShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -498,6 +559,9 @@
 					CAFEBABECAFEBABE00000069 = {
 						CreatedOnToolsVersion = 15.0;
 						TestTargetID = CAFEBABECAFEBABE0000003B;
+					};
+					CAFEBABECAFE1014 = {
+						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
@@ -516,6 +580,7 @@
 			targets = (
 				CAFEBABECAFEBABE0000003B /* Freshtie */,
 				CAFEBABECAFEBABE00000069 /* FreshtieTests */,
+				CAFEBABECAFE1014 /* FreshtieShare */,
 			);
 		};
 /* End PBXProject section */
@@ -614,6 +679,53 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+/* Begin PBXSourcesBuildPhase section (FreshtieShare) */
+		CAFEBABECAFE100D /* Sources (FreshtieShare) */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAFEBABECAFE1005 /* ShareViewController.swift in Sources */,
+				CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources */,
+				CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources */,
+				CAFEBABECAFE1008 /* SharedContactExtractor.swift in Sources */,
+				CAFEBABECAFE1009 /* AppColors.swift in Sources */,
+				CAFEBABECAFE100A /* AppSpacing.swift in Sources */,
+				CAFEBABECAFE100B /* AppTypography.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section (FreshtieShare) */
+/* Begin PBXFrameworksBuildPhase section (FreshtieShare) */
+		CAFEBABECAFE100E /* Frameworks (FreshtieShare) */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section (FreshtieShare) */
+/* Begin PBXResourcesBuildPhase section (FreshtieShare) */
+		CAFEBABECAFE100F /* Resources (FreshtieShare) */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section (FreshtieShare) */
+/* Begin PBXCopyFilesBuildPhase section */
+		CAFEBABECAFE1010 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CAFEBABECAFE100C /* FreshtieShare.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		CAFEBABECAFEBABE00000035 /* Debug */ = {
@@ -736,6 +848,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Freshtie/Freshtie.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -765,6 +878,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Freshtie/Freshtie.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -823,6 +937,53 @@
 			};
 			name = Release;
 		};
+
+		CAFEBABECAFE1011 /* Debug (FreshtieShare) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_ENTITLEMENTS = "FreshtieShare/FreshtieShare.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "FreshtieShare/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freshtie.app.shareextension";
+				PRODUCT_NAME = FreshtieShare;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CAFEBABECAFE1012 /* Release (FreshtieShare) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_ENTITLEMENTS = "FreshtieShare/FreshtieShare.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "FreshtieShare/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freshtie.app.shareextension";
+				PRODUCT_NAME = FreshtieShare;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -849,6 +1010,16 @@
 			buildConfigurations = (
 				CAFEBABECAFEBABE0000006A /* Debug */,
 				CAFEBABECAFEBABE0000006B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+
+		CAFEBABECAFE1013 /* Build configuration list for PBXNativeTarget "FreshtieShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAFEBABECAFE1011 /* Debug */,
+				CAFEBABECAFE1012 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

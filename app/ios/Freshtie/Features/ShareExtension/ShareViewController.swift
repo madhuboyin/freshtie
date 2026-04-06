@@ -1,58 +1,62 @@
 import UIKit
-import Social
 import SwiftUI
 
+/// Share Extension principal class.
+///
+/// Lifecycle:
+///   1. viewDidLoad — async-extract contact from NSExtensionItem vCard payload
+///   2. presentUI   — host ShareExtensionRootView in a UIHostingController
+///   3. saveAndClose — write SharedPersonPayload to App Group, complete request
+///   4. cancel       — cancel request, no side-effects
+///
+/// Design constraint: this class runs inside the extension sandbox.
+/// It MUST NOT import or reference any main-app-only types (SwiftData models,
+/// AnalyticsService, etc.). All dependencies are sourced from shared files
+/// that belong to both targets.
 @objc(ShareViewController)
-class ShareViewController: UIViewController {
+final class ShareViewController: UIViewController {
 
     private var extractionResult: SharedContactExtractor.ExtractionResult?
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Show a loading view or nothing until extraction completes
-        view.backgroundColor = .clear
-        
+        view.backgroundColor = UIColor.systemBackground
+
         Task {
-            if let result = await SharedContactExtractor.extract(from: extensionContext?.inputItems as? [NSExtensionItem] ?? []) {
-                self.extractionResult = result
-                await MainActor.run {
-                    showRootView(displayName: result.displayName)
-                }
-            } else {
-                // If extraction fails, we still show the UI but with a generic title or close
-                await MainActor.run {
-                    showRootView(displayName: "Contact")
-                }
+            let items = extensionContext?.inputItems as? [NSExtensionItem] ?? []
+            let result = await SharedContactExtractor.extract(from: items)
+            self.extractionResult = result
+            await MainActor.run {
+                presentUI(displayName: result?.displayName ?? "Contact")
             }
         }
     }
 
-    private func showRootView(displayName: String) {
+    // MARK: - UI
+
+    private func presentUI(displayName: String) {
         let rootView = ShareExtensionRootView(
             displayName: displayName,
-            onSave: { [weak self] note in
-                self?.saveAndClose(noteText: note)
-            },
-            onCancel: { [weak self] in
-                self?.cancel()
-            }
+            onSave: { [weak self] note in self?.saveAndClose(noteText: note) },
+            onCancel: { [weak self] in self?.cancel() }
         )
-        
-        let hostingController = UIHostingController(rootView: rootView)
-        addChild(hostingController)
-        view.addSubview(hostingController.view)
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        let host = UIHostingController(rootView: rootView)
+        addChild(host)
+        view.addSubview(host.view)
+        host.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            host.view.topAnchor.constraint(equalTo: view.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
-        
-        hostingController.didMove(toParent: self)
+        host.didMove(toParent: self)
     }
+
+    // MARK: - Actions
 
     private func saveAndClose(noteText: String) {
         let payload = SharedPersonPayload(
@@ -60,16 +64,13 @@ class ShareViewController: UIViewController {
             contactIdentifier: extractionResult?.contactIdentifier,
             noteText: noteText.isEmpty ? nil : noteText
         )
-        
-        AnalyticsService.shared.track(.share_extension_used, metadata: [
-            AnalyticsMetadata.personID: extractionResult?.contactIdentifier ?? "unknown"
-        ])
-        
         ShareExtensionStore.savePayload(payload)
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
 
     private func cancel() {
-        extensionContext?.cancelRequest(withError: NSError(domain: "UserCancelled", code: 0))
+        extensionContext?.cancelRequest(
+            withError: NSError(domain: "com.freshtie.share", code: 0, userInfo: nil)
+        )
     }
 }
