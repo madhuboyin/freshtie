@@ -66,6 +66,11 @@ final class CaptureViewModel {
     }
 
     private func requestAndStart() async {
+        if MicrophonePermissionService.status.isDenied || SpeechPermissionService.status.isDenied {
+            captureState = .permissionDenied
+            return
+        }
+        
         let granted = await SpeechService.requestPermissions()
         guard granted else {
             captureState = .permissionDenied

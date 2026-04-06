@@ -29,14 +29,11 @@ final class SpeechService {
     /// Requests speech recognition + microphone authorization.
     /// Returns `true` only when both are granted.
     static func requestPermissions() async -> Bool {
-        let speechStatus: SFSpeechRecognizerAuthorizationStatus = await withCheckedContinuation { cont in
-            SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
-        }
-        guard speechStatus == .authorized else { return false }
+        let speechGranted = await SpeechPermissionService.requestAccess()
+        guard speechGranted else { return false }
 
-        return await withCheckedContinuation { cont in
-            AVAudioSession.sharedInstance().requestRecordPermission { cont.resume(returning: $0) }
-        }
+        let micGranted = await MicrophonePermissionService.requestAccess()
+        return micGranted
     }
 
     // MARK: - Lifecycle
