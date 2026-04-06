@@ -69,6 +69,8 @@
 		CAFEBABECAFEBABE000000C6 /* SpeechPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */; };
 		CAFEBABECAFEBABE000000C7 /* ContactTriggerEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */; };
 		CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */; };
+		CAFEBABECAFEBABE000000CE /* PermissionStatusRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000CD /* PermissionStatusRow.swift */; };
+		CAFEBABECAFEBABE000000D0 /* OpenSettingsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000CF /* OpenSettingsButton.swift */; };
 		CAFEBABECAFE1005 /* ShareViewController.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
 		CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources (FreshtieShare) */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
@@ -144,6 +146,8 @@
 		CAFEBABECAFEBABE000000BD /* SpeechPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPermissionService.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000BE /* ContactTriggerEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTriggerEvaluator.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000BF /* ValidationSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationSupport.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000CD /* PermissionStatusRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionStatusRow.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000CF /* OpenSettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSettingsButton.swift; sourceTree = "<group>"; };
 		CAFEBABECAFE1001 /* FreshtieShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FreshtieShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFE1002 /* FreshtieShare-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FreshtieShare/Info.plist"; sourceTree = "<group>"; };
 		CAFEBABECAFE1003 /* Freshtie.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Freshtie/Freshtie.entitlements"; sourceTree = "<group>"; };
@@ -349,6 +353,8 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE0000001A /* SettingsView.swift */,
+				CAFEBABECAFEBABE000000CD /* PermissionStatusRow.swift */,
+				CAFEBABECAFEBABE000000CF /* OpenSettingsButton.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -660,6 +666,8 @@
 				CAFEBABECAFEBABE000000C6 /* SpeechPermissionService.swift in Sources */,
 				CAFEBABECAFEBABE000000C7 /* ContactTriggerEvaluator.swift in Sources */,
 				CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */,
+				CAFEBABECAFEBABE000000CE /* PermissionStatusRow.swift in Sources */,
+				CAFEBABECAFEBABE000000D0 /* OpenSettingsButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

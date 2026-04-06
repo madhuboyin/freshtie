@@ -1,16 +1,16 @@
 import SwiftUI
 import Contacts
 
-/// Minimal settings shell. Reflects live authorization status for core features.
-/// Allows recovery via System Settings when permissions are denied.
+/// Minimal settings screen. Reflects live permission status and offers
+/// recovery paths via system Settings when permissions are denied.
 struct SettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var showValidationMenu = false
-    
+
     @State private var contactStatus = ContactPermissionService.status
-    @State private var micStatus = MicrophonePermissionService.status
-    @State private var speechStatus = SpeechPermissionService.status
+    @State private var micStatus     = MicrophonePermissionService.status
+    @State private var speechStatus  = SpeechPermissionService.status
 
     private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     private let build   = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
@@ -18,29 +18,32 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header: Text("Access"), footer: Text("Permissions are only requested when you use a feature that needs them.")) {
-                    settingsRow(
+                // ── Access ───────────────────────────────────────────────────
+                Section(
+                    header: Text("Access"),
+                    footer: Text("Permissions are only requested when you use a feature that needs them.")
+                ) {
+                    PermissionStatusRow(
                         icon: "person.crop.circle",
-                        color: .blue,
+                        iconColor: .blue,
                         title: "Contacts",
                         status: contactStatus
                     )
-                    
-                    settingsRow(
+                    PermissionStatusRow(
                         icon: "mic.fill",
-                        color: .orange,
+                        iconColor: .orange,
                         title: "Microphone",
                         status: micStatus
                     )
-                    
-                    settingsRow(
+                    PermissionStatusRow(
                         icon: "waveform",
-                        color: .purple,
+                        iconColor: .purple,
                         title: "Speech Recognition",
                         status: speechStatus
                     )
                 }
 
+                // ── Tips ─────────────────────────────────────────────────────
                 Section("Tips") {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                         Text("Share from Contacts")
@@ -52,6 +55,7 @@ struct SettingsView: View {
                     .padding(.vertical, AppSpacing.xxs)
                 }
 
+                // ── Privacy ──────────────────────────────────────────────────
                 Section("Privacy") {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                         Text("Your data stays on your device.")
@@ -63,6 +67,7 @@ struct SettingsView: View {
                     .padding(.vertical, AppSpacing.xxs)
                 }
 
+                // ── About ────────────────────────────────────────────────────
                 Section("About") {
                     HStack {
                         Label {
@@ -88,6 +93,8 @@ struct SettingsView: View {
             .sheet(isPresented: $showValidationMenu) {
                 validationMenu
             }
+            // Refresh permission labels whenever this screen appears or the
+            // user returns from the system Settings app.
             .onAppear(perform: refreshStatuses)
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                 refreshStatuses()
@@ -99,17 +106,11 @@ struct SettingsView: View {
 
     private func refreshStatuses() {
         contactStatus = ContactPermissionService.status
-        micStatus = MicrophonePermissionService.status
-        speechStatus = SpeechPermissionService.status
+        micStatus     = MicrophonePermissionService.status
+        speechStatus  = SpeechPermissionService.status
     }
 
-    private func openSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    // MARK: - Validation Menu
+    // MARK: - Validation menu (tester only, long-press on version row)
 
     private var validationMenu: some View {
         NavigationStack {
@@ -119,13 +120,12 @@ struct SettingsView: View {
                         ValidationSupport.shared.resetEverything(modelContext: modelContext)
                         showValidationMenu = false
                     }
-                    
                     Button("Seed Rich Scenario") {
                         ValidationSupport.shared.seedRichScenario(modelContext: modelContext)
                         showValidationMenu = false
                     }
                 }
-                
+
                 Section(header: Text("Recent Events"), footer: Text("Inspect local behavior for validation.")) {
                     ForEach(AnalyticsEventStore.shared.fetchRecent(limit: 10)) { event in
                         VStack(alignment: .leading, spacing: 4) {
@@ -144,40 +144,6 @@ struct SettingsView: View {
                 Button("Done") { showValidationMenu = false }
             }
         }
-    }
-
-    // MARK: - Row builder
-
-    private func settingsRow(icon: String, color: Color, title: String, status: PermissionState) -> some View {
-        Button {
-            if status.isDenied { openSettings() }
-        } label: {
-            HStack(spacing: AppSpacing.md) {
-                Image(systemName: icon)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white)
-                    .frame(width: 28, height: 28)
-                    .background(color)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-
-                Text(title)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.label)
-
-                Spacer()
-
-                Text(status.label)
-                    .font(AppTypography.subheadline)
-                    .foregroundStyle(status.isDenied ? AppColors.accent : AppColors.tertiaryLabel)
-                
-                if status.isDenied {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(AppColors.tertiaryLabel)
-                }
-            }
-        }
-        .buttonStyle(.plain)
     }
 }
 

@@ -86,8 +86,10 @@ struct CaptureView: View {
     @ViewBuilder
     private var centreContent: some View {
         switch viewModel.captureState {
-        case .idle, .permissionDenied:
+        case .idle:
             idleView
+        case .permissionDenied:
+            permissionDeniedView
         case .listening:
             listeningView
         case .saved:
@@ -112,6 +114,34 @@ struct CaptureView: View {
             MicrophoneButton(isListening: false) {
                 Task { await viewModel.tapMic() }
             }
+        }
+    }
+
+    /// Shown when microphone or speech recognition permission has been denied.
+    ///
+    /// Voice is clearly unavailable — mic button is hidden, text input is primary.
+    /// "Turn on in Settings" gives a direct recovery path without re-prompting.
+    private var permissionDeniedView: some View {
+        VStack(spacing: AppSpacing.lg) {
+            Image(systemName: "mic.slash")
+                .font(.system(size: 44))
+                .foregroundStyle(AppColors.tertiaryLabel)
+
+            VStack(spacing: AppSpacing.xs) {
+                Text("Voice capture unavailable")
+                    .font(AppTypography.title3)
+                    .foregroundStyle(AppColors.label)
+                Text("Type something below instead.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.secondaryLabel)
+            }
+            .multilineTextAlignment(.center)
+
+            Button("Turn on in Settings") {
+                OpenSettingsButton.open()
+            }
+            .font(AppTypography.callout)
+            .foregroundStyle(AppColors.accent)
         }
     }
 
