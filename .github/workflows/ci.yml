@@ -23,8 +23,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Start smoke test
-        run: |
-          node src/server.js &
-          sleep 2
-          curl --fail http://127.0.0.1:3000/health
+      - name: Run tests
+        run: npm test

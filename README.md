@@ -8,7 +8,10 @@ Freshtie is a conversation continuity assistant that helps users know what to sa
 - `app/backend` — backend service(s)
 - `infra/k8s` — Kubernetes manifests
 - `docs` — FRD, architecture, and decisions
-- `ops` — deployment and troubleshooting runbooks
+## Operations
+
+- [Deployment & Rollback Runbook](ops/runbooks/deployment.md)
+- [Backend Documentation](app/backend/README.md)
 
 ## Environment
 
