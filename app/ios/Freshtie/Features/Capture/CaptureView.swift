@@ -1,18 +1,21 @@
 import SwiftUI
+import SwiftData
 
-/// Ultra-light capture screen. Phase 7 will integrate AVAudioSession + SFSpeechRecognizer.
+/// Focused capture screen. Always receives a Person to attach the note to.
 ///
-/// Supports two presentation contexts:
-///   • Tab  (`isSheet = false`) — no Cancel button; resets to idle after save.
-///   • Sheet (`isSheet = true`) — Cancel button in nav bar; dismisses after save.
+/// Presentation contexts:
+///   Tab  (`isSheet = false`) — pushed by CapturePersonPickerView; back button to exit.
+///   Sheet (`isSheet = true`) — presented from PersonView; Cancel button to dismiss.
+///
+/// Phase 7 will add AVAudioSession + SFSpeechRecognizer for real voice transcription.
 struct CaptureView: View {
+    let person: Person
     var isSheet: Bool = false
 
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var state: CaptureState = .idle
     @State private var inputText = ""
-
-    // MARK: - State machine
 
     enum CaptureState: Equatable { case idle, listening, saved }
 
@@ -28,9 +31,13 @@ struct CaptureView: View {
                                 .foregroundStyle(AppColors.secondaryLabel)
                         }
                     }
+                    .navigationTitle(person.displayName)
+                    .navigationBarTitleDisplayMode(.inline)
             }
         } else {
             mainContent
+                .navigationTitle(person.displayName)
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
 
@@ -121,11 +128,9 @@ struct CaptureView: View {
                 Circle()
                     .fill(AppColors.accent.opacity(0.10))
                     .frame(width: 80, height: 80)
-
                 Circle()
                     .fill(AppColors.accent)
                     .frame(width: 64, height: 64)
-
                 Image(systemName: "mic.fill")
                     .font(.system(size: 26))
                     .foregroundStyle(.white)
@@ -152,7 +157,7 @@ struct CaptureView: View {
                 .background(AppColors.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
                 .submitLabel(.done)
-                .onSubmit { if !inputText.isEmpty { handleSave() } }
+                .onSubmit { if !trimmedText.isEmpty { handleSave() } }
 
             if !inputText.isEmpty {
                 Button(action: handleSave) {
@@ -180,10 +185,26 @@ struct CaptureView: View {
 
     // MARK: - Actions
 
+    private var trimmedText: String {
+        inputText.trimmingCharacters(in: .whitespaces)
+    }
+
     private func handleSave() {
+        // Only persist if there is actual text. Voice transcription is Phase 7.
+        if !trimmedText.isEmpty {
+            let sourceType: NoteSourceType = state == .listening ? .manualVoice : .manualText
+            PersonRepository.addNote(
+                rawText: trimmedText,
+                sourceType: sourceType,
+                to: person,
+                in: modelContext
+            )
+        }
+
         withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             state = .saved
         }
+
         if isSheet {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { dismiss() }
         } else {
@@ -196,8 +217,8 @@ struct CaptureView: View {
 
 // MARK: - Waveform animation
 
-/// Animated bar waveform that simulates active listening.
-/// Phase 7 will drive bar heights from live audio levels.
+/// Animated bar waveform simulating active listening.
+/// Phase 7 will drive bar heights from live AVAudio levels.
 private struct WaveformView: View {
     @State private var isAnimating = false
 
@@ -228,10 +249,24 @@ private struct WaveformView: View {
 
 // MARK: - Previews
 
-#Preview("Idle — Sheet") {
-    CaptureView(isSheet: true)
+#Preview("Sheet") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Person.self, Note.self, configurations: config)
+    let person = Person(displayName: "Sarah Chen")
+    container.mainContext.insert(person)
+
+    return CaptureView(person: person, isSheet: true)
+        .modelContainer(container)
 }
 
-#Preview("Idle — Tab") {
-    CaptureView()
+#Preview("Inline (tab push)") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Person.self, Note.self, configurations: config)
+    let person = Person(displayName: "Sarah Chen")
+    container.mainContext.insert(person)
+
+    return NavigationStack {
+        CaptureView(person: person, isSheet: false)
+    }
+    .modelContainer(container)
 }

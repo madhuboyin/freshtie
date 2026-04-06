@@ -41,13 +41,15 @@ struct PersonRow: View {
 // MARK: - Preview
 
 #Preview {
+    // Bare Person instances — no notes, so lastContext/lastInteractionLabel are nil.
+    // Use .modelContainer(.preview) in screen-level previews to see rich state.
     VStack(spacing: 0) {
-        PersonRow(person: PreviewData.populatedPerson)
+        PersonRow(person: Person(displayName: "Sarah Chen"))
         Divider()
             .padding(.leading, AppSpacing.md + AppSize.avatarMD + AppSpacing.md)
         PersonRow(person: PreviewData.emptyPerson)
         Divider()
             .padding(.leading, AppSpacing.md + AppSize.avatarMD + AppSpacing.md)
-        PersonRow(person: PreviewData.recentPeople[2])
+        PersonRow(person: Person(displayName: "Jamie Torres"))
     }
 }

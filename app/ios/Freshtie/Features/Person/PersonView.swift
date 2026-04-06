@@ -1,24 +1,28 @@
 import SwiftUI
+import SwiftData
 
 /// Core product screen — shows who you're talking to and what to say.
 ///
-/// Two display states:
-///   • Empty  — no notes; generic prompts only.
-///   • Populated — context summary + contextual prompts.
+/// Display states:
+///   No notes  — generic prompts only, no context section.
+///   Has notes — most recent note shown as "Last time" context;
+///               additional notes shown in a Notes section.
 ///
-/// Phase 4 will replace static `prompts` with PromptEngine output.
-/// Phase 2 will wire context from NoteStore.
+/// Phase 4 will replace the static `prompts` array with PromptEngine output.
 struct PersonView: View {
     let person: Person
 
+    @Environment(\.modelContext) private var modelContext
     @State private var showCapture = false
 
-    // TODO: Phase 4 — replace with PromptEngine.prompts(for: person)
-    private let prompts: [Prompt]
+    // Notes sorted newest first, derived from the @Observable person.
+    private var sortedNotes: [Note] {
+        person.notes.sorted { $0.createdAt > $1.createdAt }
+    }
 
-    init(person: Person) {
-        self.person = person
-        self.prompts = person.lastContext != nil
+    // TODO: Phase 4 — replace with PromptEngine.prompts(for: person)
+    private var prompts: [Prompt] {
+        person.lastContext != nil
             ? PreviewData.contextualPrompts
             : PreviewData.genericPrompts
     }
@@ -30,7 +34,7 @@ struct PersonView: View {
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.md)
 
-                if person.lastContext != nil {
+                if !sortedNotes.isEmpty {
                     contextSection
                         .padding(.horizontal, AppSpacing.md)
                         .padding(.top, AppSpacing.lg)
@@ -38,6 +42,11 @@ struct PersonView: View {
 
                 promptsSection
                     .padding(.top, AppSpacing.xl)
+
+                if sortedNotes.count > 1 {
+                    notesSection
+                        .padding(.top, AppSpacing.xl)
+                }
 
                 captureSection
                     .padding(.horizontal, AppSpacing.md)
@@ -48,8 +57,11 @@ struct PersonView: View {
         .background(AppColors.background)
         .navigationTitle(person.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            PersonRepository.markOpened(person, in: modelContext)
+        }
         .sheet(isPresented: $showCapture) {
-            CaptureView(isSheet: true)
+            CaptureView(person: person, isSheet: true)
         }
     }
 
@@ -75,13 +87,14 @@ struct PersonView: View {
         }
     }
 
+    /// Shows the most recent note as "Last time" context.
     @ViewBuilder
     private var contextSection: some View {
-        if let context = person.lastContext {
+        if let contextText = person.lastContext {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 SectionHeader("Last time")
 
-                Text(context)
+                Text(contextText)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.secondaryLabel)
                     .padding(AppSpacing.md)
@@ -100,6 +113,21 @@ struct PersonView: View {
             VStack(spacing: AppSpacing.sm) {
                 ForEach(prompts) { prompt in
                     PromptChip(text: prompt.text)
+                }
+            }
+            .padding(.horizontal, AppSpacing.md)
+        }
+    }
+
+    /// Shows notes beyond the first one already surfaced in contextSection.
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            SectionHeader("Notes")
+                .padding(.horizontal, AppSpacing.md)
+
+            VStack(spacing: AppSpacing.sm) {
+                ForEach(Array(sortedNotes.dropFirst())) { note in
+                    NoteCard(note: note)
                 }
             }
             .padding(.horizontal, AppSpacing.md)
@@ -126,16 +154,53 @@ struct PersonView: View {
     }
 }
 
-// MARK: - Previews
+// MARK: - NoteCard
 
-#Preview("With Context") {
-    NavigationStack {
-        PersonView(person: PreviewData.populatedPerson)
+private struct NoteCard: View {
+    let note: Note
+
+    var body: some View {
+        Text(note.rawText)
+            .font(AppTypography.subheadline)
+            .foregroundStyle(AppColors.secondaryLabel)
+            .padding(AppSpacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(AppColors.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.sm))
     }
 }
 
-#Preview("No Context") {
-    NavigationStack {
-        PersonView(person: PreviewData.emptyPerson)
-    }
+// MARK: - Previews
+
+#Preview("With Notes") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Person.self, Note.self, configurations: config)
+    let ctx = container.mainContext
+
+    let sarah = Person(displayName: "Sarah Chen")
+    sarah.lastOpenedAt = Calendar.current.date(byAdding: .day, value: -14, to: Date())
+    ctx.insert(sarah)
+
+    let n1 = Note(rawText: "Starting new job at Google next Monday")
+    n1.person = sarah
+    ctx.insert(n1)
+
+    let n2 = Note(rawText: "Excited but nervous about the team")
+    n2.person = sarah
+    ctx.insert(n2)
+
+    try! ctx.save()
+
+    return NavigationStack { PersonView(person: sarah) }
+        .modelContainer(container)
+}
+
+#Preview("No Notes") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Person.self, Note.self, configurations: config)
+    let person = Person(displayName: "Riley Morgan")
+    container.mainContext.insert(person)
+
+    return NavigationStack { PersonView(person: person) }
+        .modelContainer(container)
 }

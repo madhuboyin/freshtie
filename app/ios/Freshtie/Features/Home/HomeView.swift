@@ -1,13 +1,16 @@
 import SwiftUI
+import SwiftData
 
 /// Entry point of the app. Calm, lightweight, immediate.
 /// Shows a time-aware greeting, a search/pick row, and recent people.
-///
-/// Phase 3 will replace `recentPeople` with a live PersonStore query.
 struct HomeView: View {
 
-    // TODO: Phase 2 — inject PersonStore; replace with @Query or @ObservedObject
-    private let recentPeople = PreviewData.recentPeople
+    @Query private var allPeople: [Person]
+    @State private var showAddPerson = false
+
+    private var recentPeople: [Person] {
+        PersonRepository.sortedForHome(allPeople)
+    }
 
     var body: some View {
         NavigationStack {
@@ -24,12 +27,18 @@ struct HomeView: View {
                     if !recentPeople.isEmpty {
                         recentSection
                             .padding(.top, AppSpacing.xl)
+                    } else {
+                        emptyState
+                            .padding(.top, AppSpacing.xxl)
                     }
                 }
                 .padding(.bottom, AppSpacing.xxl)
             }
             .background(AppColors.background)
             .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: $showAddPerson) {
+            AddPersonSheet()
         }
     }
 
@@ -49,7 +58,8 @@ struct HomeView: View {
 
     private var searchSection: some View {
         SearchSelectRow {
-            // TODO: Phase 3 — present CNContactPickerViewController
+            showAddPerson = true
+            // TODO: Phase 3 — present CNContactPickerViewController alongside manual entry
         }
     }
 
@@ -78,6 +88,27 @@ struct HomeView: View {
         }
     }
 
+    private var emptyState: some View {
+        VStack(spacing: AppSpacing.md) {
+            Image(systemName: "person.2")
+                .font(.system(size: 40))
+                .foregroundStyle(AppColors.tertiaryLabel)
+
+            Text("No recent people yet")
+                .font(AppTypography.subheadline)
+                .foregroundStyle(AppColors.secondaryLabel)
+
+            Button {
+                showAddPerson = true
+            } label: {
+                Text("Add someone")
+                    .font(AppTypography.callout)
+                    .foregroundStyle(AppColors.accent)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     // MARK: - Helpers
 
     private var greetingText: String {
@@ -94,4 +125,5 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+        .modelContainer(.preview)
 }

@@ -1,48 +1,34 @@
 import Foundation
+import SwiftData
 
-// Lightweight mock data used exclusively by SwiftUI previews.
-// Replace with real data sources in Phase 2 (local data layer).
+/// Lightweight helpers for SwiftUI previews.
+///
+/// For component-level previews (PersonRow, PromptChip, etc.) create bare
+/// Person instances — relationships return empty defaults without a context,
+/// which is acceptable.
+///
+/// For screen-level previews (HomeView, PersonView) attach the shared preview
+/// container:
+///
+///     .modelContainer(.preview)
+///
 enum PreviewData {
 
-    static let recentPeople: [Person] = [
-        Person(
-            displayName: "Sarah Chen",
-            lastContext: "Starting new job at Google next Monday",
-            lastInteractionLabel: "2 weeks ago"
-        ),
-        Person(
-            displayName: "Marcus Webb",
-            lastContext: "Mentioned moving to Austin soon",
-            lastInteractionLabel: "Last month"
-        ),
-        Person(
-            displayName: "Jamie Torres",
-            lastInteractionLabel: "3 months ago"
-        ),
-        Person(
-            displayName: "Alex Kim",
-            lastContext: "Studying for the bar exam",
-            lastInteractionLabel: "Yesterday"
-        ),
-    ]
+    /// A bare Person with no notes — suitable for component previews.
+    static var emptyPerson: Person { Person(displayName: "Riley Morgan") }
 
-    static let populatedPerson = Person(
-        displayName: "Sarah Chen",
-        lastContext: "Starting new job at Google next Monday",
-        lastInteractionLabel: "2 weeks ago"
-    )
+    /// A bare Person — use `.modelContainer(.preview)` to get one with real notes.
+    static var samplePerson: Person { Person(displayName: "Sarah Chen") }
 
-    static let emptyPerson = Person(
-        displayName: "Riley Morgan"
-    )
+    // MARK: Prompts (used until Phase 4 ships the real prompt engine)
 
-    /// Generic prompts shown when no notes exist for a person.
+    /// Generic prompts shown when a person has no notes.
     static let genericPrompts: [Prompt] = [
         Prompt(text: "How have you been lately?"),
         Prompt(text: "What's been keeping you busy?"),
     ]
 
-    /// Contextual prompts driven by a captured note (Phase 4 will generate these dynamically).
+    /// Contextual prompts for the populated preview state.
     static let contextualPrompts: [Prompt] = [
         Prompt(text: "How are things preparing for the new role at Google?"),
         Prompt(text: "How are you feeling going into it?"),

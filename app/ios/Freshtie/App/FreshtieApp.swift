@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct FreshtieApp: App {
@@ -6,5 +7,6 @@ struct FreshtieApp: App {
         WindowGroup {
             RootView()
         }
+        .modelContainer(.freshtie)
     }
 }

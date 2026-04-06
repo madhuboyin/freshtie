@@ -25,6 +25,12 @@
 		CAFEBABECAFEBABE0000002F /* Prompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000001C /* Prompt.swift */; };
 		CAFEBABECAFEBABE00000030 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000001D /* PreviewData.swift */; };
 		CAFEBABECAFEBABE00000031 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000001E /* Assets.xcassets */; };
+		CAFEBABECAFEBABE00000048 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000042 /* Note.swift */; };
+		CAFEBABECAFEBABE00000049 /* FreshtieContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000043 /* FreshtieContainer.swift */; };
+		CAFEBABECAFEBABE0000004A /* PersonRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000044 /* PersonRepository.swift */; };
+		CAFEBABECAFEBABE0000004B /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000045 /* SeedData.swift */; };
+		CAFEBABECAFEBABE0000004C /* AddPersonSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */; };
+		CAFEBABECAFEBABE0000004D /* CapturePersonPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +53,12 @@
 		CAFEBABECAFEBABE0000001C /* Prompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompt.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000001D /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000001E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000042 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000043 /* FreshtieContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreshtieContainer.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000044 /* PersonRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonRepository.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000045 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonSheet.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePersonPickerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000003 /* App */,
+				CAFEBABECAFEBABE0000003E /* Data */,
 				CAFEBABECAFEBABE00000004 /* DesignSystem */,
 				CAFEBABECAFEBABE00000006 /* Features */,
 				CAFEBABECAFEBABE0000000B /* Models */,
@@ -136,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000017 /* HomeView.swift */,
+				CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -152,6 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000019 /* CaptureView.swift */,
+				CAFEBABECAFEBABE00000047 /* CapturePersonPickerView.swift */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -168,6 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE0000001B /* Person.swift */,
+				CAFEBABECAFEBABE00000042 /* Note.swift */,
 				CAFEBABECAFEBABE0000001C /* Prompt.swift */,
 			);
 			path = Models;
@@ -179,6 +195,40 @@
 				CAFEBABECAFEBABE0000001D /* PreviewData.swift */,
 			);
 			path = PreviewSupport;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE0000003E /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE0000003F /* Persistence */,
+				CAFEBABECAFEBABE00000040 /* Repositories */,
+				CAFEBABECAFEBABE00000041 /* Seed */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE0000003F /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000043 /* FreshtieContainer.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE00000040 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000044 /* PersonRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE00000041 /* Seed */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000045 /* SeedData.swift */,
+			);
+			path = Seed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,6 +317,12 @@
 				CAFEBABECAFEBABE0000002E /* Person.swift in Sources */,
 				CAFEBABECAFEBABE0000002F /* Prompt.swift in Sources */,
 				CAFEBABECAFEBABE00000030 /* PreviewData.swift in Sources */,
+				CAFEBABECAFEBABE00000048 /* Note.swift in Sources */,
+				CAFEBABECAFEBABE00000049 /* FreshtieContainer.swift in Sources */,
+				CAFEBABECAFEBABE0000004A /* PersonRepository.swift in Sources */,
+				CAFEBABECAFEBABE0000004B /* SeedData.swift in Sources */,
+				CAFEBABECAFEBABE0000004C /* AddPersonSheet.swift in Sources */,
+				CAFEBABECAFEBABE0000004D /* CapturePersonPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,7 +380,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -379,7 +435,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

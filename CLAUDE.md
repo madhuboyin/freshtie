@@ -55,34 +55,40 @@ The repo has three active layers:
 
 Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 
-**Phase 1 shell** is a navigable UI with mock data only (no persistence, no backend, no contacts). The project targets **iOS 16** and uses `GENERATE_INFOPLIST_FILE = YES` (no manual Info.plist).
+**Phase 2 (current)** adds a full SwiftData local persistence layer. The project targets **iOS 17** (minimum for SwiftData) and uses `GENERATE_INFOPLIST_FILE = YES` (no manual Info.plist).
 
 **Source layout** under `app/ios/Freshtie/`:
 
 | Folder | Purpose |
 |--------|---------|
 | `App/` | `FreshtieApp` entry point + `RootView` (TabView) |
+| `Data/Persistence/` | `FreshtieContainer.swift` — `ModelContainer.freshtie` (on-disk) + `ModelContainer.preview` (in-memory, seeded) |
+| `Data/Repositories/` | `PersonRepository.swift` — stateless `enum` with sort/mutation helpers |
+| `Data/Seed/` | `SeedData.swift` — dev/preview seed data |
 | `DesignSystem/` | `AppColors`, `AppTypography`, `AppSpacing` tokens + `Components/` |
 | `DesignSystem/Components/` | `AvatarView`, `PersonRow`, `PromptChip`, `SectionHeader`, `SearchSelectRow` |
-| `Features/Home/` | `HomeView` — greeting, search row, recent-people list |
-| `Features/Person/` | `PersonView` — avatar header, context summary, prompt chips, capture CTA |
-| `Features/Capture/` | `CaptureView` — mic button, waveform animation, text fallback; works as tab or sheet |
+| `Features/Home/` | `HomeView` + `AddPersonSheet` — greeting, search row, recent-people list |
+| `Features/Person/` | `PersonView` — avatar header, context summary, prompt chips, notes section, capture CTA |
+| `Features/Capture/` | `CaptureView` + `CapturePersonPickerView` — mic button, waveform animation, text fallback |
 | `Features/Settings/` | `SettingsView` — placeholder permission + version rows |
-| `Models/` | `Person` (Identifiable, Hashable), `Prompt` (Identifiable) |
-| `PreviewSupport/` | `PreviewData` — all mock data for previews; replace in Phase 2 |
+| `Models/` | `Person` (@Model), `Note` (@Model), `Prompt` (plain struct) |
+| `PreviewSupport/` | `PreviewData` — bare instances for component previews; screens use `.modelContainer(.preview)` |
 
-**Navigation model**: `TabView` (Home / Capture / Settings). Home tab has its own `NavigationStack`; tapping a person pushes `PersonView`. `CaptureView` is reached from the Capture tab (`isSheet: false`) or as a sheet from `PersonView` (`isSheet: true`).
+**Data models**:
+- `Person` — `@Model` with `@Attribute(.unique) id`, `displayName`, `createdAt`, `lastOpenedAt?`, `lastInteractionAt?`, `creationSource`, `isPinned`, `notes: [Note]` (cascade delete). Computed: `initials`, `lastContext` (most recent note rawText), `lastInteractionLabel` (relative date string).
+- `Note` — `@Model` with `id`, `rawText`, `createdAt`, `sourceType`, `person: Person?` (back-reference for the cascade inverse).
+
+**Navigation model**: `TabView` (Home / Capture / Settings). Home tab has its own `NavigationStack`; tapping a person pushes `PersonView`. Capture tab shows `CapturePersonPickerView` (pick person first), then pushes `CaptureView(person:)`. `CaptureView` also reachable as a sheet from `PersonView`.
 
 **Design tokens**: `AppColors.accent = Color.indigo`. All spacing from `AppSpacing`, corner radii from `AppRadius`, fixed sizes from `AppSize`.
 
-**Phase 1 TODOs for future phases** (left as `// TODO:` comments in code):
-- Phase 2: Replace `PreviewData` with SwiftData/`PersonStore`/`NoteStore`
+**TODOs for future phases** (left as `// TODO:` comments in code):
 - Phase 3: Wire `SearchSelectRow` to `CNContactPickerViewController`
 - Phase 4: Replace static `prompts` array with `PromptEngine.prompts(for:)`
 - Phase 7: Integrate `AVAudioSession` + `SFSpeechRecognizer` in `CaptureView`
 - Phase 10: Real permission checks in `SettingsView`
 
-**Planned (not yet built)**: `Note` model, `PromptCache` model, `PersonStore`, `NoteStore`, `PromptStore`, Share Extension.
+**Planned (not yet built)**: `PromptCache` model, `PromptEngine`, Share Extension.
 
 ### CI
 

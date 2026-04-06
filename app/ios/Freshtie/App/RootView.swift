@@ -4,7 +4,7 @@ import SwiftUI
 ///
 /// Navigation model:
 ///   Home tab     — NavigationStack; pushes PersonView on person selection.
-///   Capture tab  — Full-screen CaptureView (no sheet dismiss button needed).
+///   Capture tab  — CapturePersonPickerView; selects a person then pushes CaptureView.
 ///   Settings tab — NavigationStack; placeholder rows only.
 ///
 /// PersonView also presents CaptureView as a sheet via its own @State.
@@ -16,7 +16,7 @@ struct RootView: View {
                     Label("Home", systemImage: "house")
                 }
 
-            CaptureView()
+            CapturePersonPickerView()
                 .tabItem {
                     Label("Capture", systemImage: "waveform")
                 }
@@ -34,4 +34,5 @@ struct RootView: View {
 
 #Preview {
     RootView()
+        .modelContainer(.preview)
 }
