@@ -120,6 +120,7 @@ struct HomeView: View {
             
             HStack(spacing: AppSpacing.md) {
                 Button("Add") {
+                    AnalyticsService.shared.track(.contact_trigger_accepted, metadata: [AnalyticsMetadata.personID: trigger.contact.identifier])
                     let person = ContactMapper.findOrCreate(contact: trigger.contact, in: modelContext)
                     detectionService.dismissTrigger() // Clear it
                     navigateToPerson = person
@@ -130,6 +131,7 @@ struct HomeView: View {
                 .foregroundStyle(AppColors.accent)
                 
                 Button("Not now") {
+                    AnalyticsService.shared.track(.contact_trigger_dismissed, metadata: [AnalyticsMetadata.personID: trigger.contact.identifier])
                     withAnimation {
                         detectionService.dismissTrigger()
                     }
@@ -142,6 +144,9 @@ struct HomeView: View {
         .padding(AppSpacing.md)
         .background(AppColors.accent.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+        .onAppear {
+            AnalyticsService.shared.track(.contact_trigger_shown, metadata: [AnalyticsMetadata.personID: trigger.contact.identifier])
+        }
     }
 
     /// Greeting line (quiet, temporal) + primary product question (dominant).
@@ -179,6 +184,9 @@ struct HomeView: View {
                     PersonRow(person: person)
                 }
                 .buttonStyle(.plain)
+                .simultaneousGesture(TapGesture().onEnded {
+                    AnalyticsService.shared.track(.person_selected, metadata: [AnalyticsMetadata.personID: person.id.uuidString])
+                })
 
                 if index < recentPeople.count - 1 {
                     Divider()
@@ -223,15 +231,15 @@ struct HomeView: View {
     private func handlePickFromContacts() {
         Task {
             switch ContactPermissionService.status {
-            case .authorized:
+            case .authorized, .limited:
                 showContactPicker = true
             case .notDetermined:
+                AnalyticsService.shared.track(.contacts_permission_requested)
                 let granted = await ContactPermissionService.requestAccess()
+                AnalyticsService.shared.track(.contacts_permission_granted, metadata: [AnalyticsMetadata.status: String(granted)])
                 if granted { showContactPicker = true } else { showContactDenied = true }
             case .denied, .restricted:
                 showContactDenied = true
-            @unknown default:
-                showContactPicker = true
             }
         }
     }

@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct FreshtieApp: App {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var detectionService = ContactDetectionService()
 
     var body: some Scene {
@@ -11,12 +12,23 @@ struct FreshtieApp: App {
             RootView()
                 .environment(detectionService)
                 .onAppear {
+                    AnalyticsService.shared.track(.app_opened)
                     handleSharedPayloads()
                     Task { await detectionService.performDetection() }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                     handleSharedPayloads()
                     Task { await detectionService.performDetection() }
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    switch newPhase {
+                    case .active:
+                        AnalyticsService.shared.track(.session_started)
+                    case .background:
+                        AnalyticsService.shared.track(.session_ended)
+                    default:
+                        break
+                    }
                 }
         }
         .modelContainer(.freshtie)

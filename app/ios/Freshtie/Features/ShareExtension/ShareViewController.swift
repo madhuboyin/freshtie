@@ -61,6 +61,10 @@ class ShareViewController: UIViewController {
             noteText: noteText.isEmpty ? nil : noteText
         )
         
+        AnalyticsService.shared.track(.share_extension_used, metadata: [
+            AnalyticsMetadata.personID: extractionResult?.contactIdentifier ?? "unknown"
+        ])
+        
         ShareExtensionStore.savePayload(payload)
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }

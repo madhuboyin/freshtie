@@ -30,6 +30,8 @@ final class CaptureViewModel {
     var inputText: String = ""
     /// View observes this to initiate the save + dismiss flow.
     var triggerSave: Bool = false
+    
+    private var hasTrackedStart: Bool = false
 
     // MARK: - Private
 
@@ -50,6 +52,10 @@ final class CaptureViewModel {
     // MARK: - Mic interaction
 
     func tapMic() async {
+        if !hasTrackedStart {
+            AnalyticsService.shared.track(.capture_started, metadata: [AnalyticsMetadata.sourceType: "voice"])
+            hasTrackedStart = true
+        }
         switch captureState {
         case .listening:
             stopSpeech()
@@ -101,6 +107,7 @@ final class CaptureViewModel {
     // MARK: - Post-save lifecycle
 
     func markSaved() {
+        AnalyticsService.shared.track(.note_added, metadata: [AnalyticsMetadata.sourceType: captureSourceType.rawValue])
         stopSpeech()
         triggerSave = false
         captureState = .saved
@@ -111,6 +118,7 @@ final class CaptureViewModel {
         liveTranscript = ""
         inputText = ""
         triggerSave = false
+        hasTrackedStart = false
     }
 
     func cancel() {

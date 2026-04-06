@@ -57,7 +57,8 @@ struct AddPersonSheet: View {
 
     private func save() {
         guard !trimmedName.isEmpty else { return }
-        PersonRepository.createPerson(displayName: trimmedName, in: modelContext)
+        let person = PersonRepository.createPerson(displayName: trimmedName, in: modelContext)
+        AnalyticsService.shared.track(.manual_person_added, metadata: [AnalyticsMetadata.personID: person.id.uuidString])
         dismiss()
     }
 }

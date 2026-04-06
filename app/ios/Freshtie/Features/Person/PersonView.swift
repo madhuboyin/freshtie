@@ -45,10 +45,18 @@ struct PersonView: View {
         .onAppear {
             PersonRepository.markOpened(person, in: modelContext)
             generatePrompts()
+            AnalyticsService.shared.track(.prompt_viewed, metadata: [
+                AnalyticsMetadata.personID: person.id.uuidString,
+                AnalyticsMetadata.promptCount: String(currentPrompts.count)
+            ])
         }
         // Re-generate when a note is added via the capture sheet.
         .onChange(of: person.notes.count) { _, _ in
             generatePrompts()
+            AnalyticsService.shared.track(.prompt_viewed, metadata: [
+                AnalyticsMetadata.personID: person.id.uuidString,
+                AnalyticsMetadata.promptCount: String(currentPrompts.count)
+            ])
         }
         .sheet(isPresented: $showCapture) {
             CaptureView(person: person, isSheet: true)
@@ -70,6 +78,10 @@ struct PersonView: View {
                 sortedNotes: sortedNotes,
                 excluding: currentPrompts
             )
+            AnalyticsService.shared.track(.prompt_refreshed, metadata: [
+                AnalyticsMetadata.personID: person.id.uuidString,
+                AnalyticsMetadata.promptCount: String(currentPrompts.count)
+            ])
         }
     }
 }
