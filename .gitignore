@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+infra/k8s/base/secret.yaml
+infra/k8s/base/*.secret.yaml
+secrets/
+
+# iOS / Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+
+# Logs
+*.log
+
+# Terraform / misc if added later
+.terraform/
+*.tfstate
+*.tfstate.*
