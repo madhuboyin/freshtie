@@ -33,6 +33,7 @@ spec:
                 name: freshtie-config
             - secretRef:
                 name: freshtie-secrets
+                optional: true
           resources:
             requests:
               cpu: "100m"
