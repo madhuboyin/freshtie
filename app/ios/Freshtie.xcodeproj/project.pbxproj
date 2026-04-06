@@ -48,6 +48,11 @@
 		CAFEBABECAFEBABE00000079 /* PromptSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000074 /* PromptSection.swift */; };
 		CAFEBABECAFEBABE0000007A /* PromptRefreshButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000075 /* PromptRefreshButton.swift */; };
 		CAFEBABECAFEBABE0000007B /* CaptureCTA.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000076 /* CaptureCTA.swift */; };
+		CAFEBABECAFEBABE00000083 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000007D /* SpeechService.swift */; };
+		CAFEBABECAFEBABE00000084 /* CaptureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000007E /* CaptureViewModel.swift */; };
+		CAFEBABECAFEBABE00000085 /* MicrophoneButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */; };
+		CAFEBABECAFEBABE00000086 /* ListeningIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000081 /* ListeningIndicator.swift */; };
+		CAFEBABECAFEBABE00000087 /* TextInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000082 /* TextInputField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +99,11 @@
 		CAFEBABECAFEBABE00000074 /* PromptSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSection.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000075 /* PromptRefreshButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptRefreshButton.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000076 /* CaptureCTA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureCTA.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000007D /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE0000007E /* CaptureViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureViewModel.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneButton.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000081 /* ListeningIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningIndicator.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000082 /* TextInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -610,6 +620,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSContactsUsageDescription = "Freshtie uses Contacts so you can quickly add the people you talk to.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Freshtie uses the microphone so you can capture notes by speaking.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Freshtie uses speech recognition to transcribe your spoken notes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -637,6 +649,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSContactsUsageDescription = "Freshtie uses Contacts so you can quickly add the people you talk to.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Freshtie uses the microphone so you can capture notes by speaking.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Freshtie uses speech recognition to transcribe your spoken notes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
