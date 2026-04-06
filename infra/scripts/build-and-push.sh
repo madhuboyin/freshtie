@@ -24,9 +24,9 @@ else
   docker buildx use "${BUILDER_NAME}"
 fi
 
-# Build and push using buildx for multi-architecture (linux/amd64, linux/arm64)
+# Build and push using buildx for Raspberry Pi architecture (linux/arm64)
 docker buildx build \
-  --platform linux/amd64,linux/arm64 \
+  --platform linux/arm64 \
   --push \
   --tag "${FULL_IMAGE_NAME}" \
   app/backend
