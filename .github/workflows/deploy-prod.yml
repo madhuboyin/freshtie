@@ -67,7 +67,7 @@ jobs:
         run: |
           cd infra/k8s/overlays/prod
           # Using kustomize to set the image tag dynamically
-          kustomize edit set image your-registry/freshtie-api=ghcr.io/${{ github.repository }}/freshtie-api:${{ needs.build-and-push.outputs.image_tag }}
+          kustomize edit set image ghcr.io/madhuboyin/freshtie/freshtie-api=ghcr.io/${{ github.repository }}/freshtie-api:${{ needs.build-and-push.outputs.image_tag }}
 
       - name: Deploy to K3s
         run: |

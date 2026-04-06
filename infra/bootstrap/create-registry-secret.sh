@@ -4,7 +4,7 @@ set -euo pipefail
 NAMESPACE="freshtie"
 SECRET_NAME="regcred"
 
-DOCKER_SERVER="${DOCKER_SERVER:-your-registry}"
+DOCKER_SERVER="${DOCKER_SERVER:-ghcr.io}"
 DOCKER_USERNAME="${DOCKER_USERNAME:-change-me}"
 DOCKER_PASSWORD="${DOCKER_PASSWORD:-change-me}"
 DOCKER_EMAIL="${DOCKER_EMAIL:-change-me@example.com}"

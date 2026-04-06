@@ -24,7 +24,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: freshtie-api
-          image: your-registry/freshtie-api:latest
+          image: ghcr.io/madhuboyin/freshtie/freshtie-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
