@@ -2,27 +2,35 @@ import SwiftUI
 import SwiftData
 import Contacts
 
-/// Entry point of the app. Calm, lightweight, immediate.
-/// Shows a time-aware greeting, a search/pick row, and recent people.
+/// Entry point of the app — value-first, friction-free.
+///
+/// Layout (top → bottom):
+///   Greeting (quiet context) → Primary question (dominant copy)
+///   → Search/pick control → Recent people (capped at 6) or empty state
+///
+/// The Home screen is an entry point, not a destination.
+/// Product value lives on the Person screen — get there in ≤ 2 taps.
 struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Query private var allPeople: [Person]
 
-    // Sheet state
-    @State private var showAddPerson = false
+    @State private var showAddPerson     = false
     @State private var showContactPicker = false
     @State private var showContactDenied = false
     @State private var showPickerOptions = false
 
-    // Programmatic navigation after a contact is picked.
-    // Set via onChange after the picker sheet fully dismisses.
-    @State private var navigateToPerson: Person? = nil
-    @State private var pendingPerson: Person? = nil
+    /// Set by the contact picker callback; cleared after navigation fires.
+    @State private var pendingPerson: Person?     = nil
+    @State private var navigateToPerson: Person?  = nil
 
+    /// Pinned first, then most recently opened. Capped at 6 so Home
+    /// stays lightweight — it's a quick-pick list, not a full directory.
     private var recentPeople: [Person] {
-        PersonRepository.sortedForHome(allPeople)
+        Array(PersonRepository.sortedForHome(allPeople).prefix(6))
     }
+
+    // MARK: - Body
 
     var body: some View {
         NavigationStack {
@@ -34,14 +42,14 @@ struct HomeView: View {
 
                     searchSection
                         .padding(.horizontal, AppSpacing.md)
-                        .padding(.top, AppSpacing.xl)
+                        .padding(.top, AppSpacing.lg)
 
-                    if !recentPeople.isEmpty {
-                        recentSection
-                            .padding(.top, AppSpacing.xl)
-                    } else {
+                    if recentPeople.isEmpty {
                         emptyState
                             .padding(.top, AppSpacing.xxl)
+                    } else {
+                        recentSection
+                            .padding(.top, AppSpacing.lg)
                     }
                 }
                 .padding(.bottom, AppSpacing.xxl)
@@ -52,10 +60,10 @@ struct HomeView: View {
                 PersonView(person: person)
             }
         }
-        // Options: pick from contacts or add manually
+        // Person picker options
         .confirmationDialog("Add someone", isPresented: $showPickerOptions) {
             Button("Pick from Contacts") { handlePickFromContacts() }
-            Button("Add Manually") { showAddPerson = true }
+            Button("Add Manually")        { showAddPerson = true      }
             Button("Cancel", role: .cancel) {}
         }
         .sheet(isPresented: $showAddPerson) {
@@ -67,18 +75,14 @@ struct HomeView: View {
                     pendingPerson = ContactMapper.findOrCreate(contact: contact, in: modelContext)
                     showContactPicker = false
                 },
-                onCancel: {
-                    showContactPicker = false
-                }
+                onCancel: { showContactPicker = false }
             )
             .ignoresSafeArea()
         }
         .sheet(isPresented: $showContactDenied) {
-            ContactDeniedView {
-                showAddPerson = true
-            }
+            ContactDeniedView { showAddPerson = true }
         }
-        // Navigate after the picker sheet finishes dismissing.
+        // Navigate only after the sheet dismiss animation completes.
         .onChange(of: showContactPicker) { _, isShowing in
             guard !isShowing, let person = pendingPerson else { return }
             pendingPerson = nil
@@ -88,22 +92,22 @@ struct HomeView: View {
 
     // MARK: - Sections
 
+    /// Greeting line (quiet, temporal) + primary product question (dominant).
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+        VStack(alignment: .leading, spacing: AppSpacing.xxs) {
             Text(greetingText)
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.label)
+                .font(AppTypography.subheadline)
+                .foregroundStyle(AppColors.tertiaryLabel)
 
             Text("Who are you talking to?")
-                .font(AppTypography.callout)
-                .foregroundStyle(AppColors.secondaryLabel)
+                .font(AppTypography.title2)
+                .foregroundStyle(AppColors.label)
         }
     }
 
+    /// Primary entry control — the most important tap on this screen.
     private var searchSection: some View {
-        SearchSelectRow {
-            showPickerOptions = true
-        }
+        SearchSelectRow { showPickerOptions = true }
     }
 
     private var recentSection: some View {
@@ -115,6 +119,7 @@ struct HomeView: View {
         }
     }
 
+    /// Person rows grouped in an inset card — native iOS list feel.
     private var personList: some View {
         VStack(spacing: 0) {
             ForEach(Array(recentPeople.enumerated()), id: \.element.id) { index, person in
@@ -129,27 +134,13 @@ struct HomeView: View {
                 }
             }
         }
+        .background(AppColors.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+        .padding(.horizontal, AppSpacing.md)
     }
 
     private var emptyState: some View {
-        VStack(spacing: AppSpacing.md) {
-            Image(systemName: "person.2")
-                .font(.system(size: 40))
-                .foregroundStyle(AppColors.tertiaryLabel)
-
-            Text("No recent people yet")
-                .font(AppTypography.subheadline)
-                .foregroundStyle(AppColors.secondaryLabel)
-
-            Button {
-                showPickerOptions = true
-            } label: {
-                Text("Add someone")
-                    .font(AppTypography.callout)
-                    .foregroundStyle(AppColors.accent)
-            }
-        }
-        .frame(maxWidth: .infinity)
+        HomeEmptyState { showPickerOptions = true }
     }
 
     // MARK: - Contacts flow
@@ -161,15 +152,10 @@ struct HomeView: View {
                 showContactPicker = true
             case .notDetermined:
                 let granted = await ContactPermissionService.requestAccess()
-                if granted {
-                    showContactPicker = true
-                } else {
-                    showContactDenied = true
-                }
+                if granted { showContactPicker = true } else { showContactDenied = true }
             case .denied, .restricted:
                 showContactDenied = true
             @unknown default:
-                // Treat any future limited-access states as accessible.
                 showContactPicker = true
             }
         }
@@ -189,7 +175,15 @@ struct HomeView: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("With people") {
     HomeView()
         .modelContainer(.preview)
+}
+
+#Preview("Empty") {
+    HomeView()
+        .modelContainer(try! ModelContainer(
+            for: Person.self, Note.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        ))
 }

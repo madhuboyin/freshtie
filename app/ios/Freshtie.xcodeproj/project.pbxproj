@@ -42,6 +42,7 @@
 		CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */; };
 		CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005D /* PromptEngine.swift */; };
 		CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */; };
+		CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		CAFEBABECAFEBABE0000005D /* PromptEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngine.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEmptyState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -195,6 +197,7 @@
 			children = (
 				CAFEBABECAFEBABE00000017 /* HomeView.swift */,
 				CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */,
+				CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -432,6 +435,7 @@
 				CAFEBABECAFEBABE00000061 /* TemporalLogic.swift in Sources */,
 				CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */,
 				CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */,
+				CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

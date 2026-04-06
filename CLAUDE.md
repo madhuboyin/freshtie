@@ -49,7 +49,7 @@ The repo has three active layers:
 
 2. **`infra/k8s`** — Kustomize-based Kubernetes manifests. Structure is `base/` + `overlays/prod/`. Deployed to a Raspberry Pi K3s cluster in the `freshtie` namespace. Single replica. Health/liveness probes hit `/health`. Env vars come from a ConfigMap (`freshtie-config`) and a Secret (`freshtie-secrets`).
 
-3. **`app/ios`** — Native Swift/SwiftUI. Phase 4 (prompt engine) complete (see below).
+3. **`app/ios`** — Native Swift/SwiftUI. Phase 5 (Home screen) complete (see below).
 
 ### iOS architecture
 
@@ -67,7 +67,7 @@ Open with Xcode: `open app/ios/Freshtie.xcodeproj`
 | `Data/Seed/` | `SeedData.swift` — dev/preview seed data |
 | `DesignSystem/` | `AppColors`, `AppTypography`, `AppSpacing` tokens + `Components/` |
 | `DesignSystem/Components/` | `AvatarView`, `PersonRow`, `PromptChip`, `SectionHeader`, `SearchSelectRow` |
-| `Features/Home/` | `HomeView` + `AddPersonSheet` — greeting, search row, recent-people list |
+| `Features/Home/` | `HomeView` + `AddPersonSheet` + `HomeEmptyState` — greeting, search row, recent-people list (capped at 6) |
 | `Features/Person/` | `PersonView` — avatar header, context summary, prompt chips, notes section, capture CTA |
 | `Features/Capture/` | `CaptureView` + `CapturePersonPickerView` — mic button, waveform animation, text fallback |
 | `Features/Settings/` | `SettingsView` — contacts permission status + version rows |

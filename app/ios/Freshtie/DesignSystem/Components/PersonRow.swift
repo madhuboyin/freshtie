@@ -1,7 +1,11 @@
 import SwiftUI
 
-/// List row that represents a person — avatar, name, optional context snippet.
-/// Used in HomeView's recent-people list.
+/// List row that represents a person — avatar, name, and context subtitle.
+///
+/// Subtitle priority:
+///   1. Most recent note text (if any notes exist)
+///   2. Relative "last spoke" label (if the person has been opened)
+///   3. "No notes yet" — ensures the row always has a supporting line
 struct PersonRow: View {
     let person: Person
 
@@ -14,16 +18,7 @@ struct PersonRow: View {
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.label)
 
-                if let context = person.lastContext {
-                    Text(context)
-                        .font(AppTypography.subheadline)
-                        .foregroundStyle(AppColors.secondaryLabel)
-                        .lineLimit(1)
-                } else if let label = person.lastInteractionLabel {
-                    Text(label)
-                        .font(AppTypography.subheadline)
-                        .foregroundStyle(AppColors.tertiaryLabel)
-                }
+                subtitleText
             }
 
             Spacer()
@@ -36,13 +31,29 @@ struct PersonRow: View {
         .padding(.vertical, AppSpacing.sm + AppSpacing.xs)
         .contentShape(Rectangle())
     }
+
+    @ViewBuilder
+    private var subtitleText: some View {
+        if let context = person.lastContext {
+            Text(context)
+                .font(AppTypography.subheadline)
+                .foregroundStyle(AppColors.secondaryLabel)
+                .lineLimit(1)
+        } else if let label = person.lastInteractionLabel {
+            Text(label)
+                .font(AppTypography.subheadline)
+                .foregroundStyle(AppColors.tertiaryLabel)
+        } else {
+            Text("No notes yet")
+                .font(AppTypography.subheadline)
+                .foregroundStyle(AppColors.tertiaryLabel)
+        }
+    }
 }
 
 // MARK: - Preview
 
 #Preview {
-    // Bare Person instances — no notes, so lastContext/lastInteractionLabel are nil.
-    // Use .modelContainer(.preview) in screen-level previews to see rich state.
     VStack(spacing: 0) {
         PersonRow(person: Person(displayName: "Sarah Chen"))
         Divider()
@@ -52,4 +63,8 @@ struct PersonRow: View {
             .padding(.leading, AppSpacing.md + AppSize.avatarMD + AppSpacing.md)
         PersonRow(person: Person(displayName: "Jamie Torres"))
     }
+    .background(AppColors.secondaryBackground)
+    .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+    .padding()
+    .background(AppColors.background)
 }
