@@ -26,7 +26,14 @@ class Router {
             try {
                 await handler(req, res);
             } catch (err) {
-                console.error(`[Router] Error handling ${method} ${path}:`, err);
+                console.error(JSON.stringify({
+                    level: 'error',
+                    msg: 'request_error',
+                    method,
+                    path,
+                    error: err.message,
+                    timestamp: new Date().toISOString()
+                }));
                 sendError(res, 500, 'Internal Server Error');
             }
         } else {

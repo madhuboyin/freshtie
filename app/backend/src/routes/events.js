@@ -18,10 +18,10 @@ module.exports = async (req, res) => {
 
         const events = Array.isArray(payload) ? payload : [payload];
         
-        // Basic validation
+        // Basic validation — do not echo event body back (may contain PII).
         for (const event of events) {
             if (!event.eventName || !event.timestamp) {
-                return sendError(res, 400, 'Invalid event shape', { event });
+                return sendError(res, 400, 'Invalid event: missing required fields (eventName, timestamp)');
             }
         }
 

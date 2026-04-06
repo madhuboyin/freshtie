@@ -16,9 +16,11 @@ Minimal but future-ready backend service for Freshtie.
 | `PORT` | `3000` | Server port |
 | `NODE_ENV` | `development` | Environment mode |
 | `APP_NAME` | `freshtie` | Application name |
+| `APP_VERSION` | *(from package.json)* | Service version string |
+| `BUILD_SHA` | `unknown` | Git commit SHA injected at build/deploy time |
 | `LOG_LEVEL` | `info` | Logging verbosity |
-| `EVENTS_ENABLED` | `true` | Enable/disable event ingestion |
-| `BUILD_SHA` | `unknown` | Deployment build identifier |
+| `EVENTS_ENABLED` | `true` | Enable/disable event ingestion endpoint |
+| `PROMPT_CONFIG_VERSION` | `1.0.0` | Version token for the `/config/prompts` response |
 
 ## Development
 
