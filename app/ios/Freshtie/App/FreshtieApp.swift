@@ -14,11 +14,11 @@ struct FreshtieApp: App {
                 .onAppear {
                     AnalyticsService.shared.track(.app_opened)
                     handleSharedPayloads()
-                    Task { await detectionService.performDetection() }
+                    Task { await detectionService.performDetection(modelContext: modelContext) }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                     handleSharedPayloads()
-                    Task { await detectionService.performDetection() }
+                    Task { await detectionService.performDetection(modelContext: modelContext) }
                 }
                 .onChange(of: scenePhase) { _, newPhase in
                     switch newPhase {
