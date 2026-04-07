@@ -14,7 +14,7 @@ struct HomeView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(ContactDetectionService.self) private var detectionService
-    @Query private var allPeople: [Person]
+    @Query(sort: \Person.lastOpenedAt, order: .reverse) private var allPeople: [Person]
 
     @State private var showAddPerson     = false
     @State private var showContactPicker = false
@@ -28,7 +28,7 @@ struct HomeView: View {
     /// Pinned first, then most recently opened. Capped at 6 so Home
     /// stays lightweight — it's a quick-pick list, not a full directory.
     private var recentPeople: [Person] {
-        Array(PersonRepository.sortedForHome(allPeople).prefix(6))
+        Array(allPeople.prefix(6))
     }
 
     // MARK: - Body

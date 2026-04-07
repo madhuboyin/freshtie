@@ -53,6 +53,11 @@ enum PersonRepository {
     ) -> Note {
         let note = Note(rawText: rawText, sourceType: sourceType)
         note.person = person
+        
+        // Update recency
+        person.lastInteractionAt = Date()
+        person.lastOpenedAt = Date()
+        
         context.insert(note)
         try? context.save()
         return note

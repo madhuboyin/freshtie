@@ -16,7 +16,7 @@ final class Person {
 
     @Attribute(.unique) var id: UUID
     var displayName: String
-    var contactIdentifier: String?
+    @Attribute(.unique) var contactIdentifier: String?
     var createdAt: Date
     var lastOpenedAt: Date?
     var lastInteractionAt: Date?
