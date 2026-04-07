@@ -16,10 +16,10 @@ struct HomeView: View {
     @Environment(ContactDetectionService.self) private var detectionService
     @Query(sort: \Person.lastOpenedAt, order: .reverse) private var allPeople: [Person]
 
-    @State private var showAddPerson     = false
-    @State private var showContactPicker = false
-    @State private var showContactDenied = false
-    @State private var showPickerOptions = false
+    @State private var showAddPerson      = false
+    @State private var showContactPicker  = false
+    @State private var showContactDenied  = false
+    @State private var showPersonSearch   = false
 
     /// Set by the contact picker callback; cleared after navigation fires.
     @State private var pendingPerson: Person?     = nil
@@ -80,11 +80,18 @@ struct HomeView: View {
             handleSharedPayloads()
             Task { await detectionService.performDetection(modelContext: modelContext) }
         }
-        // Person picker options
-        .confirmationDialog("Add someone", isPresented: $showPickerOptions) {
-            Button("Pick from Contacts") { handlePickFromContacts() }
-            Button("Add Manually")        { showAddPerson = true      }
-            Button("Cancel", role: .cancel) {}
+        // Person search/select sheet — shows existing people first, add options second
+        .sheet(isPresented: $showPersonSearch) {
+            PersonSearchSheet(
+                onSelectPerson: { person in pendingPerson = person },
+                onPickFromContacts: { handlePickFromContacts() },
+                onAddManually: { showAddPerson = true }
+            )
+        }
+        .onChange(of: showPersonSearch) { _, isShowing in
+            guard !isShowing, let person = pendingPerson else { return }
+            pendingPerson = nil
+            navigateToPerson = person
         }
         .sheet(isPresented: $showAddPerson) {
             AddPersonSheet()
@@ -170,7 +177,7 @@ struct HomeView: View {
 
     /// Primary entry control — the most important tap on this screen.
     private var searchSection: some View {
-        SearchSelectRow { showPickerOptions = true }
+        SearchSelectRow { showPersonSearch = true }
     }
 
     private var recentSection: some View {
@@ -206,7 +213,7 @@ struct HomeView: View {
     }
 
     private var emptyState: some View {
-        HomeEmptyState { showPickerOptions = true }
+        HomeEmptyState { showPersonSearch = true }
     }
 
     private var discoverabilityTip: some View {
