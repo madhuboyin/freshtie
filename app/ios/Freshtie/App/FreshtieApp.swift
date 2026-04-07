@@ -36,9 +36,11 @@ struct FreshtieApp: App {
 
     private func handleSharedPayloads() {
         let payloads = ShareExtensionStore.fetchAll()
+        print("📱 DEBUG: Found \(payloads.count) shared payloads")
         guard !payloads.isEmpty else { return }
 
         for payload in payloads {
+            print("📱 DEBUG: Processing shared contact: \(payload.displayName)")
             process(payload)
             AnalyticsService.shared.track(.share_extension_used)
         }
@@ -47,12 +49,15 @@ struct FreshtieApp: App {
     }
 
     private func process(_ payload: SharedPersonPayload) {
+        print("📱 DEBUG: Processing payload for '\(payload.displayName)', contactID: \(payload.contactIdentifier ?? "none")")
+        
         // 1. Find or create person
         var person: Person?
         
         if let cid = payload.contactIdentifier {
             let descriptor = FetchDescriptor<Person>(predicate: #Predicate { $0.contactIdentifier == cid })
             person = (try? modelContext.fetch(descriptor))?.first
+            print("📱 DEBUG: Found existing person: \(person?.displayName ?? "none")")
         }
         
         if person == nil {
@@ -62,6 +67,7 @@ struct FreshtieApp: App {
                 creationSource: .manual, // Shared counts as manual/intentional
                 in: modelContext
             )
+            print("📱 DEBUG: Created new person: \(person?.displayName ?? "failed")")
         }
         
         // 2. Add note if present

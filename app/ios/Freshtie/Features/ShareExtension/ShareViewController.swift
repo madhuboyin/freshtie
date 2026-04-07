@@ -64,6 +64,7 @@ final class ShareViewController: UIViewController {
             contactIdentifier: extractionResult?.contactIdentifier,
             noteText: noteText.isEmpty ? nil : noteText
         )
+        print("🔄 SHARE EXT: Saving payload for '\(payload.displayName)'")
         ShareExtensionStore.savePayload(payload)
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
