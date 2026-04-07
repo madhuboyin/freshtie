@@ -52,8 +52,15 @@ final class SpeechService {
         }
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
-        try session.setActive(true, options: .notifyOthersOnDeactivation)
+        do {
+            print("🎤 DEBUG: Setting audio session category...")
+            try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+            print("🎤 DEBUG: Activating audio session...")
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("🎤 DEBUG: Audio session setup failed: \(error)")
+            throw error
+        }
 
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
@@ -62,11 +69,14 @@ final class SpeechService {
         // Pass nil so AVAudioEngine resolves the hardware format lazily at start
         // time, avoiding a crash when outputFormat returns 0 Hz before the engine
         // has initialised the audio unit.
+        print("🎤 DEBUG: Installing audio tap...")
         audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 
+        print("🎤 DEBUG: Preparing audio engine...")
         audioEngine.prepare()
+        print("🎤 DEBUG: Starting audio engine...")
         try audioEngine.start()
 
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
@@ -76,11 +86,14 @@ final class SpeechService {
                 }
                 if let error {
                     let nsError = error as NSError
+                    print("🎤 DEBUG: Speech recognition error - Domain: \(nsError.domain), Code: \(nsError.code), Description: \(nsError.localizedDescription)")
                     // 203 = user cancelled, 216 = no speech, 301 = audio interrupted
                     if nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 203 || nsError.code == 216) {
+                        print("🎤 DEBUG: Ignoring error code \(nsError.code) (user cancelled or no speech)")
                         return
                     }
                     if nsError.code != 301 {
+                        print("🎤 DEBUG: Triggering onError callback for error code \(nsError.code)")
                         self?.onError?()
                     }
                 }

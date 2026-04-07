@@ -45,6 +45,7 @@ final class CaptureViewModel {
             self?.resetSilenceTimer()
         }
         speech.onError = { [weak self] in
+            print("🎤 DEBUG: Speech service onError callback triggered")
             self?.fallbackToText()
         }
     }
@@ -172,6 +173,7 @@ final class CaptureViewModel {
     }
 
     private func fallbackToText() {
+        print("🎤 DEBUG: Falling back to text input - stopping speech")
         speech.stop()
         silenceTimer?.invalidate()
         captureState = .permissionDenied
