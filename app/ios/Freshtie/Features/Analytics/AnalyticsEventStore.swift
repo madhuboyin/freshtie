@@ -9,7 +9,18 @@ final class AnalyticsEventStore {
     /// Dedicated persistent container for analytics data.
     private let container: ModelContainer = {
         let schema = Schema([AnalyticsEvent.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let storeName = "Analytics.sqlite"
+        
+        guard let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            fatalError("Freshtie Analytics: Failed to find Application Support directory")
+        }
+        
+        let fileURL = appSupportURL.appendingPathComponent(storeName)
+        
+        // Ensure directory exists
+        try? FileManager.default.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+        
+        let config = ModelConfiguration(url: fileURL)
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
