@@ -225,6 +225,65 @@ final class PromptEngineTests: XCTestCase {
         }
     }
 
+    // MARK: - Intent disambiguation (job change vs relocation)
+
+    func testMovedToDifferentCompanyIsJobChange() {
+        let text = "moved to a different company"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        XCTAssertEqual(category, .professional)
+    }
+
+    func testMovedToDifferentCompanyProducesNoRelocationPrompts() {
+        let note = makeNote("moved to a different company")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let relocationPhrases = PromptTemplateLibrary.moveBefore + PromptTemplateLibrary.moveAfter
+        let entityStripped = relocationPhrases.map { $0.replacingOccurrences(of: "{entity}", with: "") }
+        for text in pool {
+            XCTAssertFalse(
+                entityStripped.contains(where: { text.contains($0.trimmingCharacters(in: .whitespaces)) }),
+                "Relocation prompt '\(text)' should not appear for a job-change note"
+            )
+        }
+    }
+
+    func testPhysicalRelocationClassifiedAsMove() {
+        let text = "moving to NYC next week"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        XCTAssertEqual(category, .move)
+    }
+
+    func testPhysicalRelocationFutureUsesMoveBeforePool() {
+        let note = makeNote("moving to NYC next week")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let futureTexts = PromptTemplateLibrary.moveBefore.map {
+            $0.replacingOccurrences(of: "{entity}", with: "NYC")
+        }
+        XCTAssertTrue(pool.allSatisfy { futureTexts.contains($0) || !$0.contains("NYC") })
+    }
+
+    func testStartedAtEntityIsJobChange() {
+        let text = "started at Google"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        XCTAssertEqual(category, .professional)
+    }
+
+    func testPlanningTripIsTravel() {
+        let text = "planning trip to London"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        XCTAssertEqual(category, .travel)
+    }
+
+    func testMetAtCafeIsGeneric() {
+        let text = "met at cafe"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        XCTAssertEqual(category, .generic)
+    }
+
     // MARK: - Second-note fallback
 
     func testSecondNoteUsedWhenFirstIsGeneric() {

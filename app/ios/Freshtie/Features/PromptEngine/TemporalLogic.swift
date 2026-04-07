@@ -49,6 +49,11 @@ enum TemporalLogic {
             if text.contains(phrase) { return offset }
         }
 
+        // Past-tense completion indicators — treat as recently finished.
+        // Checked last so an explicit future phrase (e.g. "next week") always wins.
+        let pastPhrases = ["moved to", "relocated to", "joined", "accepted", "switched"]
+        if pastPhrases.contains(where: { text.contains($0) }) { return -1 }
+
         return nil
     }
 

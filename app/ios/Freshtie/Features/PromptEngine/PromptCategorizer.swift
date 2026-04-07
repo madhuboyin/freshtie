@@ -4,18 +4,42 @@ import Foundation
 /// Checked in priority order — more specific categories beat broader ones.
 enum PromptCategorizer {
 
-    static func categorize(signals: TextSignals) -> PromptCategory {
+    static func categorize(signals: TextSignals, rawText: String = "") -> PromptCategory {
         let t = signals.tokens
+        let lower = rawText.lowercased()
         // Life events are specific and high-value — check first
         if !t.isDisjoint(with: lifeEventKeywords) { return .lifeEvent  }
-        if !t.isDisjoint(with: moveKeywords)       { return .move       }
+        // Move keyword detected — disambiguate before committing to .move.
+        // "moved to a different company" is job change, not relocation.
+        if !t.isDisjoint(with: moveKeywords) {
+            return isJobChange(tokens: t, rawText: lower) ? .professional : .move
+        }
         if !t.isDisjoint(with: travelKeywords)     { return .travel     }
         if !t.isDisjoint(with: professionalKeywords){ return .professional }
         if !t.isDisjoint(with: familyKeywords)     { return .family     }
         if !t.isDisjoint(with: healthKeywords)     { return .health     }
         if !t.isDisjoint(with: schoolKeywords)     { return .school     }
+        // Raw-text job-change phrases whose key words are stop words (e.g. "started at Google")
+        if jobRawPhrases.contains(where: { lower.contains($0) }) { return .professional }
         return .generic
     }
+
+    /// Returns true when move-like words appear in a job/company-change context.
+    private static func isJobChange(tokens: Set<String>, rawText: String) -> Bool {
+        // Token-level job signals (these survive stop-word removal)
+        let jobTokenSignals: Set<String> = [
+            "company", "companies", "role", "job", "offer",
+            "onboarding", "joined", "switched",
+        ]
+        if !tokens.isDisjoint(with: jobTokenSignals) { return true }
+        return jobRawPhrases.contains(where: { rawText.contains($0) })
+    }
+
+    /// Raw-text phrases whose key words are stop words but signal a job/company change.
+    private static let jobRawPhrases: [String] = [
+        "started at", "new position", "accepted an offer",
+        "different company", "new company",
+    ]
 
     // MARK: - Keyword sets
 

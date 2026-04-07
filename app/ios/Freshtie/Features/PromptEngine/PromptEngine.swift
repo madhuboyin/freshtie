@@ -46,13 +46,13 @@ enum PromptEngine {
         }
 
         let signals  = KeywordExtractor.extract(from: primary.rawText)
-        let category = PromptCategorizer.categorize(signals: signals)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: primary.rawText)
         let state    = TemporalLogic.state(for: primary.rawText, noteDate: primary.createdAt)
 
         // If the primary note gives no signal, peek at the second note before falling back.
         if category == .generic, let secondary = sortedNotes.dropFirst().first {
             let sec  = KeywordExtractor.extract(from: secondary.rawText)
-            let cat2 = PromptCategorizer.categorize(signals: sec)
+            let cat2 = PromptCategorizer.categorize(signals: sec, rawText: secondary.rawText)
             if cat2 != .generic {
                 let state2 = TemporalLogic.state(for: secondary.rawText, noteDate: secondary.createdAt)
                 return resolvedTemplates(category: cat2, state: state2, entity: sec.topEntity)
