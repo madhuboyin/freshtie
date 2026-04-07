@@ -50,9 +50,9 @@
 		CAFEBABECAFEBABE00000061 /* TemporalLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */; };
 		CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */; };
 		CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000005D /* PromptEngine.swift */; };
-		CAFEBABECAFEBABE000000D1 /* ConfidenceScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000D0 /* ConfidenceScorer.swift */; };
-		CAFEBABECAFEBABE000000D3 /* PromptLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000D2 /* PromptLibrary.swift */; };
-		CAFEBABECAFEBABE000000D5 /* PromptLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000D4 /* PromptLibraryTests.swift */; };
+		CAFEBABECAFEBABE000000E1 /* ConfidenceScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000E0 /* ConfidenceScorer.swift */; };
+		CAFEBABECAFEBABE000000E3 /* PromptLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000E2 /* PromptLibrary.swift */; };
+		CAFEBABECAFEBABE000000E5 /* PromptLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000E4 /* PromptLibraryTests.swift */; };
 		CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */; };
 		CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */; };
 		CAFEBABECAFEBABE00000077 /* PersonHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000072 /* PersonHeader.swift */; };
@@ -155,9 +155,9 @@
 		CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemporalLogic.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplateLibrary.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000005D /* PromptEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngine.swift; sourceTree = "<group>"; };
-		CAFEBABECAFEBABE000000D0 /* ConfidenceScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfidenceScorer.swift; sourceTree = "<group>"; };
-		CAFEBABECAFEBABE000000D2 /* PromptLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibrary.swift; sourceTree = "<group>"; };
-		CAFEBABECAFEBABE000000D4 /* PromptLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibraryTests.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000E0 /* ConfidenceScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfidenceScorer.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000E2 /* PromptLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibrary.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000E4 /* PromptLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibraryTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEmptyState.swift; sourceTree = "<group>"; };
@@ -423,8 +423,8 @@
 				CAFEBABECAFEBABE0000005B /* TemporalLogic.swift */,
 				CAFEBABECAFEBABE0000005C /* PromptTemplateLibrary.swift */,
 				CAFEBABECAFEBABE0000005D /* PromptEngine.swift */,
-				CAFEBABECAFEBABE000000D0 /* ConfidenceScorer.swift */,
-				CAFEBABECAFEBABE000000D2 /* PromptLibrary.swift */,
+				CAFEBABECAFEBABE000000E0 /* ConfidenceScorer.swift */,
+				CAFEBABECAFEBABE000000E2 /* PromptLibrary.swift */,
 			);
 			path = PromptEngine;
 			sourceTree = "<group>";
@@ -433,7 +433,7 @@
 			isa = PBXGroup;
 			children = (
 				CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */,
-				CAFEBABECAFEBABE000000D4 /* PromptLibraryTests.swift */,
+				CAFEBABECAFEBABE000000E4 /* PromptLibraryTests.swift */,
 			);
 			path = FreshtieTests;
 			sourceTree = "<group>";
@@ -679,8 +679,8 @@
 				CAFEBABECAFEBABE00000061 /* TemporalLogic.swift in Sources */,
 				CAFEBABECAFEBABE00000062 /* PromptTemplateLibrary.swift in Sources */,
 				CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */,
-				CAFEBABECAFEBABE000000D1 /* ConfidenceScorer.swift in Sources */,
-				CAFEBABECAFEBABE000000D3 /* PromptLibrary.swift in Sources */,
+				CAFEBABECAFEBABE000000E1 /* ConfidenceScorer.swift in Sources */,
+				CAFEBABECAFEBABE000000E3 /* PromptLibrary.swift in Sources */,
 				CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */,
 				CAFEBABECAFEBABE00000077 /* PersonHeader.swift in Sources */,
 				CAFEBABECAFEBABE00000078 /* LastContextBlock.swift in Sources */,
@@ -716,7 +716,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */,
-				CAFEBABECAFEBABE000000D5 /* PromptLibraryTests.swift in Sources */,
+				CAFEBABECAFEBABE000000E5 /* PromptLibraryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
