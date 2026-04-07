@@ -29,15 +29,9 @@ final class SpeechService {
     /// Requests speech recognition + microphone authorization.
     /// Returns `true` only when both are granted.
     static func requestPermissions() async -> Bool {
-        print("🎤 DEBUG: Requesting speech permission...")
         let speechGranted = await SpeechPermissionService.requestAccess()
-        print("🎤 DEBUG: Speech granted: \(speechGranted)")
         guard speechGranted else { return false }
-
-        print("🎤 DEBUG: Requesting microphone permission...")
-        let micGranted = await MicrophonePermissionService.requestAccess()
-        print("🎤 DEBUG: Microphone granted: \(micGranted)")
-        return micGranted
+        return await MicrophonePermissionService.requestAccess()
     }
 
     // MARK: - Lifecycle
@@ -52,46 +46,30 @@ final class SpeechService {
         }
 
         let session = AVAudioSession.sharedInstance()
-        do {
-            print("🎤 DEBUG: Setting audio session category...")
-            try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
-            print("🎤 DEBUG: Activating audio session...")
-            try session.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("🎤 DEBUG: Audio session setup failed: \(error)")
-            throw error
-        }
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try session.setActive(true, options: .notifyOthersOnDeactivation)
 
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
         request = req
 
-        print("🎤 DEBUG: Preparing audio engine...")
+        // prepare() initialises the hardware and resolves the input node's format
+        // before we read it — without this, outputFormat(forBus:) returns 0 Hz.
         audioEngine.prepare()
-        
-        // Get the hardware input format after preparing the engine
-        print("🎤 DEBUG: Installing audio tap...")
+
         let inputNode = audioEngine.inputNode
         let inputFormat = inputNode.outputFormat(forBus: 0)
-        print("🎤 DEBUG: Hardware input format: \(inputFormat)")
-        
-        // Check if the format is valid, if not use a standard format
         let tapFormat: AVAudioFormat
         if inputFormat.sampleRate > 0 && inputFormat.channelCount > 0 {
             tapFormat = inputFormat
-            print("🎤 DEBUG: Using hardware format for tap")
         } else {
-            // Fallback to a standard format that should always work
             tapFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
-            print("🎤 DEBUG: Using fallback format: \(tapFormat)")
         }
-        
-        // Use the validated format for the tap
+
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 
-        print("🎤 DEBUG: Starting audio engine...")
         try audioEngine.start()
 
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
@@ -101,14 +79,11 @@ final class SpeechService {
                 }
                 if let error {
                     let nsError = error as NSError
-                    print("🎤 DEBUG: Speech recognition error - Domain: \(nsError.domain), Code: \(nsError.code), Description: \(nsError.localizedDescription)")
                     // 203 = user cancelled, 216 = no speech, 301 = audio interrupted
                     if nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 203 || nsError.code == 216) {
-                        print("🎤 DEBUG: Ignoring error code \(nsError.code) (user cancelled or no speech)")
                         return
                     }
                     if nsError.code != 301 {
-                        print("🎤 DEBUG: Triggering onError callback for error code \(nsError.code)")
                         self?.onError?()
                     }
                 }
@@ -118,31 +93,22 @@ final class SpeechService {
 
     /// Stops audio engine and cancels the recognition task cleanly.
     func stop() {
-        print("🎤 DEBUG: Stopping speech service...")
-        
         task?.cancel()
         task = nil
         request?.endAudio()
         request = nil
 
         if audioEngine.isRunning {
-            print("🎤 DEBUG: Stopping audio engine...")
             audioEngine.stop()
         }
-        
-        // Remove tap before resetting
+        // Must remove tap before the next installTap call; do NOT call
+        // audioEngine.reset() — that destroys the node graph and causes a crash
+        // the next time inputNode is accessed.
         audioEngine.inputNode.removeTap(onBus: 0)
-        
-        // Reset the engine to ensure clean state for next time
-        print("🎤 DEBUG: Resetting audio engine...")
-        audioEngine.reset()
 
-        // Reset session category to avoid keeping the mic 'active' in the system status bar
         let session = AVAudioSession.sharedInstance()
         try? session.setActive(false, options: .notifyOthersOnDeactivation)
         try? session.setCategory(.ambient)
-        
-        print("🎤 DEBUG: Speech service stopped")
     }
 
     // MARK: - Error
