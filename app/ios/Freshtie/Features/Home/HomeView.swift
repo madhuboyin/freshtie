@@ -304,26 +304,6 @@ struct HomeView: View {
             print("📱 DEBUG: Added text note to person: '\(noteText)'")
         }
         
-        // 3. Add audio note if present
-        if let person = person, let audioFileName = payload.audioFileName {
-            if let audioData = ShareExtensionStore.getAudioData(fileName: audioFileName) {
-                // For now, add as a voice note with placeholder text
-                // TODO: In the future, extend Note model to support audio data
-                PersonRepository.addNote(
-                    rawText: payload.noteText ?? "[Voice Note]", 
-                    sourceType: .manualVoice,
-                    to: person,
-                    in: modelContext
-                )
-                print("📱 DEBUG: Added voice note placeholder from file: \(audioFileName)")
-                
-                // Clean up the audio file after processing
-                ShareExtensionStore.deleteAudioFile(fileName: audioFileName)
-            } else {
-                print("📱 DEBUG: Failed to load audio data for file: \(audioFileName)")
-            }
-        }
-        
         do {
             try modelContext.save()
             print("📱 DEBUG: Successfully saved person and notes to database")

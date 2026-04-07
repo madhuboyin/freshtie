@@ -8,16 +8,11 @@ import SwiftUI
 ///   2. presentUI   — host ShareExtensionRootView in a UIHostingController
 ///   3. saveAndClose — write SharedPersonPayload to App Group, complete request
 ///   4. cancel       — cancel request, no side-effects
-///
-/// Design constraint: this class runs inside the extension sandbox.
-/// It MUST NOT import or reference any main-app-only types (SwiftData models,
-/// AnalyticsService, etc.). All dependencies are sourced from shared files
-/// that belong to both targets.
 @objc(ShareViewController)
 final class ShareViewController: UIViewController {
 
     private var extractionResult: SharedContactExtractor.ExtractionResult?
-    private var isCompleted = false // Prevent duplicate processing
+    private var isCompleted = false
 
     // MARK: - Lifecycle
 
@@ -40,8 +35,8 @@ final class ShareViewController: UIViewController {
     private func presentUI(displayName: String) {
         let rootView = ShareExtensionRootView(
             displayName: displayName,
-            onSave: { [weak self] noteText, audioFileName in 
-                self?.saveAndClose(noteText: noteText, audioFileName: audioFileName) 
+            onSave: { [weak self] noteText in 
+                self?.saveAndClose(noteText: noteText) 
             },
             onCancel: { [weak self] in self?.cancel() }
         )
@@ -61,33 +56,21 @@ final class ShareViewController: UIViewController {
 
     // MARK: - Actions
 
-    private func saveAndClose(noteText: String, audioFileName: String?) {
-        guard !isCompleted else {
-            print("🔄 SHARE EXT: Already completed, ignoring duplicate save attempt")
-            return
-        }
-        
+    private func saveAndClose(noteText: String) {
+        guard !isCompleted else { return }
         isCompleted = true
         
         let payload = SharedPersonPayload(
             displayName: extractionResult?.displayName ?? "Unknown",
             contactIdentifier: extractionResult?.contactIdentifier,
-            noteText: noteText.isEmpty ? nil : noteText,
-            audioFileName: audioFileName
+            noteText: noteText.isEmpty ? nil : noteText
         )
-        print("🔄 SHARE EXT: Saving payload for '\(payload.displayName)'")
-        print("🔄 SHARE EXT: Contact ID: \(payload.contactIdentifier ?? "none")")
-        print("🔄 SHARE EXT: Note: \(payload.noteText ?? "none")")
-        print("🔄 SHARE EXT: Audio: \(payload.audioFileName ?? "none")")
         
-        // Try to save and catch any errors
         ShareExtensionStore.savePayload(payload)
         
         // Use a brief delay to ensure the save completes before terminating
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: { _ in
-                print("🔄 SHARE EXT: Extension request completed")
-            })
+            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
 
