@@ -38,7 +38,7 @@ final class PromptEngineTests: XCTestCase {
 
     func testNoNotesUsesGenericPool() {
         let prompts = PromptEngine.prompts(for: makePerson(), sortedNotes: [])
-        let genericTexts = Set(PromptTemplateLibrary.generic)
+        let genericTexts = Set(PromptLibrary.generic)
         XCTAssertTrue(prompts.allSatisfy { genericTexts.contains($0.text) })
     }
 
@@ -136,7 +136,7 @@ final class PromptEngineTests: XCTestCase {
         let note = makeNote("Trip to Japan next month")   // fresh — still future
         let pool = PromptEngine.resolvedPool(from: [note])
         // Future prompts should be from travelBefore pool
-        let validFuture = Set(PromptTemplateLibrary.travelBefore + PromptTemplateLibrary.travelAfter)
+        let validFuture = Set(PromptLibrary.travelBefore + PromptLibrary.travelAfter)
         XCTAssertTrue(pool.allSatisfy { validFuture.contains($0.replacingOccurrences(of: "Japan", with: "{entity}")) })
     }
 
@@ -145,7 +145,7 @@ final class PromptEngineTests: XCTestCase {
         let note = Note(rawText: "Moving to NYC next week")
         note.createdAt = noteDate
         let pool = PromptEngine.resolvedPool(from: [note])
-        let afterTexts = PromptTemplateLibrary.moveAfter.map {
+        let afterTexts = PromptLibrary.moveAfter.map {
             $0.replacingOccurrences(of: "{entity}", with: "NYC")
         }
         XCTAssertTrue(pool.allSatisfy { text in afterTexts.contains(text) || !text.contains("NYC") })
@@ -257,7 +257,7 @@ final class PromptEngineTests: XCTestCase {
     func testPhysicalRelocationFutureUsesMoveBeforePool() {
         let note = makeNote("moving to NYC next week")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let futureTexts = PromptTemplateLibrary.moveBefore.map {
+        let futureTexts = PromptLibrary.moveBefore.map {
             $0.replacingOccurrences(of: "{entity}", with: "NYC")
         }
         XCTAssertTrue(pool.allSatisfy { futureTexts.contains($0) || !$0.contains("NYC") })
@@ -284,13 +284,42 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertEqual(category, .generic)
     }
 
+    // MARK: - Confidence Scoring
+
+    func testHighConfidenceForRichNote() {
+        let text = "Started new job at Google"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        let temporal = TemporalLogic.state(for: text, noteDate: Date())
+        let confidence = ConfidenceScorer.score(signals: signals, category: category, temporal: temporal, rawText: text)
+        XCTAssertEqual(confidence, .high)
+    }
+
+    func testMediumConfidenceForModerateNote() {
+        let text = "started at company"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        let temporal = TemporalLogic.state(for: text, noteDate: Date())
+        let confidence = ConfidenceScorer.score(signals: signals, category: category, temporal: temporal, rawText: text)
+        XCTAssertEqual(confidence, .medium)
+    }
+
+    func testLowConfidenceForVagueNote() {
+        let text = "met at cafe"
+        let signals = KeywordExtractor.extract(from: text)
+        let category = PromptCategorizer.categorize(signals: signals, rawText: text)
+        let temporal = TemporalLogic.state(for: text, noteDate: Date())
+        let confidence = ConfidenceScorer.score(signals: signals, category: category, temporal: temporal, rawText: text)
+        XCTAssertEqual(confidence, .low)
+    }
+
     // MARK: - Second-note fallback
 
     func testSecondNoteUsedWhenFirstIsGeneric() {
         let primary   = makeNote("Met at a cafe")                      // generic
         let secondary = makeNote("Starting new job at Google", daysAgo: 5) // professional
         let pool = PromptEngine.resolvedPool(from: [primary, secondary])
-        let genericTexts = Set(PromptTemplateLibrary.generic)
+        let genericTexts = Set(PromptLibrary.generic)
         // Pool should NOT be the generic pool because secondary note provided signal
         XCTAssertFalse(pool.allSatisfy { genericTexts.contains($0) })
     }

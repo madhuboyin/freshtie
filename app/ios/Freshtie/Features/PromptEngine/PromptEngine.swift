@@ -42,34 +42,38 @@ enum PromptEngine {
     /// Visible for testing.
     static func resolvedPool(from sortedNotes: [Note]) -> [String] {
         guard let primary = sortedNotes.first else {
-            return PromptTemplateLibrary.generic
+            return PromptLibrary.generic
         }
 
         let signals  = KeywordExtractor.extract(from: primary.rawText)
         let category = PromptCategorizer.categorize(signals: signals, rawText: primary.rawText)
-        let state    = TemporalLogic.state(for: primary.rawText, noteDate: primary.createdAt)
+        let temporal = TemporalLogic.state(for: primary.rawText, noteDate: primary.createdAt)
+        let confidence = ConfidenceScorer.score(signals: signals, category: category, temporal: temporal, rawText: primary.rawText)
 
-        // If the primary note gives no signal, peek at the second note before falling back.
-        if category == .generic, let secondary = sortedNotes.dropFirst().first {
+        // If the primary note gives no signal or low confidence, peek at the second note
+        if confidence == .low, let secondary = sortedNotes.dropFirst().first {
             let sec  = KeywordExtractor.extract(from: secondary.rawText)
             let cat2 = PromptCategorizer.categorize(signals: sec, rawText: secondary.rawText)
-            if cat2 != .generic {
-                let state2 = TemporalLogic.state(for: secondary.rawText, noteDate: secondary.createdAt)
-                return resolvedTemplates(category: cat2, state: state2, entity: sec.topEntity)
+            let state2 = TemporalLogic.state(for: secondary.rawText, noteDate: secondary.createdAt)
+            let conf2 = ConfidenceScorer.score(signals: sec, category: cat2, temporal: state2, rawText: secondary.rawText)
+            
+            if conf2 > .low {
+                return resolvedTemplates(category: cat2, state: state2, confidence: conf2, entity: sec.topEntity)
             }
         }
 
-        return resolvedTemplates(category: category, state: state, entity: signals.topEntity)
+        return resolvedTemplates(category: category, state: temporal, confidence: confidence, entity: signals.topEntity)
     }
 
     private static func resolvedTemplates(
         category: PromptCategory,
         state: TemporalState,
+        confidence: ConfidenceLevel,
         entity: String?
     ) -> [String] {
-        let raw = PromptTemplateLibrary.pool(for: category, state: state)
+        let raw = PromptLibrary.pool(for: category, state: state, confidence: confidence)
         let resolved = PromptTemplateLibrary.resolved(pool: raw, entity: entity)
-        return resolved.isEmpty ? PromptTemplateLibrary.generic : resolved
+        return resolved.isEmpty ? PromptLibrary.generic : resolved
     }
 
     // MARK: - Selection
