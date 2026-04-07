@@ -323,4 +323,103 @@ final class PromptEngineTests: XCTestCase {
         // Pool should NOT be the generic pool because secondary note provided signal
         XCTAssertFalse(pool.allSatisfy { genericTexts.contains($0) })
     }
+
+    // MARK: - NoteInterpreter: relationship context
+
+    func testDegreeClassMateIsOldClassmate() {
+        let result = NoteInterpreter.interpret(rawText: "He is from gudivada and he is my degree class mate", noteDate: Date())
+        XCTAssertEqual(result.kind, .relationshipContext)
+        XCTAssertEqual(result.relationship, .oldClassmate)
+    }
+
+    func testDegreeClassMateProducesCatchUpNotSchool() {
+        let note = makeNote("He is from gudivada and he is my degree class mate")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let schoolTexts = Set(PromptLibrary.school)
+        XCTAssertFalse(pool.allSatisfy { schoolTexts.contains($0) }, "Should not use school pool for old classmate")
+        let catchUpTexts = Set(PromptLibrary.classmateCatchUp)
+        XCTAssertTrue(pool.allSatisfy { catchUpTexts.contains($0) }, "Should use classmateCatchUp pool")
+    }
+
+    func testExClassmateIsOldClassmate() {
+        let result = NoteInterpreter.interpret(rawText: "ex classmate from my batch", noteDate: Date())
+        XCTAssertEqual(result.kind, .relationshipContext)
+        XCTAssertEqual(result.relationship, .oldClassmate)
+    }
+
+    // MARK: - NoteInterpreter: identity background
+
+    func testSonOfIsIdentityBackground() {
+        let result = NoteInterpreter.interpret(rawText: "he is son of venkat alla and from dubai", noteDate: Date())
+        XCTAssertEqual(result.kind, .identityBackground)
+        XCTAssertEqual(result.promptability, .low)
+    }
+
+    func testSonOfProducesGenericOnly() {
+        let note = makeNote("he is son of venkat alla and from dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let genericTexts = Set(PromptLibrary.generic)
+        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) }, "son-of note must only use generic pool")
+        let familyTexts = Set(PromptLibrary.family)
+        XCTAssertFalse(pool.allSatisfy { familyTexts.contains($0) }, "son-of note must NOT use family/kids pool")
+    }
+
+    func testIsFromLocationIsIdentityBackground() {
+        let result = NoteInterpreter.interpret(rawText: "he is from dubai", noteDate: Date())
+        XCTAssertEqual(result.kind, .identityBackground)
+        XCTAssertEqual(result.promptability, .low)
+    }
+
+    func testIsFromLocationProducesGenericOnly() {
+        let note = makeNote("he is from dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let genericTexts = Set(PromptLibrary.generic)
+        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) })
+    }
+
+    // MARK: - NoteInterpreter: life events
+
+    func testHadABabyBoyIsFamilyEventPast() {
+        let result = NoteInterpreter.interpret(rawText: "had a baby boy", noteDate: Date())
+        XCTAssertEqual(result.kind, .lifeEvent)
+        XCTAssertEqual(result.topic, .familyEvent)
+        XCTAssertEqual(result.temporalState, .past)
+    }
+
+    func testHadABabyBoyProducesLifeEventAfterPool() {
+        let note = makeNote("had a baby boy")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let afterTexts = Set(PromptLibrary.lifeEventAfter)
+        XCTAssertTrue(pool.allSatisfy { afterTexts.contains($0) })
+    }
+
+    // MARK: - NoteInterpreter: colleague context
+
+    func testExColleagueIsOldColleague() {
+        let result = NoteInterpreter.interpret(rawText: "ex colleague from TCS", noteDate: Date())
+        XCTAssertEqual(result.kind, .relationshipContext)
+        XCTAssertEqual(result.relationship, .oldColleague)
+    }
+
+    func testExColleagueProducesColleagueCatchUp() {
+        let note = makeNote("ex colleague from TCS")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let catchUpTexts = Set(PromptLibrary.colleagueCatchUp)
+        XCTAssertTrue(pool.allSatisfy { catchUpTexts.contains($0) })
+    }
+
+    func testCurrentColleagueIsCurrentColleague() {
+        let result = NoteInterpreter.interpret(rawText: "my colleague at the office", noteDate: Date())
+        XCTAssertEqual(result.kind, .relationshipContext)
+        XCTAssertEqual(result.relationship, .currentColleague)
+    }
+
+    // MARK: - NoteInterpreter: recovering from surgery is NOT identity background
+
+    func testRecoveringFromSurgeryIsNotIdentityBackground() {
+        let result = NoteInterpreter.interpret(rawText: "recovering from surgery", noteDate: Date())
+        XCTAssertNotEqual(result.kind, .identityBackground)
+        XCTAssertEqual(result.kind, .ongoingTopic)
+        XCTAssertEqual(result.topic, .health)
+    }
 }

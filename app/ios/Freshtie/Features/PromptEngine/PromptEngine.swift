@@ -3,8 +3,8 @@ import Foundation
 /// Local deterministic prompt engine.
 ///
 /// Full pipeline per call (typically < 1 ms):
-///   sortedNotes → KeywordExtractor → PromptCategorizer → TemporalLogic
-///   → PromptTemplateLibrary.pool → entity substitution → pick 2
+///   sortedNotes → NoteInterpreter → PromptMapper (for structured signals)
+///   OR → KeywordExtractor → PromptCategorizer → TemporalLogic → PromptLibrary (weak signal fallback)
 ///
 /// All methods are pure, synchronous, and safe to call on the main thread.
 enum PromptEngine {
@@ -45,6 +45,15 @@ enum PromptEngine {
             return PromptLibrary.generic
         }
 
+        // NoteInterpreter runs first — it catches relationship context, identity background,
+        // and life events that keyword matching misclassifies.
+        let interpreted = NoteInterpreter.interpret(primary)
+        if interpreted.kind != .weakSignal {
+            let pool = PromptMapper.pool(for: interpreted)
+            return pool.isEmpty ? PromptLibrary.generic : pool
+        }
+
+        // Fallback: existing keyword pipeline for notes with no structured signal.
         let signals  = KeywordExtractor.extract(from: primary.rawText)
         let category = PromptCategorizer.categorize(signals: signals, rawText: primary.rawText)
         let temporal = TemporalLogic.state(for: primary.rawText, noteDate: primary.createdAt)
@@ -52,11 +61,17 @@ enum PromptEngine {
 
         // If the primary note gives no signal or low confidence, peek at the second note
         if confidence == .low, let secondary = sortedNotes.dropFirst().first {
+            let secInterpreted = NoteInterpreter.interpret(secondary)
+            if secInterpreted.kind != .weakSignal {
+                let pool = PromptMapper.pool(for: secInterpreted)
+                if !pool.isEmpty { return pool }
+            }
+
             let sec  = KeywordExtractor.extract(from: secondary.rawText)
             let cat2 = PromptCategorizer.categorize(signals: sec, rawText: secondary.rawText)
             let state2 = TemporalLogic.state(for: secondary.rawText, noteDate: secondary.createdAt)
             let conf2 = ConfidenceScorer.score(signals: sec, category: cat2, temporal: state2, rawText: secondary.rawText)
-            
+
             if conf2 > .low {
                 return resolvedTemplates(category: cat2, state: state2, confidence: conf2, entity: sec.topEntity)
             }

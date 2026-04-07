@@ -134,6 +134,35 @@ enum PromptLibrary {
         "How’s everything been going health-wise?",
         "Hope you’re doing better — how have things been?",
         "How are you holding up?",
-        "How's the recovery progressing?"
+        "How’s the recovery progressing?"
+    ]
+
+    // MARK: - Catch-Up (Relationship Context)
+
+    /// For old classmates — reconnecting after time apart.
+    static let classmateCatchUp = [
+        "How have things been since college?",
+        "What have you been up to these days?",
+        "It’s been a while — how have things been?",
+        "How’s life been since graduation?",
+        "What are you working on these days?"
+    ]
+
+    /// For old colleagues — reconnecting after working together.
+    static let colleagueCatchUp = [
+        "What have you been up to since we worked together?",
+        "How have things been going lately?",
+        "It’s been a while — what are you working on these days?",
+        "How’s work been treating you?",
+        "What have you been up to?"
+    ]
+
+    /// For current colleagues — soft professional check-in.
+    static let safeColleaguePool = [
+        "How’s work going?",
+        "How are things at the office?",
+        "How’s the project coming along?",
+        "How’s the team doing?",
+        "How’s everything going at work?"
     ]
 }

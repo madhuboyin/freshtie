@@ -54,6 +54,9 @@
 		CAFEBABECAFEBABE000000F1 /* ConfidenceScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F0 /* ConfidenceScorer.swift */; };
 		CAFEBABECAFEBABE000000F3 /* PromptLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F2 /* PromptLibrary.swift */; };
 		CAFEBABECAFEBABE000000F5 /* PromptLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */; };
+		CAFEBABECAFEBABE000000F9 /* NoteInterpretationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F8 /* NoteInterpretationResult.swift */; };
+		CAFEBABECAFEBABE000000FB /* NoteInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */; };
+		CAFEBABECAFEBABE000000FD /* PromptMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FC /* PromptMapper.swift */; };
 		CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */; };
 		CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */; };
 
@@ -159,6 +162,9 @@
 		CAFEBABECAFEBABE0000005D /* PromptEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngine.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000F0 /* ConfidenceScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfidenceScorer.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000F2 /* PromptLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibrary.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000F8 /* NoteInterpretationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInterpretationResult.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInterpreter.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000FC /* PromptMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptMapper.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibraryTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -428,8 +434,19 @@
 				CAFEBABECAFEBABE0000005D /* PromptEngine.swift */,
 				CAFEBABECAFEBABE000000F0 /* ConfidenceScorer.swift */,
 				CAFEBABECAFEBABE000000F2 /* PromptLibrary.swift */,
+				CAFEBABECAFEBABE000000FC /* PromptMapper.swift */,
+				CAFEBABECAFEBABE000000FE /* NoteInterpretation */,
 			);
 			path = PromptEngine;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE000000FE /* NoteInterpretation */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE000000F8 /* NoteInterpretationResult.swift */,
+				CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */,
+			);
+			path = NoteInterpretation;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE00000064 /* FreshtieTests */ = {
@@ -684,6 +701,9 @@
 				CAFEBABECAFEBABE00000063 /* PromptEngine.swift in Sources */,
 				CAFEBABECAFEBABE000000F1 /* ConfidenceScorer.swift in Sources */,
 				CAFEBABECAFEBABE000000F3 /* PromptLibrary.swift in Sources */,
+				CAFEBABECAFEBABE000000F9 /* NoteInterpretationResult.swift in Sources */,
+				CAFEBABECAFEBABE000000FB /* NoteInterpreter.swift in Sources */,
+				CAFEBABECAFEBABE000000FD /* PromptMapper.swift in Sources */,
 				CAFEBABECAFEBABE00000071 /* HomeEmptyState.swift in Sources */,
 				CAFEBABECAFEBABE00000077 /* PersonHeader.swift in Sources */,
 				CAFEBABECAFEBABE00000078 /* LastContextBlock.swift in Sources */,
