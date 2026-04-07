@@ -13,28 +13,45 @@ enum SharedContactExtractor {
 
     /// Attempts to extract contact info from the first valid item in an input list.
     static func extract(from items: [NSExtensionItem]) async -> ExtractionResult? {
-        for item in items {
-            guard let attachments = item.attachments else { continue }
+        print("🔄 SHARE EXT: Starting contact extraction from \(items.count) items")
+        
+        for (index, item) in items.enumerated() {
+            print("🔄 SHARE EXT: Processing item \(index)")
+            guard let attachments = item.attachments else { 
+                print("🔄 SHARE EXT: Item \(index) has no attachments")
+                continue 
+            }
             
-            for provider in attachments {
+            for (attachmentIndex, provider) in attachments.enumerated() {
+                print("🔄 SHARE EXT: Checking attachment \(attachmentIndex)")
+                
                 // vCard is the standard for sharing contacts (public.vcard)
                 if provider.hasItemConformingToTypeIdentifier(UTType.vCard.identifier) {
+                    print("🔄 SHARE EXT: Found vCard attachment")
                     do {
                         let data = try await provider.loadItem(forTypeIdentifier: UTType.vCard.identifier)
                         
                         // provider.loadItem often returns a URL or Data
                         if let url = data as? URL {
+                            print("🔄 SHARE EXT: Loading vCard from URL: \(url)")
                             let vCardData = try Data(contentsOf: url)
                             return try parseVCard(vCardData)
                         } else if let vCardData = data as? Data {
+                            print("🔄 SHARE EXT: Processing vCard data directly")
                             return try parseVCard(vCardData)
+                        } else {
+                            print("🔄 SHARE EXT: Unexpected data type: \(type(of: data))")
                         }
                     } catch {
-                        print("vCard extraction error: \(error)")
+                        print("🔄 SHARE EXT: vCard extraction error: \(error)")
                     }
+                } else {
+                    print("🔄 SHARE EXT: Attachment \(attachmentIndex) is not a vCard")
                 }
             }
         }
+        
+        print("🔄 SHARE EXT: No valid contact found in any items")
         return nil
     }
 

@@ -23,16 +23,30 @@ enum ShareExtensionStore {
     private static let payloadKey = "pending_shared_people"
 
     private static var sharedDefaults: UserDefaults? {
-        UserDefaults(suiteName: appGroupId)
+        guard let defaults = UserDefaults(suiteName: appGroupId) else {
+            print("🔄 SHARE EXT: Failed to create UserDefaults with suite name: \(appGroupId)")
+            return nil
+        }
+        return defaults
     }
 
     /// Appends a new shared person payload.
     static func savePayload(_ payload: SharedPersonPayload) {
+        guard let defaults = sharedDefaults else {
+            print("🔄 SHARE EXT: Cannot access shared UserDefaults")
+            return
+        }
+        
         var current = fetchAll()
         current.append(payload)
         
-        if let data = try? JSONEncoder().encode(current) {
-            sharedDefaults?.set(data, forKey: payloadKey)
+        do {
+            let data = try JSONEncoder().encode(current)
+            defaults.set(data, forKey: payloadKey)
+            defaults.synchronize() // Force synchronization
+            print("🔄 SHARE EXT: Payload saved to UserDefaults successfully")
+        } catch {
+            print("🔄 SHARE EXT: Failed to encode payload: \(error)")
         }
     }
 

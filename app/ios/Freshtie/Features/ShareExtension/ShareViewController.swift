@@ -17,6 +17,7 @@ import SwiftUI
 final class ShareViewController: UIViewController {
 
     private var extractionResult: SharedContactExtractor.ExtractionResult?
+    private var isCompleted = false // Prevent duplicate processing
 
     // MARK: - Lifecycle
 
@@ -59,17 +60,38 @@ final class ShareViewController: UIViewController {
     // MARK: - Actions
 
     private func saveAndClose(noteText: String) {
+        guard !isCompleted else {
+            print("🔄 SHARE EXT: Already completed, ignoring duplicate save attempt")
+            return
+        }
+        
+        isCompleted = true
+        
         let payload = SharedPersonPayload(
             displayName: extractionResult?.displayName ?? "Unknown",
             contactIdentifier: extractionResult?.contactIdentifier,
             noteText: noteText.isEmpty ? nil : noteText
         )
         print("🔄 SHARE EXT: Saving payload for '\(payload.displayName)'")
+        print("🔄 SHARE EXT: Contact ID: \(payload.contactIdentifier ?? "none")")
+        print("🔄 SHARE EXT: Note: \(payload.noteText ?? "none")")
+        
+        // Try to save and catch any errors
         ShareExtensionStore.savePayload(payload)
-        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        
+        // Use a brief delay to ensure the save completes before terminating
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: { [weak self] _ in
+                print("🔄 SHARE EXT: Extension request completed")
+                self?.extensionContext = nil
+            })
+        }
     }
 
     private func cancel() {
+        guard !isCompleted else { return }
+        isCompleted = true
+        
         extensionContext?.cancelRequest(
             withError: NSError(domain: "com.freshtie.share", code: 0, userInfo: nil)
         )
