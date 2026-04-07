@@ -171,53 +171,50 @@ final class ShareExtensionSpeechService: ObservableObject {
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
             throw NSError(domain: "SpeechRecognition", code: 1, userInfo: [NSLocalizedDescriptionKey: "Speech recognizer not available"])
         }
-        
-        // Create recognition request for live audio
+
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         recognitionRequest = request
-        
-        // Prepare audio engine
+
+        // prepare() initialises the hardware so outputFormat returns a valid rate.
         audioEngine.prepare()
         let inputNode = audioEngine.inputNode
         let inputFormat = inputNode.outputFormat(forBus: 0)
-        
-        // Install tap to feed audio to speech recognizer
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
+        let tapFormat: AVAudioFormat
+        if inputFormat.sampleRate > 0 && inputFormat.channelCount > 0 {
+            tapFormat = inputFormat
+        } else {
+            tapFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+        }
+
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
         }
-        
-        // Start audio engine
+
         try audioEngine.start()
-        
-        // Start recognition task
+
         recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
             DispatchQueue.main.async {
                 if let result = result {
                     self?.transcriptionText = result.bestTranscription.formattedString
                 }
-                
-                if let error = error {
-                    print("🔄 SHARE EXT: Speech recognition error: \(error)")
-                    // Don't stop recording on recognition errors, just log them
-                }
             }
         }
     }
-    
+
     private func stopLiveSpeechRecognition() {
         recognitionTask?.cancel()
         recognitionTask = nil
-        
+
         recognitionRequest?.endAudio()
         recognitionRequest = nil
-        
+
         if audioEngine.isRunning {
             audioEngine.stop()
         }
-        
+        // Do NOT call audioEngine.reset() — it destroys the node graph and causes
+        // a crash (inputNode == nullptr) the next time prepare()/start() is called.
         audioEngine.inputNode.removeTap(onBus: 0)
-        audioEngine.reset()
     }
     
     private func cleanup() {
