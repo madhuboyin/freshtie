@@ -12,6 +12,7 @@ struct FreshtieApp: App {
             RootView()
                 .environment(detectionService)
                 .onAppear {
+                    checkPermissions() // Add this debug call
                     AnalyticsService.shared.track(.app_opened)
                     handleSharedPayloads()
                     Task { await detectionService.performDetection(modelContext: modelContext) }
@@ -81,5 +82,13 @@ struct FreshtieApp: App {
         }
         
         try? modelContext.save()
+    }
+
+    private func checkPermissions() {
+        let micStatus = MicrophonePermissionService.status
+        let speechStatus = SpeechPermissionService.status
+        print("🔍 PERMISSION CHECK:")
+        print("   Microphone: \(micStatus) (isDenied: \(micStatus.isDenied))")
+        print("   Speech: \(speechStatus) (isDenied: \(speechStatus.isDenied))")
     }
 }

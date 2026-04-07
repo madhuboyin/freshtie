@@ -29,10 +29,14 @@ final class SpeechService {
     /// Requests speech recognition + microphone authorization.
     /// Returns `true` only when both are granted.
     static func requestPermissions() async -> Bool {
+        print("🎤 DEBUG: Requesting speech permission...")
         let speechGranted = await SpeechPermissionService.requestAccess()
+        print("🎤 DEBUG: Speech granted: \(speechGranted)")
         guard speechGranted else { return false }
 
+        print("🎤 DEBUG: Requesting microphone permission...")
         let micGranted = await MicrophonePermissionService.requestAccess()
+        print("🎤 DEBUG: Microphone granted: \(micGranted)")
         return micGranted
     }
 

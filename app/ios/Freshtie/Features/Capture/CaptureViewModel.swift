@@ -72,21 +72,31 @@ final class CaptureViewModel {
     }
 
     private func requestAndStart() async {
-        if MicrophonePermissionService.status.isDenied || SpeechPermissionService.status.isDenied {
+        let micStatus = MicrophonePermissionService.status
+        let speechStatus = SpeechPermissionService.status
+        
+        print("🎤 DEBUG: Mic status: \(micStatus), Speech status: \(speechStatus)")
+        
+        if micStatus.isDenied || speechStatus.isDenied {
+            print("🎤 DEBUG: Permissions denied - Mic: \(micStatus.isDenied), Speech: \(speechStatus.isDenied)")
             captureState = .permissionDenied
             return
         }
         
+        print("🎤 DEBUG: Requesting permissions...")
         let granted = await SpeechService.requestPermissions()
+        print("🎤 DEBUG: Permissions granted: \(granted)")
         guard granted else {
             captureState = .permissionDenied
             return
         }
         do {
+            print("🎤 DEBUG: Starting speech recognition...")
             try speech.start()
             captureState = .listening
             startSilenceTimer()
         } catch {
+            print("🎤 DEBUG: Speech start failed: \(error)")
             fallbackToText()
         }
     }
