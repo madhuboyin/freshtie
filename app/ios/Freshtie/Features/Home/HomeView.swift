@@ -72,6 +72,14 @@ struct HomeView: View {
                 PersonView(person: person)
             }
         }
+        .onAppear {
+            handleSharedPayloads()
+            Task { await detectionService.performDetection(modelContext: modelContext) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            handleSharedPayloads()
+            Task { await detectionService.performDetection(modelContext: modelContext) }
+        }
         // Person picker options
         .confirmationDialog("Add someone", isPresented: $showPickerOptions) {
             Button("Pick from Contacts") { handlePickFromContacts() }
@@ -243,6 +251,66 @@ struct HomeView: View {
     }
 
     // MARK: - Helpers
+
+    private func handleSharedPayloads() {
+        print("📱 DEBUG: Checking for shared payloads...")
+        let payloads = ShareExtensionStore.fetchAll()
+        print("📱 DEBUG: Found \(payloads.count) shared payloads")
+        guard !payloads.isEmpty else { 
+            print("📱 DEBUG: No shared payloads to process")
+            return 
+        }
+
+        for payload in payloads {
+            print("📱 DEBUG: Processing shared contact: \(payload.displayName)")
+            process(payload)
+            AnalyticsService.shared.track(.share_extension_used)
+        }
+
+        ShareExtensionStore.clearAll()
+        print("📱 DEBUG: Finished processing shared payloads")
+    }
+
+    private func process(_ payload: SharedPersonPayload) {
+        print("📱 DEBUG: Processing payload for '\(payload.displayName)', contactID: \(payload.contactIdentifier ?? "none")")
+        
+        // 1. Find or create person
+        var person: Person?
+        
+        if let cid = payload.contactIdentifier {
+            let descriptor = FetchDescriptor<Person>(predicate: #Predicate { $0.contactIdentifier == cid })
+            person = (try? modelContext.fetch(descriptor))?.first
+            print("📱 DEBUG: Found existing person: \(person?.displayName ?? "none")")
+        }
+        
+        if person == nil {
+            person = PersonRepository.createPerson(
+                displayName: payload.displayName,
+                contactIdentifier: payload.contactIdentifier,
+                creationSource: .manual, // Shared counts as manual/intentional
+                in: modelContext
+            )
+            print("📱 DEBUG: Created new person: \(person?.displayName ?? "failed")")
+        }
+        
+        // 2. Add note if present
+        if let person = person, let noteText = payload.noteText {
+            PersonRepository.addNote(
+                rawText: noteText,
+                sourceType: .manualText,
+                to: person,
+                in: modelContext
+            )
+            print("📱 DEBUG: Added note to person: '\(noteText)'")
+        }
+        
+        do {
+            try modelContext.save()
+            print("📱 DEBUG: Successfully saved person and note to database")
+        } catch {
+            print("📱 DEBUG: Error saving to database: \(error)")
+        }
+    }
 
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
