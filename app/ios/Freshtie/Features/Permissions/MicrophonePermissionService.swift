@@ -20,7 +20,7 @@ enum MicrophonePermissionService {
     static func requestAccess() async -> Bool {
         AnalyticsService.shared.track(.microphone_permission_requested, metadata: [AnalyticsMetadata.sourceType: "microphone"])
         return await withCheckedContinuation { continuation in
-            AVAudioApplication.shared.requestRecordPermission { granted in
+            AVAudioApplication.requestRecordPermission { granted in
                 Task { @MainActor in
                     AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
                         AnalyticsMetadata.sourceType: "microphone",
