@@ -19,16 +19,27 @@ struct HomeView: View {
     @State private var showAddPerson      = false
     @State private var showContactPicker  = false
     @State private var showContactDenied  = false
-    @State private var showPersonSearch   = false
+    @State private var showPickerOptions  = false
+
+    /// Inline search state — activates when the user taps the search row.
+    @State private var isSearching  = false
+    @State private var searchText   = ""
 
     /// Set by the contact picker callback; cleared after navigation fires.
     @State private var pendingPerson: Person?     = nil
     @State private var navigateToPerson: Person?  = nil
 
-    /// Pinned first, then most recently opened. Capped at 6 so Home
-    /// stays lightweight — it's a quick-pick list, not a full directory.
+    /// Pinned first, then most recently opened. Capped at 6 in browse mode;
+    /// uncapped and filtered by searchText while searching.
     private var recentPeople: [Person] {
         Array(allPeople.prefix(6))
+    }
+
+    private var searchResults: [Person] {
+        guard !searchText.isEmpty else { return allPeople }
+        return allPeople.filter {
+            $0.displayName.localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     // MARK: - Body
@@ -51,8 +62,12 @@ struct HomeView: View {
                     searchSection
                         .padding(.horizontal, AppSpacing.md)
                         .padding(.top, AppSpacing.lg)
+                        .animation(.easeInOut(duration: 0.2), value: isSearching)
 
-                    if recentPeople.isEmpty {
+                    if isSearching {
+                        searchResultsSection
+                            .padding(.top, AppSpacing.lg)
+                    } else if recentPeople.isEmpty {
                         emptyState
                             .padding(.top, AppSpacing.xxl)
                     } else {
@@ -60,9 +75,11 @@ struct HomeView: View {
                             .padding(.top, AppSpacing.lg)
                     }
 
-                    discoverabilityTip
-                        .padding(.horizontal, AppSpacing.md)
-                        .padding(.top, AppSpacing.xxl)
+                    if !isSearching {
+                        discoverabilityTip
+                            .padding(.horizontal, AppSpacing.md)
+                            .padding(.top, AppSpacing.xxl)
+                    }
                 }
                 .padding(.bottom, AppSpacing.xxl)
             }
@@ -80,18 +97,10 @@ struct HomeView: View {
             handleSharedPayloads()
             Task { await detectionService.performDetection(modelContext: modelContext) }
         }
-        // Person search/select sheet — shows existing people first, add options second
-        .sheet(isPresented: $showPersonSearch) {
-            PersonSearchSheet(
-                onSelectPerson: { person in pendingPerson = person },
-                onPickFromContacts: { handlePickFromContacts() },
-                onAddManually: { showAddPerson = true }
-            )
-        }
-        .onChange(of: showPersonSearch) { _, isShowing in
-            guard !isShowing, let person = pendingPerson else { return }
-            pendingPerson = nil
-            navigateToPerson = person
+        .confirmationDialog("Add someone", isPresented: $showPickerOptions) {
+            Button("Pick from Contacts") { handlePickFromContacts() }
+            Button("Add Manually")       { showAddPerson = true }
+            Button("Cancel", role: .cancel) {}
         }
         .sheet(isPresented: $showAddPerson) {
             AddPersonSheet()
@@ -175,9 +184,55 @@ struct HomeView: View {
         }
     }
 
-    /// Primary entry control — the most important tap on this screen.
+    /// Primary entry control.
+    /// - Browse mode: a tappable row that activates inline search.
+    /// - Search mode: a live text field with a Cancel button.
+    @ViewBuilder
     private var searchSection: some View {
-        SearchSelectRow { showPersonSearch = true }
+        if isSearching {
+            HStack(spacing: AppSpacing.sm) {
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(AppColors.secondaryLabel)
+
+                    TextField("Search", text: $searchText)
+                        .font(AppTypography.body)
+                        .autocorrectionDisabled()
+
+                    if !searchText.isEmpty {
+                        Button { searchText = "" } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(AppColors.tertiaryLabel)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, AppSpacing.md)
+                .frame(height: AppSize.minTapTarget + AppSpacing.md)
+                .background(AppColors.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.md))
+                .overlay {
+                    RoundedRectangle(cornerRadius: AppRadius.md)
+                        .strokeBorder(AppColors.separator.opacity(0.5), lineWidth: 0.5)
+                }
+
+                Button("Cancel") {
+                    isSearching = false
+                    searchText  = ""
+                }
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.accent)
+            }
+        } else {
+            SearchSelectRow {
+                if allPeople.isEmpty {
+                    showPickerOptions = true
+                } else {
+                    isSearching = true
+                }
+            }
+        }
     }
 
     private var recentSection: some View {
@@ -185,14 +240,33 @@ struct HomeView: View {
             SectionHeader("Recent")
                 .padding(.horizontal, AppSpacing.md)
 
-            personList
+            personList(people: recentPeople)
+        }
+    }
+
+    /// Shown while the inline search field is active.
+    private var searchResultsSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            if searchResults.isEmpty {
+                Text("No match for \"\(searchText)\"")
+                    .font(AppTypography.subheadline)
+                    .foregroundStyle(AppColors.secondaryLabel)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.sm)
+            } else {
+                personList(people: searchResults)
+            }
+
+            // Add options — always accessible while searching
+            addOptionsRow
+                .padding(.top, AppSpacing.sm)
         }
     }
 
     /// Person rows grouped in an inset card — native iOS list feel.
-    private var personList: some View {
+    private func personList(people: [Person]) -> some View {
         VStack(spacing: 0) {
-            ForEach(Array(recentPeople.enumerated()), id: \.element.id) { index, person in
+            ForEach(Array(people.enumerated()), id: \.element.id) { index, person in
                 NavigationLink(destination: PersonView(person: person)) {
                     PersonRow(person: person)
                 }
@@ -201,7 +275,7 @@ struct HomeView: View {
                     AnalyticsService.shared.track(.person_selected, metadata: [AnalyticsMetadata.personID: person.id.uuidString])
                 })
 
-                if index < recentPeople.count - 1 {
+                if index < people.count - 1 {
                     Divider()
                         .padding(.leading, AppSpacing.md + AppSize.avatarMD + AppSpacing.md)
                 }
@@ -212,8 +286,56 @@ struct HomeView: View {
         .padding(.horizontal, AppSpacing.md)
     }
 
+    /// Secondary add-actions row — visible below search results.
+    private var addOptionsRow: some View {
+        VStack(spacing: 0) {
+            Button {
+                isSearching = false
+                searchText  = ""
+                handlePickFromContacts()
+            } label: {
+                addActionLabel(icon: "person.crop.circle.badge.plus", title: "Pick from Contacts")
+            }
+            .buttonStyle(.plain)
+
+            Divider()
+                .padding(.leading, AppSpacing.md + 28 + AppSpacing.sm)
+
+            Button {
+                isSearching = false
+                searchText  = ""
+                showAddPerson = true
+            } label: {
+                addActionLabel(icon: "square.and.pencil", title: "Add Manually")
+            }
+            .buttonStyle(.plain)
+        }
+        .background(AppColors.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.lg))
+        .padding(.horizontal, AppSpacing.md)
+    }
+
+    private func addActionLabel(icon: String, title: String) -> some View {
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: icon)
+                .font(.system(size: 17))
+                .foregroundStyle(AppColors.accent)
+                .frame(width: 28)
+            Text(title)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.label)
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(AppColors.tertiaryLabel)
+        }
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm + AppSpacing.xs)
+        .contentShape(Rectangle())
+    }
+
     private var emptyState: some View {
-        HomeEmptyState { showPersonSearch = true }
+        HomeEmptyState { showPickerOptions = true }
     }
 
     private var discoverabilityTip: some View {
