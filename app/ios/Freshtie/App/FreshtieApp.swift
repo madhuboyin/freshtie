@@ -36,9 +36,13 @@ struct FreshtieApp: App {
     }
 
     private func handleSharedPayloads() {
+        print("📱 DEBUG: Checking for shared payloads...")
         let payloads = ShareExtensionStore.fetchAll()
         print("📱 DEBUG: Found \(payloads.count) shared payloads")
-        guard !payloads.isEmpty else { return }
+        guard !payloads.isEmpty else { 
+            print("📱 DEBUG: No shared payloads to process")
+            return 
+        }
 
         for payload in payloads {
             print("📱 DEBUG: Processing shared contact: \(payload.displayName)")
@@ -47,6 +51,7 @@ struct FreshtieApp: App {
         }
 
         ShareExtensionStore.clearAll()
+        print("📱 DEBUG: Finished processing shared payloads")
     }
 
     private func process(_ payload: SharedPersonPayload) {
