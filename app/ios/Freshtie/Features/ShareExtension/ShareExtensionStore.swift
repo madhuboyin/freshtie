@@ -6,13 +6,15 @@ struct SharedPersonPayload: Codable, Identifiable {
     let displayName: String
     let contactIdentifier: String?
     let noteText: String?
+    let audioFileName: String? // File name for recorded audio in App Group
     let timestamp: Date
 
-    init(displayName: String, contactIdentifier: String? = nil, noteText: String? = nil) {
+    init(displayName: String, contactIdentifier: String? = nil, noteText: String? = nil, audioFileName: String? = nil) {
         self.id = UUID()
         self.displayName = displayName
         self.contactIdentifier = contactIdentifier
         self.noteText = noteText
+        self.audioFileName = audioFileName
         self.timestamp = Date()
     }
 }
@@ -75,6 +77,49 @@ enum ShareExtensionStore {
             try FileManager.default.removeItem(at: fileURL)
         } catch {
             print("🔄 SHARE EXT: Failed to clear payloads: \(error)")
+        }
+    }
+    
+    /// Saves audio data to the shared directory and returns the filename
+    static func saveAudioData(_ data: Data) -> String? {
+        guard let directory = sharedDirectory else { return nil }
+        
+        let fileName = "audio_\(UUID().uuidString).m4a"
+        let fileURL = directory.appendingPathComponent(fileName)
+        
+        do {
+            try data.write(to: fileURL)
+            print("🔄 SHARE EXT: Audio saved to \(fileName)")
+            return fileName
+        } catch {
+            print("🔄 SHARE EXT: Failed to save audio: \(error)")
+            return nil
+        }
+    }
+    
+    /// Retrieves audio data from the shared directory
+    static func getAudioData(fileName: String) -> Data? {
+        guard let directory = sharedDirectory else { return nil }
+        let fileURL = directory.appendingPathComponent(fileName)
+        
+        do {
+            return try Data(contentsOf: fileURL)
+        } catch {
+            print("🔄 SHARE EXT: Failed to load audio \(fileName): \(error)")
+            return nil
+        }
+    }
+    
+    /// Deletes audio file from shared directory
+    static func deleteAudioFile(fileName: String) {
+        guard let directory = sharedDirectory else { return }
+        let fileURL = directory.appendingPathComponent(fileName)
+        
+        do {
+            try FileManager.default.removeItem(at: fileURL)
+            print("🔄 SHARE EXT: Deleted audio file \(fileName)")
+        } catch {
+            print("🔄 SHARE EXT: Failed to delete audio file \(fileName): \(error)")
         }
     }
 }

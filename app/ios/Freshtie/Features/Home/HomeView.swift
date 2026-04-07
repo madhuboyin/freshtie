@@ -301,12 +301,31 @@ struct HomeView: View {
                 to: person,
                 in: modelContext
             )
-            print("📱 DEBUG: Added note to person: '\(noteText)'")
+            print("📱 DEBUG: Added text note to person: '\(noteText)'")
+        }
+        
+        // 3. Add audio note if present
+        if let person = person, let audioFileName = payload.audioFileName {
+            if let audioData = ShareExtensionStore.getAudioData(fileName: audioFileName) {
+                PersonRepository.addNote(
+                    rawText: "", // Audio notes might not have transcribed text in Share Extension
+                    sourceType: .recording,
+                    audioData: audioData,
+                    to: person,
+                    in: modelContext
+                )
+                print("📱 DEBUG: Added audio note to person from file: \(audioFileName)")
+                
+                // Clean up the audio file after processing
+                ShareExtensionStore.deleteAudioFile(fileName: audioFileName)
+            } else {
+                print("📱 DEBUG: Failed to load audio data for file: \(audioFileName)")
+            }
         }
         
         do {
             try modelContext.save()
-            print("📱 DEBUG: Successfully saved person and note to database")
+            print("📱 DEBUG: Successfully saved person and notes to database")
         } catch {
             print("📱 DEBUG: Error saving to database: \(error)")
         }

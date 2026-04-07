@@ -40,7 +40,9 @@ final class ShareViewController: UIViewController {
     private func presentUI(displayName: String) {
         let rootView = ShareExtensionRootView(
             displayName: displayName,
-            onSave: { [weak self] note in self?.saveAndClose(noteText: note) },
+            onSave: { [weak self] noteText, audioFileName in 
+                self?.saveAndClose(noteText: noteText, audioFileName: audioFileName) 
+            },
             onCancel: { [weak self] in self?.cancel() }
         )
 
@@ -59,7 +61,7 @@ final class ShareViewController: UIViewController {
 
     // MARK: - Actions
 
-    private func saveAndClose(noteText: String) {
+    private func saveAndClose(noteText: String, audioFileName: String?) {
         guard !isCompleted else {
             print("🔄 SHARE EXT: Already completed, ignoring duplicate save attempt")
             return
@@ -70,11 +72,13 @@ final class ShareViewController: UIViewController {
         let payload = SharedPersonPayload(
             displayName: extractionResult?.displayName ?? "Unknown",
             contactIdentifier: extractionResult?.contactIdentifier,
-            noteText: noteText.isEmpty ? nil : noteText
+            noteText: noteText.isEmpty ? nil : noteText,
+            audioFileName: audioFileName
         )
         print("🔄 SHARE EXT: Saving payload for '\(payload.displayName)'")
         print("🔄 SHARE EXT: Contact ID: \(payload.contactIdentifier ?? "none")")
         print("🔄 SHARE EXT: Note: \(payload.noteText ?? "none")")
+        print("🔄 SHARE EXT: Audio: \(payload.audioFileName ?? "none")")
         
         // Try to save and catch any errors
         ShareExtensionStore.savePayload(payload)
