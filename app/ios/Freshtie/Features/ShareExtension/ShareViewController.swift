@@ -81,9 +81,8 @@ final class ShareViewController: UIViewController {
         
         // Use a brief delay to ensure the save completes before terminating
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: { [weak self] _ in
+            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: { _ in
                 print("🔄 SHARE EXT: Extension request completed")
-                self?.extensionContext = nil
             })
         }
     }
