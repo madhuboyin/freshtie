@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2A6CD23A2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */; };
+		2A6CD23B2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFE1005 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
-		CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
 		CAFEBABECAFE1008 /* SharedContactExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
 		CAFEBABECAFE1009 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE0000000F /* AppColors.swift */; };
@@ -64,7 +64,6 @@
 		CAFEBABECAFEBABE00000087 /* TextInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000082 /* TextInputField.swift */; };
 		CAFEBABECAFEBABE000000A1 /* ShareExtensionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
 		CAFEBABECAFEBABE000000A3 /* SharedContactExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
-		CAFEBABECAFEBABE000000A5 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFEBABE000000B1 /* ContactDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */; };
 		CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */; };
 		CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000B4 /* TriggerTimingModel.swift */; };
@@ -168,7 +167,6 @@
 		CAFEBABECAFEBABE00000082 /* TextInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputField.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionStore.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContactExtractor.swift; sourceTree = "<group>"; };
-		CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionRootView.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000B0 /* ContactDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetectionService.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000B2 /* ContactSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSnapshotStore.swift; sourceTree = "<group>"; };
@@ -448,7 +446,6 @@
 			children = (
 				CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */,
 				CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */,
-				CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */,
 				CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */,
 			);
 			path = ShareExtension;
@@ -626,12 +623,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAFEBABECAFE1005 /* ShareViewController.swift in Sources */,
-				CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources */,
 				CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources */,
 				CAFEBABECAFE1008 /* SharedContactExtractor.swift in Sources */,
 				CAFEBABECAFE1009 /* AppColors.swift in Sources */,
 				CAFEBABECAFE100A /* AppSpacing.swift in Sources */,
 				CAFEBABECAFE100B /* AppTypography.swift in Sources */,
+				2A6CD23B2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,7 +683,6 @@
 				CAFEBABECAFEBABE00000087 /* TextInputField.swift in Sources */,
 				CAFEBABECAFEBABE000000A1 /* ShareExtensionStore.swift in Sources */,
 				CAFEBABECAFEBABE000000A3 /* SharedContactExtractor.swift in Sources */,
-				CAFEBABECAFEBABE000000A5 /* ShareExtensionRootView.swift in Sources */,
 				CAFEBABECAFEBABE000000B1 /* ContactDetectionService.swift in Sources */,
 				CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */,
 				CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */,
