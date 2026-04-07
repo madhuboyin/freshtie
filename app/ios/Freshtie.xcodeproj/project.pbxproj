@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2A6CD2382F84A20F004FAC20 /* ShareExtensionRootView_Fixed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2372F84A20F004FAC20 /* ShareExtensionRootView_Fixed.swift */; };
 		2A6CD23A2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */; };
 		CAFEBABECAFE1005 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
 		CAFEBABECAFE1006 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A4 /* ShareExtensionRootView.swift */; };
@@ -114,7 +113,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2A6CD2372F84A20F004FAC20 /* ShareExtensionRootView_Fixed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionRootView_Fixed.swift; sourceTree = "<group>"; };
 		2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionRootView.swift; sourceTree = "<group>"; };
 		CAFEBABECAFE1001 /* FreshtieShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FreshtieShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFE1002 /* FreshtieShare/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = FreshtieShare/Info.plist; sourceTree = "<group>"; };
@@ -303,7 +301,6 @@
 				CAFEBABECAFEBABE00000017 /* HomeView.swift */,
 				CAFEBABECAFEBABE00000046 /* AddPersonSheet.swift */,
 				CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */,
-				2A6CD2372F84A20F004FAC20 /* ShareExtensionRootView_Fixed.swift */,
 				2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */,
 			);
 			path = Home;
@@ -694,7 +691,6 @@
 				CAFEBABECAFEBABE000000B3 /* ContactSnapshotStore.swift in Sources */,
 				CAFEBABECAFEBABE000000B5 /* TriggerTimingModel.swift in Sources */,
 				CAFEBABECAFEBABE000000C0 /* AnalyticsService.swift in Sources */,
-				2A6CD2382F84A20F004FAC20 /* ShareExtensionRootView_Fixed.swift in Sources */,
 				CAFEBABECAFEBABE000000C1 /* AnalyticsEvent.swift in Sources */,
 				CAFEBABECAFEBABE000000C2 /* AnalyticsConstants.swift in Sources */,
 				CAFEBABECAFEBABE000000C3 /* AnalyticsEventStore.swift in Sources */,

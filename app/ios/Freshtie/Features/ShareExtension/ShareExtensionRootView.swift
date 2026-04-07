@@ -1,4 +1,6 @@
 import SwiftUI
+
+import SwiftUI
 import Speech
 import AVFoundation
 
@@ -82,7 +84,9 @@ final class ShareExtensionSpeechService: ObservableObject {
     
     private var audioRecorder: AVAudioRecorder?
     private var speechRecognizer = SFSpeechRecognizer()
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
+    private var audioEngine = AVAudioEngine()
     
     private var recordingURL: URL? {
         let documentsPath = FileManager.default.temporaryDirectory
@@ -99,6 +103,7 @@ final class ShareExtensionSpeechService: ObservableObject {
         guard hasPermissions, !isRecording else { return }
         guard let url = recordingURL else { return }
         
+        // Configure audio session
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.playAndRecord, mode: .default)
@@ -108,6 +113,7 @@ final class ShareExtensionSpeechService: ObservableObject {
             return
         }
         
+        // Configure recorder settings
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 44100,
@@ -116,32 +122,43 @@ final class ShareExtensionSpeechService: ObservableObject {
         ]
         
         do {
+            // Start file recording
             audioRecorder = try AVAudioRecorder(url: url, settings: settings)
             audioRecorder?.record()
+            
+            // Start live speech recognition using audio engine
+            try startLiveSpeechRecognition()
+            
             isRecording = true
-            startSpeechRecognition(url: url)
             print("🔄 SHARE EXT: Recording started")
         } catch {
             print("🔄 SHARE EXT: Failed to start recording: \(error)")
+            cleanup()
         }
     }
     
     func stopRecording() -> Data? {
         guard isRecording else { return nil }
         
+        // Stop everything
         audioRecorder?.stop()
         audioRecorder = nil
+        
+        stopLiveSpeechRecognition()
+        
         isRecording = false
         
-        recognitionTask?.cancel()
-        recognitionTask = nil
-        
+        // Reset audio session
         try? AVAudioSession.sharedInstance().setActive(false)
         
+        print("🔄 SHARE EXT: Recording stopped")
+        
+        // Return audio data
         guard let url = recordingURL else { return nil }
         
         do {
             let data = try Data(contentsOf: url)
+            // Clean up temp file
             try FileManager.default.removeItem(at: url)
             return data
         } catch {
@@ -150,22 +167,67 @@ final class ShareExtensionSpeechService: ObservableObject {
         }
     }
     
-    private func startSpeechRecognition(url: URL) {
-        guard let recognizer = speechRecognizer, recognizer.isAvailable else { return }
+    // MARK: - Live Speech Recognition
+    
+    private func startLiveSpeechRecognition() throws {
+        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
+            throw NSError(domain: "SpeechRecognition", code: 1, userInfo: [NSLocalizedDescriptionKey: "Speech recognizer not available"])
+        }
         
-        let request = SFSpeechURLRecognitionRequest(url: url)
+        // Create recognition request for live audio
+        let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
+        recognitionRequest = request
         
+        // Prepare audio engine
+        audioEngine.prepare()
+        let inputNode = audioEngine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+        
+        // Install tap to feed audio to speech recognizer
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
+            self?.recognitionRequest?.append(buffer)
+        }
+        
+        // Start audio engine
+        try audioEngine.start()
+        
+        // Start recognition task
         recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
-            Task { @MainActor in
+            DispatchQueue.main.async {
                 if let result = result {
                     self?.transcriptionText = result.bestTranscription.formattedString
                 }
+                
                 if let error = error {
                     print("🔄 SHARE EXT: Speech recognition error: \(error)")
+                    // Don't stop recording on recognition errors, just log them
                 }
             }
         }
+    }
+    
+    private func stopLiveSpeechRecognition() {
+        recognitionTask?.cancel()
+        recognitionTask = nil
+        
+        recognitionRequest?.endAudio()
+        recognitionRequest = nil
+        
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
+        
+        audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.reset()
+    }
+    
+    private func cleanup() {
+        audioRecorder?.stop()
+        audioRecorder = nil
+        stopLiveSpeechRecognition()
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false)
     }
 }
 
