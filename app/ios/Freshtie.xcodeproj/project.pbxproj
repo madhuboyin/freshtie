@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2A6CD23A2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */; };
 		2A6CD23B2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6CD2392F84A270004FAC20 /* ShareExtensionRootView.swift */; };
+		CAFEBABECAFE1017 /* MicrophoneButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000080 /* MicrophoneButton.swift */; };
 		CAFEBABECAFE1005 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A6 /* ShareViewController.swift */; };
 		CAFEBABECAFE1007 /* ShareExtensionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A0 /* ShareExtensionStore.swift */; };
 		CAFEBABECAFE1008 /* SharedContactExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000A2 /* SharedContactExtractor.swift */; };
@@ -638,6 +639,7 @@
 				CAFEBABECAFE100A /* AppSpacing.swift in Sources */,
 				CAFEBABECAFE100B /* AppTypography.swift in Sources */,
 				2A6CD23B2F84A270004FAC20 /* ShareExtensionRootView.swift in Sources */,
+				CAFEBABECAFE1017 /* MicrophoneButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

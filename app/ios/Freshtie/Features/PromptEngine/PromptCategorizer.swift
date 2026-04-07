@@ -38,7 +38,8 @@ enum PromptCategorizer {
     /// Raw-text phrases whose key words are stop words but signal a job/company change.
     private static let jobRawPhrases: [String] = [
         "started at", "new position", "accepted an offer",
-        "different company", "new company",
+        "different company", "new company", "switched to",
+        "joined the team",
     ]
 
     // MARK: - Keyword sets

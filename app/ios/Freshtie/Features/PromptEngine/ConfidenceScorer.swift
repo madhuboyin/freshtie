@@ -39,7 +39,8 @@ enum ConfidenceScorer {
         }
 
         // 6. Final Thresholding
-        if score >= 4 {
+        // Lowered thresholds to be less aggressive with generic fallbacks
+        if score >= 3 {
             return .high
         } else if score >= 1 {
             return .medium

@@ -9,7 +9,7 @@ import Foundation
 /// All methods are pure, synchronous, and safe to call on the main thread.
 enum PromptEngine {
 
-    static let promptCount = 2
+    static let promptCount = 3
 
     // MARK: - Public API
 

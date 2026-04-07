@@ -26,9 +26,9 @@ final class PromptEngineTests: XCTestCase {
 
     // MARK: - Zero signal
 
-    func testNoNotesReturnsExactlyTwoPrompts() {
+    func testNoNotesReturnsExactlyThreePrompts() {
         let prompts = PromptEngine.prompts(for: makePerson(), sortedNotes: [])
-        XCTAssertEqual(prompts.count, 2)
+        XCTAssertEqual(prompts.count, 3)
     }
 
     func testNoNotesPromptsAreNonEmpty() {
@@ -188,11 +188,11 @@ final class PromptEngineTests: XCTestCase {
 
     // MARK: - Refresh
 
-    func testRefreshReturnsTwoPrompts() {
+    func testRefreshReturnsThreePrompts() {
         let person = makePerson()
         let initial = PromptEngine.prompts(for: person, sortedNotes: [])
         let refreshed = PromptEngine.refreshedPrompts(for: person, sortedNotes: [], excluding: initial)
-        XCTAssertEqual(refreshed.count, 2)
+        XCTAssertEqual(refreshed.count, 3)
     }
 
     func testRefreshAvoidsCurrentPrompts() {
@@ -204,12 +204,12 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertTrue(initialTexts.isDisjoint(with: refreshedTexts))
     }
 
-    func testMultipleRefreshesAllReturnTwoPrompts() {
+    func testMultipleRefreshesAllReturnThreePrompts() {
         let person  = makePerson()
         var current = PromptEngine.prompts(for: person, sortedNotes: [])
         for _ in 0 ..< 6 {
             current = PromptEngine.refreshedPrompts(for: person, sortedNotes: [], excluding: current)
-            XCTAssertEqual(current.count, 2)
+            XCTAssertEqual(current.count, 3)
         }
     }
 
