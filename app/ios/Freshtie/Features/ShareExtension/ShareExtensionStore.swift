@@ -20,20 +20,21 @@ struct SharedPersonPayload: Codable, Identifiable {
 /// Shared persistence between Extension and Main App via App Group.
 enum ShareExtensionStore {
     private static let appGroupId = "group.com.madhuboyin.Freshtie"
-    private static let payloadKey = "pending_shared_people"
+    private static let payloadFileName = "pending_shared_people.json"
 
-    private static var sharedDefaults: UserDefaults? {
-        guard let defaults = UserDefaults(suiteName: appGroupId) else {
-            print("🔄 SHARE EXT: Failed to create UserDefaults with suite name: \(appGroupId)")
-            return nil
-        }
-        return defaults
+    private static var sharedDirectory: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId)
+    }
+    
+    private static var payloadFileURL: URL? {
+        guard let directory = sharedDirectory else { return nil }
+        return directory.appendingPathComponent(payloadFileName)
     }
 
     /// Appends a new shared person payload.
     static func savePayload(_ payload: SharedPersonPayload) {
-        guard let defaults = sharedDefaults else {
-            print("🔄 SHARE EXT: Cannot access shared UserDefaults")
+        guard let fileURL = payloadFileURL else {
+            print("🔄 SHARE EXT: Cannot access shared directory")
             return
         }
         
@@ -42,25 +43,38 @@ enum ShareExtensionStore {
         
         do {
             let data = try JSONEncoder().encode(current)
-            defaults.set(data, forKey: payloadKey)
-            defaults.synchronize() // Force synchronization
-            print("🔄 SHARE EXT: Payload saved to UserDefaults successfully")
+            try data.write(to: fileURL)
+            print("🔄 SHARE EXT: Payload saved to file successfully")
         } catch {
-            print("🔄 SHARE EXT: Failed to encode payload: \(error)")
+            print("🔄 SHARE EXT: Failed to save payload: \(error)")
         }
     }
 
     /// Fetches all pending payloads.
     static func fetchAll() -> [SharedPersonPayload] {
-        guard let data = sharedDefaults?.data(forKey: payloadKey),
-              let payloads = try? JSONDecoder().decode([SharedPersonPayload].self, from: data) else {
+        guard let fileURL = payloadFileURL else { return [] }
+        
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let payloads = try JSONDecoder().decode([SharedPersonPayload].self, from: data)
+            return payloads
+        } catch {
+            // File might not exist yet, which is normal
+            if (error as NSError).code != NSFileReadNoSuchFileError {
+                print("🔄 SHARE EXT: Failed to read payloads: \(error)")
+            }
             return []
         }
-        return payloads
     }
 
     /// Clears all pending payloads after they've been ingested.
     static func clearAll() {
-        sharedDefaults?.removeObject(forKey: payloadKey)
+        guard let fileURL = payloadFileURL else { return }
+        
+        do {
+            try FileManager.default.removeItem(at: fileURL)
+        } catch {
+            print("🔄 SHARE EXT: Failed to clear payloads: \(error)")
+        }
     }
 }
