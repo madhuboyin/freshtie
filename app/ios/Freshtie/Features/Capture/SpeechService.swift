@@ -66,16 +66,20 @@ final class SpeechService {
         req.shouldReportPartialResults = true
         request = req
 
-        // Pass nil so AVAudioEngine resolves the hardware format lazily at start
-        // time, avoiding a crash when outputFormat returns 0 Hz before the engine
-        // has initialised the audio unit.
+        print("🎤 DEBUG: Preparing audio engine...")
+        audioEngine.prepare()
+        
+        // Get the hardware input format after preparing the engine
         print("🎤 DEBUG: Installing audio tap...")
-        audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buf, _ in
+        let inputNode = audioEngine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+        print("🎤 DEBUG: Hardware input format: \(inputFormat)")
+        
+        // Use the hardware format directly for the tap
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 
-        print("🎤 DEBUG: Preparing audio engine...")
-        audioEngine.prepare()
         print("🎤 DEBUG: Starting audio engine...")
         try audioEngine.start()
 
