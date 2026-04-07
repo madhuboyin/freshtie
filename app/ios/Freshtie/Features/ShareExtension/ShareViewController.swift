@@ -35,8 +35,8 @@ final class ShareViewController: UIViewController {
     private func presentUI(displayName: String) {
         let rootView = ShareExtensionRootView(
             displayName: displayName,
-            onSave: { [weak self] noteText in 
-                self?.saveAndClose(noteText: noteText) 
+            onSave: { [weak self] noteText, requiresCapture in
+                self?.saveAndClose(noteText: noteText, requiresCapture: requiresCapture)
             },
             onCancel: { [weak self] in self?.cancel() }
         )
@@ -56,14 +56,15 @@ final class ShareViewController: UIViewController {
 
     // MARK: - Actions
 
-    private func saveAndClose(noteText: String) {
+    private func saveAndClose(noteText: String, requiresCapture: Bool = false) {
         guard !isCompleted else { return }
         isCompleted = true
-        
+
         let payload = SharedPersonPayload(
             displayName: extractionResult?.displayName ?? "Unknown",
             contactIdentifier: extractionResult?.contactIdentifier,
-            noteText: noteText.isEmpty ? nil : noteText
+            noteText: noteText.isEmpty ? nil : noteText,
+            requiresCapture: requiresCapture
         )
         
         ShareExtensionStore.savePayload(payload)

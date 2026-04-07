@@ -317,6 +317,12 @@ struct HomeView: View {
         } catch {
             print("📱 DEBUG: Error saving to database: \(error)")
         }
+
+        // If the user chose "Record in Freshtie", surface PersonView immediately
+        // so the Capture CTA is one tap away.
+        if payload.requiresCapture, let person {
+            navigateToPerson = person
+        }
     }
 
     private var greetingText: String {

@@ -6,13 +6,22 @@ struct SharedPersonPayload: Codable, Identifiable {
     let displayName: String
     let contactIdentifier: String?
     let noteText: String?
+    /// True when the user chose "Record in Freshtie" — the main app should
+    /// navigate to PersonView so the Capture CTA is immediately visible.
+    let requiresCapture: Bool
     let timestamp: Date
 
-    init(displayName: String, contactIdentifier: String? = nil, noteText: String? = nil) {
+    init(
+        displayName: String,
+        contactIdentifier: String? = nil,
+        noteText: String? = nil,
+        requiresCapture: Bool = false
+    ) {
         self.id = UUID()
         self.displayName = displayName
         self.contactIdentifier = contactIdentifier
         self.noteText = noteText
+        self.requiresCapture = requiresCapture
         self.timestamp = Date()
     }
 }
