@@ -1,10 +1,10 @@
 import AVFoundation
 
-/// Thin wrapper for AVAudioSession record permission.
+/// Thin wrapper for AVAudioApplication record permission.
 enum MicrophonePermissionService {
     
     static var status: PermissionState {
-        switch AVAudioSession.sharedInstance().recordPermission {
+        switch AVAudioApplication.shared.recordPermission {
         case .granted:      return .authorized
         case .denied:       return .denied
         case .undetermined: return .notDetermined
@@ -20,7 +20,7 @@ enum MicrophonePermissionService {
     static func requestAccess() async -> Bool {
         AnalyticsService.shared.track(.microphone_permission_requested, metadata: [AnalyticsMetadata.sourceType: "microphone"])
         return await withCheckedContinuation { continuation in
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+            AVAudioApplication.shared.requestRecordPermission { granted in
                 Task { @MainActor in
                     AnalyticsService.shared.track(.microphone_permission_granted, metadata: [
                         AnalyticsMetadata.sourceType: "microphone",

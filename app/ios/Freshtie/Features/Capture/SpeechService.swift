@@ -55,9 +55,10 @@ final class SpeechService {
         req.shouldReportPartialResults = true
         request = req
 
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buf, _ in
+        // Pass nil so AVAudioEngine resolves the hardware format lazily at start
+        // time, avoiding a crash when outputFormat returns 0 Hz before the engine
+        // has initialised the audio unit.
+        audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 

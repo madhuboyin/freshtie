@@ -15,11 +15,18 @@ struct PersonView: View {
     let person: Person
 
     @Environment(\.modelContext) private var modelContext
+    @Query private var notes: [Note]
     @State private var showCapture = false
     @State private var currentPrompts: [Prompt] = []
 
-    private var sortedNotes: [Note] {
-        person.notes.sorted { $0.createdAt > $1.createdAt }
+    init(person: Person) {
+        self.person = person
+        let personID = person.id
+        _notes = Query(
+            filter: #Predicate<Note> { $0.person?.id == personID },
+            sort: \.createdAt,
+            order: .reverse
+        )
     }
 
     var body: some View {
@@ -27,7 +34,7 @@ struct PersonView: View {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 PersonHeader(person: person)
 
-                if let contextText = person.lastContext {
+                if let contextText = notes.first?.rawText {
                     LastContextBlock(text: contextText)
                 }
 
@@ -51,7 +58,7 @@ struct PersonView: View {
             ])
         }
         // Re-generate when a note is added via the capture sheet.
-        .onChange(of: person.notes.count) { _, _ in
+        .onChange(of: notes.count) { _, _ in
             generatePrompts()
             AnalyticsService.shared.track(.prompt_viewed, metadata: [
                 AnalyticsMetadata.personID: person.id.uuidString,
@@ -67,7 +74,7 @@ struct PersonView: View {
 
     private func generatePrompts() {
         withAnimation(.easeIn(duration: 0.2)) {
-            currentPrompts = PromptEngine.prompts(for: person, sortedNotes: sortedNotes)
+            currentPrompts = PromptEngine.prompts(for: person, sortedNotes: notes)
         }
     }
 
@@ -75,7 +82,7 @@ struct PersonView: View {
         withAnimation(.easeInOut(duration: 0.22)) {
             currentPrompts = PromptEngine.refreshedPrompts(
                 for: person,
-                sortedNotes: sortedNotes,
+                sortedNotes: notes,
                 excluding: currentPrompts
             )
             AnalyticsService.shared.track(.prompt_refreshed, metadata: [
