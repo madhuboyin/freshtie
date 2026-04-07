@@ -2,6 +2,77 @@ import SwiftUI
 import Speech
 import AVFoundation
 
+/// Permission state enum for Share Extension
+enum ShareExtensionPermissionState {
+    case notDetermined, authorized, denied, restricted
+}
+
+/// Simple permission services for Share Extension
+enum ShareExtensionSpeechPermission {
+    static var status: ShareExtensionPermissionState {
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized: return .authorized
+        case .denied: return .denied
+        case .restricted: return .restricted
+        case .notDetermined: return .notDetermined
+        @unknown default: return .notDetermined
+        }
+    }
+    
+    static func requestAccess() async -> Bool {
+        return await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status == .authorized)
+            }
+        }
+    }
+}
+
+enum ShareExtensionMicrophonePermission {
+    static var status: ShareExtensionPermissionState {
+        switch AVAudioApplication.shared.recordPermission {
+        case .granted: return .authorized
+        case .denied: return .denied
+        case .undetermined: return .notDetermined
+        @unknown default: return .notDetermined
+        }
+    }
+    
+    static func requestAccess() async -> Bool {
+        return await withCheckedContinuation { continuation in
+            AVAudioApplication.requestRecordPermission { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
+}
+
+/// Simple listening indicator for Share Extension
+struct ShareExtensionListeningIndicator: View {
+    @State private var isAnimating = false
+    
+    private static let barHeights: [CGFloat] = [14, 24, 36, 44, 38, 26, 42, 30]
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 3) {
+            ForEach(0..<8, id: \.self) { i in
+                Capsule()
+                    .fill(AppColors.accent)
+                    .frame(width: 3)
+                    .frame(height: isAnimating ? Self.barHeights[i] : 6)
+                    .animation(
+                        .easeInOut(duration: 0.45)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(i) * 0.1),
+                        value: isAnimating
+                    )
+            }
+        }
+        .onAppear { isAnimating = true }
+        .onDisappear { isAnimating = false }
+    }
+}
+
 /// Simple speech recording service for Share Extension.
 @MainActor
 final class ShareExtensionSpeechService: ObservableObject {
@@ -19,8 +90,8 @@ final class ShareExtensionSpeechService: ObservableObject {
     }
     
     func checkPermissions() async {
-        let speechGranted = await SpeechPermissionService.requestAccess()
-        let micGranted = await MicrophonePermissionService.requestAccess()
+        let speechGranted = await ShareExtensionSpeechPermission.requestAccess()
+        let micGranted = await ShareExtensionMicrophonePermission.requestAccess()
         hasPermissions = speechGranted && micGranted
     }
     
@@ -173,13 +244,12 @@ struct ShareExtensionRootView: View {
         }
         .alert("Microphone Access Required", isPresented: $showingPermissionDenied) {
             Button("Cancel", role: .cancel) { }
-            Button("Settings") {
-                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(settingsUrl)
-                }
+            Button("OK") { 
+                // Note: Can't open Settings from Share Extension
+                // User will need to go to Settings manually
             }
         } message: {
-            Text("Freshtie needs access to your microphone to record voice notes. Please enable access in Settings.")
+            Text("Freshtie needs access to your microphone to record voice notes. Please enable access in Settings > Freshtie.")
         }
     }
     
@@ -219,7 +289,7 @@ struct ShareExtensionRootView: View {
             // Recording button and indicator
             VStack(spacing: AppSpacing.sm) {
                 if speechService.isRecording {
-                    ListeningIndicator()
+                    ShareExtensionListeningIndicator()
                         .frame(height: 50)
                 }
                 
@@ -249,7 +319,7 @@ struct ShareExtensionRootView: View {
         }
         
         if speechService.isRecording {
-            speechService.stopRecording()
+            _ = speechService.stopRecording()
         } else {
             speechService.startRecording()
         }
