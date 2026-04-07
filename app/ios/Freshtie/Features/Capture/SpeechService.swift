@@ -75,8 +75,19 @@ final class SpeechService {
         let inputFormat = inputNode.outputFormat(forBus: 0)
         print("🎤 DEBUG: Hardware input format: \(inputFormat)")
         
-        // Use the hardware format directly for the tap
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buf, _ in
+        // Check if the format is valid, if not use a standard format
+        let tapFormat: AVAudioFormat
+        if inputFormat.sampleRate > 0 && inputFormat.channelCount > 0 {
+            tapFormat = inputFormat
+            print("🎤 DEBUG: Using hardware format for tap")
+        } else {
+            // Fallback to a standard format that should always work
+            tapFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+            print("🎤 DEBUG: Using fallback format: \(tapFormat)")
+        }
+        
+        // Use the validated format for the tap
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: tapFormat) { [weak self] buf, _ in
             self?.request?.append(buf)
         }
 
@@ -107,20 +118,31 @@ final class SpeechService {
 
     /// Stops audio engine and cancels the recognition task cleanly.
     func stop() {
+        print("🎤 DEBUG: Stopping speech service...")
+        
         task?.cancel()
         task = nil
         request?.endAudio()
         request = nil
 
         if audioEngine.isRunning {
+            print("🎤 DEBUG: Stopping audio engine...")
             audioEngine.stop()
         }
+        
+        // Remove tap before resetting
         audioEngine.inputNode.removeTap(onBus: 0)
+        
+        // Reset the engine to ensure clean state for next time
+        print("🎤 DEBUG: Resetting audio engine...")
+        audioEngine.reset()
 
         // Reset session category to avoid keeping the mic 'active' in the system status bar
         let session = AVAudioSession.sharedInstance()
         try? session.setActive(false, options: .notifyOthersOnDeactivation)
         try? session.setCategory(.ambient)
+        
+        print("🎤 DEBUG: Speech service stopped")
     }
 
     // MARK: - Error
