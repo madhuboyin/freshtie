@@ -24,6 +24,51 @@ final class PromptEngineTests: XCTestCase {
         Person(displayName: name)
     }
 
+    // MARK: - Negative assertion helper
+
+    /// Asserts that no prompt in `pool` contains any term from `disallowed` (case-insensitive).
+    /// A failure here means a trust-breaking prompt family has leaked into the output.
+    private func assertNoPrompt(
+        in pool: [String],
+        contains disallowed: [String],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for prompt in pool {
+            let lower = prompt.lowercased()
+            for term in disallowed {
+                XCTAssertFalse(
+                    lower.contains(term),
+                    "Trust regression: prompt '\(prompt)' contains disallowed term '\(term)'",
+                    file: file, line: line
+                )
+            }
+        }
+    }
+
+    // MARK: - Disallowed prompt-family term sets
+    // Each set names terms that would confirm a trust-breaking wrong prompt family leaked in.
+
+    /// Family / kids / household — never acceptable for identity-only notes.
+    private let familyPromptTerms = [
+        "family", "kids", "children", "everyone at home", "wife", "husband", "spouse",
+    ]
+
+    /// Job transition / new role — never acceptable for work-activity notes.
+    private let jobTransitionTerms = [
+        "new role", "new company", "settling in", "onboarding", "new job", "new position",
+    ]
+
+    /// Current education — never acceptable for old-classmate notes.
+    private let currentSchoolTerms = [
+        "classes", "semester", "exam", "coursework", "courses",
+    ]
+
+    /// Physical relocation — never acceptable for job-change notes.
+    private let relocationTerms = [
+        "new place", "packing", "new city", "new home",
+    ]
+
     // MARK: - Zero signal
 
     func testNoNotesReturnsExactlyThreePrompts() {
@@ -437,12 +482,7 @@ final class PromptEngineTests: XCTestCase {
         let pool = PromptEngine.resolvedPool(from: [note])
         let genericTexts = Set(PromptLibrary.generic)
         XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) }, "cousin-of note must use generic pool only")
-        let disallowedKeywords = ["kids", "children", "home", "spouse", "husband", "wife", "family"]
-        for text in pool {
-            let lower = text.lowercased()
-            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
-                           "Prompt '\(text)' contains disallowed family/kids content")
-        }
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
     }
 
     /// "he is son of venkat alla and from dubai" — already covered by testSonOfProducesGenericOnly,
@@ -450,12 +490,7 @@ final class PromptEngineTests: XCTestCase {
     func testSonOfProducesNoFamilyKidsPrompts() {
         let note = makeNote("he is son of venkat alla and from dubai")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let disallowedKeywords = ["kids", "children", "home", "spouse", "husband", "wife", "family"]
-        for text in pool {
-            let lower = text.lowercased()
-            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
-                           "Prompt '\(text)' contains disallowed family/kids content")
-        }
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
     }
 
     // MARK: - Regression: work activity must not produce new-role/new-company prompts
@@ -470,13 +505,8 @@ final class PromptEngineTests: XCTestCase {
     func testWorkingHardProducesSafeWorkPromptsNotNewRole() {
         let note = makeNote("Sushma has been working very hard")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let disallowedSubstrings = ["new role", "new company", "settling in", "new position",
-                                    "at sushma", "new job"]
-        for text in pool {
-            let lower = text.lowercased()
-            XCTAssertFalse(disallowedSubstrings.contains(where: { lower.contains($0) }),
-                           "Prompt '\(text)' contains disallowed job-change content")
-        }
+        // Block job-transition prompts AND the misidentified-entity form "how are things at Sushma"
+        assertNoPrompt(in: pool, contains: jobTransitionTerms + ["at sushma"])
     }
 
     // MARK: - Regression: ex classmate must not produce school/semester prompts
@@ -484,11 +514,32 @@ final class PromptEngineTests: XCTestCase {
     func testExClassmateProducesNonSchoolPrompts() {
         let note = makeNote("he is my ex classmate")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let disallowedKeywords = ["classes", "semester", "courses", "studies"]
-        for text in pool {
-            let lower = text.lowercased()
-            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
-                           "Prompt '\(text)' contains disallowed school content")
-        }
+        assertNoPrompt(in: pool, contains: currentSchoolTerms)
+    }
+
+    // MARK: - Negative: job change must not produce relocation prompts (Case 5)
+
+    /// Belt-and-suspenders keyword check alongside the pool-based test above.
+    func testCompanyMoveDoesNotGenerateRelocationPrompts() {
+        let note = makeNote("moved to a different company")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: relocationTerms)
+    }
+
+    // MARK: - Negative: location-as-background must not produce family or relocation prompts
+
+    func testIsFromDubaiDoesNotGenerateFamilyOrRelocationPrompts() {
+        let note = makeNote("he is from dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        assertNoPrompt(in: pool, contains: relocationTerms)
+    }
+
+    // MARK: - Negative: degree classmate must not produce current-education prompts
+
+    func testDegreeClassMateDoesNotGenerateCurrentSchoolPrompts() {
+        let note = makeNote("He is from gudivada and he is my degree class mate")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: currentSchoolTerms)
     }
 }
