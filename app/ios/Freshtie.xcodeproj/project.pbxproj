@@ -56,6 +56,7 @@
 		CAFEBABECAFEBABE000000F5 /* PromptLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */; };
 		CAFEBABECAFEBABE00000100 /* PromptGoldenFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FF /* PromptGoldenFixtures.swift */; };
 		CAFEBABECAFEBABE00000102 /* PromptGoldenFixtureRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000101 /* PromptGoldenFixtureRunnerTests.swift */; };
+		CAFEBABECAFEBABE00000103 /* DuplicateContactMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000104 /* DuplicateContactMerger.swift */; };
 		CAFEBABECAFEBABE000000F9 /* NoteInterpretationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F8 /* NoteInterpretationResult.swift */; };
 		CAFEBABECAFEBABE000000FB /* NoteInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */; };
 		CAFEBABECAFEBABE000000FD /* PromptMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FC /* PromptMapper.swift */; };
@@ -170,6 +171,7 @@
 		CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibraryTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000FF /* PromptGoldenFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptGoldenFixtures.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000101 /* PromptGoldenFixtureRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptGoldenFixtureRunnerTests.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000104 /* DuplicateContactMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateContactMerger.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEmptyState.swift; sourceTree = "<group>"; };
@@ -385,11 +387,20 @@
 		CAFEBABECAFEBABE0000003E /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				CAFEBABECAFEBABE00000105 /* Migrations */,
 				CAFEBABECAFEBABE0000003F /* Persistence */,
 				CAFEBABECAFEBABE00000040 /* Repositories */,
 				CAFEBABECAFEBABE00000041 /* Seed */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		CAFEBABECAFEBABE00000105 /* Migrations */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEBABECAFEBABE00000104 /* DuplicateContactMerger.swift */,
+			);
+			path = Migrations;
 			sourceTree = "<group>";
 		};
 		CAFEBABECAFEBABE0000003F /* Persistence */ = {
@@ -737,6 +748,7 @@
 				CAFEBABECAFEBABE000000C8 /* ValidationSupport.swift in Sources */,
 				CAFEBABECAFEBABE000000CE /* PermissionStatusRow.swift in Sources */,
 				CAFEBABECAFEBABE000000D0 /* OpenSettingsButton.swift in Sources */,
+				CAFEBABECAFEBABE00000103 /* DuplicateContactMerger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
