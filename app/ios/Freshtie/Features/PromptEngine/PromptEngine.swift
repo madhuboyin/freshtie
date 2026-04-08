@@ -49,8 +49,11 @@ enum PromptEngine {
         // and life events that keyword matching misclassifies.
         let interpreted = NoteInterpreter.interpret(primary)
         if interpreted.kind != .weakSignal {
-            let pool = PromptMapper.pool(for: interpreted)
-            return pool.isEmpty ? PromptLibrary.generic : pool
+            let raw = PromptMapper.pool(for: interpreted)
+            if raw.isEmpty { return PromptLibrary.generic }
+            // Apply entity substitution so {entity} tokens never reach the UI.
+            let resolved = PromptTemplateLibrary.resolved(pool: raw, entity: interpreted.topEntity)
+            return resolved.isEmpty ? PromptLibrary.generic : resolved
         }
 
         // Fallback: existing keyword pipeline for notes with no structured signal.
@@ -63,8 +66,11 @@ enum PromptEngine {
         if confidence == .low, let secondary = sortedNotes.dropFirst().first {
             let secInterpreted = NoteInterpreter.interpret(secondary)
             if secInterpreted.kind != .weakSignal {
-                let pool = PromptMapper.pool(for: secInterpreted)
-                if !pool.isEmpty { return pool }
+                let raw = PromptMapper.pool(for: secInterpreted)
+                if !raw.isEmpty {
+                    let resolved = PromptTemplateLibrary.resolved(pool: raw, entity: secInterpreted.topEntity)
+                    if !resolved.isEmpty { return resolved }
+                }
             }
 
             let sec  = KeywordExtractor.extract(from: secondary.rawText)

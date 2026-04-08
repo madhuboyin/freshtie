@@ -542,4 +542,112 @@ final class PromptEngineTests: XCTestCase {
         let pool = PromptEngine.resolvedPool(from: [note])
         assertNoPrompt(in: pool, contains: currentSchoolTerms)
     }
+
+    // MARK: - Prompt Angle
+
+    func testOldClassmateAngleIsOldConnectionCatchUp() {
+        let result = NoteInterpreter.interpret(rawText: "he is my ex classmate", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .oldConnectionCatchUp)
+    }
+
+    func testDegreeClassmateAngleIsOldConnectionCatchUp() {
+        let result = NoteInterpreter.interpret(rawText: "He is from gudivada and he is my degree class mate", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .oldConnectionCatchUp)
+    }
+
+    func testCousinOfAngleIsBackgroundSoftAnchor() {
+        let result = NoteInterpreter.interpret(rawText: "he is cousin of sush", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .backgroundSoftAnchor)
+    }
+
+    func testSonOfAngleIsBackgroundSoftAnchor() {
+        let result = NoteInterpreter.interpret(rawText: "he is son of venkat alla and from dubai", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .backgroundSoftAnchor)
+    }
+
+    func testWorkingHardAngleIsBusyWorkCheckIn() {
+        let result = NoteInterpreter.interpret(rawText: "Sushma has been working very hard", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .busyWorkCheckIn)
+    }
+
+    func testStartedAtGoogleAngleIsCareerUpdate() {
+        let result = NoteInterpreter.interpret(rawText: "started at Google", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .careerUpdate)
+    }
+
+    func testMovingToNYCAngleIsRelocationUpdate() {
+        let result = NoteInterpreter.interpret(rawText: "moving to NYC next week", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .relocationUpdate)
+    }
+
+    func testIsFromDubaiAngleIsBackgroundSoftAnchor() {
+        let result = NoteInterpreter.interpret(rawText: "he is from Dubai", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .backgroundSoftAnchor)
+    }
+
+    func testMetAtCafeAngleIsGenericCatchUp() {
+        let result = NoteInterpreter.interpret(rawText: "met at cafe", noteDate: Date())
+        XCTAssertEqual(result.promptAngle, .genericCatchUp)
+    }
+
+    // MARK: - Specificity Level
+
+    func testOldClassmateSpecificityIsContextual() {
+        let result = NoteInterpreter.interpret(rawText: "he is my ex classmate", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .contextual)
+    }
+
+    func testIdentityBackgroundSpecificityIsNeutral() {
+        let result = NoteInterpreter.interpret(rawText: "he is from Dubai", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .neutral)
+    }
+
+    func testWorkActivitySpecificityIsContextual() {
+        let result = NoteInterpreter.interpret(rawText: "Sushma has been working very hard", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .contextual)
+    }
+
+    func testJobChangeSpecificityIsSpecific() {
+        let result = NoteInterpreter.interpret(rawText: "started at Google", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .specific)
+    }
+
+    func testRelocationSpecificityIsSpecific() {
+        let result = NoteInterpreter.interpret(rawText: "moving to NYC next week", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .specific)
+    }
+
+    func testWeakSignalSpecificityIsGeneric() {
+        let result = NoteInterpreter.interpret(rawText: "met at cafe", noteDate: Date())
+        XCTAssertEqual(result.specificityLevel, .generic)
+    }
+
+    // MARK: - Specificity → prompt family alignment
+
+    func testContextualOldConnectionProducesCatchUpPool() {
+        // old classmate → contextual → classmateCatchUp pool
+        let note = makeNote("he is my ex classmate")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let catchUpTexts = Set(PromptLibrary.classmateCatchUp)
+        XCTAssertTrue(pool.allSatisfy { catchUpTexts.contains($0) },
+            "contextual old-connection angle must produce classmateCatchUp prompts")
+    }
+
+    func testNeutralIdentityProducesGenericPool() {
+        // identity background → neutral → generic pool
+        let note = makeNote("he is from Dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let genericTexts = Set(PromptLibrary.generic)
+        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) },
+            "neutral background angle must produce generic prompts")
+    }
+
+    func testSpecificCareerUpdateProducesProfessionalPool() {
+        // job change → specific → professional pool (entity-substituted)
+        let note = makeNote("started at Google")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        // No raw {entity} token must remain
+        XCTAssertFalse(pool.contains(where: { $0.contains("{entity}") }),
+            "Entity substitution must resolve before prompts reach the pool")
+    }
 }

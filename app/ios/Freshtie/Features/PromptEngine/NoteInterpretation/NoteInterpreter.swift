@@ -27,6 +27,8 @@ enum NoteInterpreter {
                 relationship: rel,
                 topic: .unknown,
                 promptability: .medium,
+                promptAngle: deriveAngle(kind: .relationshipContext, relationship: rel, topic: .unknown),
+                specificityLevel: deriveSpecificity(kind: .relationshipContext, topic: .unknown, relationship: rel),
                 topEntity: entity,
                 temporalState: temporal
             )
@@ -39,6 +41,8 @@ enum NoteInterpreter {
                 relationship: .unknown,
                 topic: .locationBackground,
                 promptability: .low,
+                promptAngle: .backgroundSoftAnchor,
+                specificityLevel: .neutral,
                 topEntity: entity,
                 temporalState: temporal
             )
@@ -51,6 +55,8 @@ enum NoteInterpreter {
                 relationship: .unknown,
                 topic: topic,
                 promptability: .high,
+                promptAngle: deriveAngle(kind: .lifeEvent, relationship: .unknown, topic: topic),
+                specificityLevel: .specific,
                 topEntity: entity,
                 temporalState: temporal
             )
@@ -63,6 +69,8 @@ enum NoteInterpreter {
                 relationship: .unknown,
                 topic: topic,
                 promptability: .high,
+                promptAngle: deriveAngle(kind: .ongoingTopic, relationship: .unknown, topic: topic),
+                specificityLevel: deriveSpecificity(kind: .ongoingTopic, topic: topic, relationship: .unknown),
                 topEntity: entity,
                 temporalState: temporal
             )
@@ -74,9 +82,83 @@ enum NoteInterpreter {
             relationship: .unknown,
             topic: .unknown,
             promptability: .low,
+            promptAngle: .genericCatchUp,
+            specificityLevel: .generic,
             topEntity: entity,
             temporalState: temporal
         )
+    }
+
+    // MARK: - Angle + Specificity Derivation
+
+    /// Derives the conversational angle from the semantic classification.
+    private static func deriveAngle(
+        kind: NoteKind,
+        relationship: RelationshipType,
+        topic: TopicType
+    ) -> PromptAngle {
+        switch kind {
+        case .relationshipContext:
+            switch relationship {
+            case .oldClassmate, .currentClassmate: return .oldConnectionCatchUp
+            case .oldColleague:                    return .oldConnectionCatchUp
+            case .currentColleague:                return .busyWorkCheckIn
+            case .familyRelation:                  return .socialConnectionAnchor
+            case .acquaintance, .unknown:           return .genericCatchUp
+            }
+        case .identityBackground:
+            return .backgroundSoftAnchor
+        case .lifeEvent:
+            switch topic {
+            case .companyOrJob: return .careerUpdate
+            case .relocation:   return .relocationUpdate
+            case .familyEvent:  return .familyEventFollowUp
+            default:            return .lifeUpdateCheckIn
+            }
+        case .ongoingTopic:
+            switch topic {
+            case .workActivity:                    return .busyWorkCheckIn
+            case .travel:                          return .travelUpdate
+            case .health, .lifeUpdate:             return .lifeUpdateCheckIn
+            case .educationCurrent:                return .lifeUpdateCheckIn
+            default:                               return .genericCatchUp
+            }
+        case .weakSignal:
+            return .genericCatchUp
+        }
+    }
+
+    /// Derives how pointed the final prompt should be.
+    private static func deriveSpecificity(
+        kind: NoteKind,
+        topic: TopicType,
+        relationship: RelationshipType
+    ) -> SpecificityLevel {
+        switch kind {
+        case .lifeEvent:
+            return .specific     // clear events always justify direct prompting
+        case .ongoingTopic:
+            switch topic {
+            case .workActivity:     return .contextual   // busyness, not a clear event
+            case .travel:           return .specific     // clear trip direction
+            case .health:           return .contextual   // ongoing situation
+            case .educationCurrent: return .contextual
+            default:                return .neutral
+            }
+        case .relationshipContext:
+            switch relationship {
+            case .oldClassmate, .currentClassmate,
+                 .oldColleague, .currentColleague,
+                 .familyRelation:
+                return .contextual   // note-aware framing, but not event-specific
+            case .acquaintance, .unknown:
+                return .neutral
+            }
+        case .identityBackground:
+            return .neutral          // soft anchor — don't over-prompt
+        case .weakSignal:
+            return .generic
+        }
     }
 
     // MARK: - Relationship Detection

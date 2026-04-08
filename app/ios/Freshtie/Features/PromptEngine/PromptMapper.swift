@@ -2,82 +2,78 @@ import Foundation
 
 /// Maps a NoteInterpretationResult to the correct PromptLibrary pool.
 ///
-/// Called by PromptEngine when NoteInterpreter produces a non-weak result.
-/// Falls back to PromptLibrary.generic for any unhandled combination.
+/// Routing is driven by `promptAngle + specificityLevel` — the two new fields that
+/// form the middle layer between note meaning and final prompt wording.
+///
+/// Specificity hierarchy: specific → contextual → neutral → generic.
+/// Wrong specificity is worse than generic; when in doubt, use a lower tier.
 enum PromptMapper {
 
     static func pool(for result: NoteInterpretationResult) -> [String] {
-        switch result.promptability {
-        case .low:
+        switch result.promptAngle {
+
+        case .oldConnectionCatchUp:
+            return oldConnectionPool(for: result)
+
+        case .socialConnectionAnchor:
+            // Family or social relation context — safe generic framing, no family/kids prompts.
             return PromptLibrary.generic
 
-        case .medium:
-            return mediumPool(for: result)
+        case .busyWorkCheckIn:
+            return PromptLibrary.workActivity
 
-        case .high:
-            return highPool(for: result)
+        case .careerUpdate:
+            return result.specificityLevel == .specific
+                ? PromptLibrary.professional
+                : PromptLibrary.safeColleaguePool
+
+        case .relocationUpdate:
+            return result.temporalState == .past
+                ? PromptLibrary.moveAfter
+                : PromptLibrary.moveBefore
+
+        case .travelUpdate:
+            return result.temporalState == .past
+                ? PromptLibrary.travelAfter
+                : PromptLibrary.travelBefore
+
+        case .familyEventFollowUp:
+            return result.temporalState == .past
+                ? PromptLibrary.lifeEventAfter
+                : PromptLibrary.lifeEventBefore
+
+        case .lifeUpdateCheckIn:
+            return lifeUpdatePool(for: result)
+
+        case .backgroundSoftAnchor:
+            return PromptLibrary.generic
+
+        case .genericCatchUp:
+            return PromptLibrary.generic
         }
     }
 
-    // MARK: - Medium (catch-up / soft intent)
+    // MARK: - Private helpers
 
-    private static func mediumPool(for result: NoteInterpretationResult) -> [String] {
-        guard result.kind == .relationshipContext else { return PromptLibrary.generic }
-
+    private static func oldConnectionPool(for result: NoteInterpretationResult) -> [String] {
         switch result.relationship {
-        case .oldClassmate:
+        case .oldClassmate, .currentClassmate:
             return PromptLibrary.classmateCatchUp
-        case .currentClassmate:
-            return PromptLibrary.school
         case .oldColleague:
             return PromptLibrary.colleagueCatchUp
         case .currentColleague:
             return PromptLibrary.safeColleaguePool
-        case .familyRelation:
-            return PromptLibrary.family
-        case .acquaintance, .unknown:
-            return PromptLibrary.generic
+        default:
+            // Unknown relationship in catch-up context — use classmate catch-up as safe default
+            return PromptLibrary.classmateCatchUp
         }
     }
 
-    // MARK: - High (specific intent + temporal)
-
-    private static func highPool(for result: NoteInterpretationResult) -> [String] {
-        switch result.kind {
-        case .lifeEvent:
-            return lifeEventPool(topic: result.topic, state: result.temporalState)
-        case .ongoingTopic:
-            return ongoingTopicPool(topic: result.topic, state: result.temporalState)
-        default:
-            return PromptLibrary.generic
-        }
-    }
-
-    private static func lifeEventPool(topic: TopicType, state: TemporalState) -> [String] {
-        switch topic {
-        case .familyEvent:
-            return state == .past ? PromptLibrary.lifeEventAfter : PromptLibrary.lifeEventBefore
-        case .companyOrJob:
-            return PromptLibrary.professional
-        case .relocation:
-            return state == .past ? PromptLibrary.moveAfter : PromptLibrary.moveBefore
-        default:
-            return PromptLibrary.generic
-        }
-    }
-
-    private static func ongoingTopicPool(topic: TopicType, state: TemporalState) -> [String] {
-        switch topic {
-        case .travel:
-            return state == .past ? PromptLibrary.travelAfter : PromptLibrary.travelBefore
-        case .health:
-            return PromptLibrary.health
-        case .educationCurrent:
-            return PromptLibrary.school
-        case .workActivity:
-            return PromptLibrary.workActivity
-        default:
-            return PromptLibrary.generic
+    private static func lifeUpdatePool(for result: NoteInterpretationResult) -> [String] {
+        switch result.topic {
+        case .educationCurrent: return PromptLibrary.school
+        case .health:           return PromptLibrary.health
+        default:                return PromptLibrary.workActivity   // soft situation check-in
         }
     }
 }

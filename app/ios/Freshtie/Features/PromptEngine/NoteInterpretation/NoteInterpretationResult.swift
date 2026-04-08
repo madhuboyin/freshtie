@@ -39,17 +39,68 @@ enum TopicType {
 }
 
 /// Controls which prompt pool tier is used.
+/// Kept for backward compatibility — prefer SpecificityLevel for new routing logic.
 enum Promptability {
     case high    // Enough context for specific intent prompts.
     case medium  // Partial context — use safe catch-up or soft prompts.
     case low     // Background/identity only — generic pool only.
 }
 
+// MARK: - Prompt Angle
+
+/// The safest and most relevant conversational direction encoded in a note.
+///
+/// This is the middle layer between note meaning and final prompt wording.
+/// Drives which prompt family the Composer selects, independently of raw topic keywords.
+enum PromptAngle {
+    /// Old classmate, ex-colleague — reconnecting after time apart.
+    case oldConnectionCatchUp
+    /// Family or social connection (not an event) — gentle, identity-aware framing.
+    case socialConnectionAnchor
+    /// Work busyness / effort — NOT a job change or new role.
+    case busyWorkCheckIn
+    /// New role, new company, job transition — explicit career move.
+    case careerUpdate
+    /// Moving city or country — physical relocation.
+    case relocationUpdate
+    /// Upcoming or completed trip.
+    case travelUpdate
+    /// Wedding, baby, milestone — specific life event.
+    case familyEventFollowUp
+    /// Health, general life update — soft situation check-in.
+    case lifeUpdateCheckIn
+    /// Where-from, whose relative — background fact with minimal prompt hook.
+    case backgroundSoftAnchor
+    /// No meaningful direction — pure safe generic output.
+    case genericCatchUp
+}
+
+// MARK: - Specificity Level
+
+/// Controls how directly the Prompt Composer references note context.
+///
+/// Hierarchy: specific → contextual → neutral → generic
+/// Wrong specificity is worse than generic — prefer downgrading over misfiring.
+enum SpecificityLevel {
+    /// High-confidence, event-rich note — prompt can reference the topic directly.
+    case specific
+    /// Note gives relational or activity context — prompt is note-aware but softer.
+    case contextual
+    /// Note suggests a possible direction but evidence is thin — lightly connected prompts.
+    case neutral
+    /// Almost no safe direction available — pure generic fallback.
+    case generic
+}
+
+// MARK: - Result
+
 struct NoteInterpretationResult {
     let kind: NoteKind
     let relationship: RelationshipType
     let topic: TopicType
-    let promptability: Promptability
+    let promptability: Promptability    // backward-compat; prefer specificityLevel for routing
+    let promptAngle: PromptAngle        // conversational direction derived from note meaning
+    let specificityLevel: SpecificityLevel // how pointed the final prompt should be
     let topEntity: String?
     let temporalState: TemporalState
 }
