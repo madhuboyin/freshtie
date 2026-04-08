@@ -157,6 +157,16 @@ enum PromptLibrary {
         "What have you been up to?"
     ]
 
+    /// For work-activity / busyness notes — safe, effort-neutral prompts.
+    /// NOT used for job-change or new-role notes.
+    static let workActivity = [
+        "How has work been going?",
+        "Sounds like you've been busy — how are things?",
+        "How have things been lately?",
+        "Hope the workload has settled down — how are you doing?",
+        "How's everything going?"
+    ]
+
     /// For current colleagues — soft professional check-in.
     static let safeColleaguePool = [
         "How’s work going?",

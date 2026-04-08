@@ -74,6 +74,8 @@ enum PromptMapper {
             return PromptLibrary.health
         case .educationCurrent:
             return PromptLibrary.school
+        case .workActivity:
+            return PromptLibrary.workActivity
         default:
             return PromptLibrary.generic
         }

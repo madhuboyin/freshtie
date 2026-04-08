@@ -32,6 +32,8 @@ enum TopicType {
     case familyEvent
     case health
     case lifeUpdate
+    /// Work effort / busyness — NOT a job change or new role.
+    case workActivity
     case locationBackground
     case unknown
 }

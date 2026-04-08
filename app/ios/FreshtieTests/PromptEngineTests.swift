@@ -422,4 +422,73 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertEqual(result.kind, .ongoingTopic)
         XCTAssertEqual(result.topic, .health)
     }
+
+    // MARK: - Regression: relationship identity must not produce family/kids prompts
+
+    /// "he is cousin of sush" — identity note, not a family event.
+    func testCousinOfIsIdentityBackground() {
+        let result = NoteInterpreter.interpret(rawText: "he is cousin of sush", noteDate: Date())
+        XCTAssertEqual(result.kind, .identityBackground)
+        XCTAssertEqual(result.promptability, .low)
+    }
+
+    func testCousinOfProducesGenericNotFamilyPrompts() {
+        let note = makeNote("he is cousin of sush")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let genericTexts = Set(PromptLibrary.generic)
+        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) }, "cousin-of note must use generic pool only")
+        let disallowedKeywords = ["kids", "children", "home", "spouse", "husband", "wife", "family"]
+        for text in pool {
+            let lower = text.lowercased()
+            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
+                           "Prompt '\(text)' contains disallowed family/kids content")
+        }
+    }
+
+    /// "he is son of venkat alla and from dubai" — already covered by testSonOfProducesGenericOnly,
+    /// but explicitly assert no family/kids/home content.
+    func testSonOfProducesNoFamilyKidsPrompts() {
+        let note = makeNote("he is son of venkat alla and from dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let disallowedKeywords = ["kids", "children", "home", "spouse", "husband", "wife", "family"]
+        for text in pool {
+            let lower = text.lowercased()
+            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
+                           "Prompt '\(text)' contains disallowed family/kids content")
+        }
+    }
+
+    // MARK: - Regression: work activity must not produce new-role/new-company prompts
+
+    /// "Sushma has been working very hard" — busyness, not job change.
+    func testWorkingVeryHardIsWorkActivity() {
+        let result = NoteInterpreter.interpret(rawText: "Sushma has been working very hard", noteDate: Date())
+        XCTAssertEqual(result.kind, .ongoingTopic)
+        XCTAssertEqual(result.topic, .workActivity)
+    }
+
+    func testWorkingHardProducesSafeWorkPromptsNotNewRole() {
+        let note = makeNote("Sushma has been working very hard")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let disallowedSubstrings = ["new role", "new company", "settling in", "new position",
+                                    "at sushma", "new job"]
+        for text in pool {
+            let lower = text.lowercased()
+            XCTAssertFalse(disallowedSubstrings.contains(where: { lower.contains($0) }),
+                           "Prompt '\(text)' contains disallowed job-change content")
+        }
+    }
+
+    // MARK: - Regression: ex classmate must not produce school/semester prompts
+
+    func testExClassmateProducesNonSchoolPrompts() {
+        let note = makeNote("he is my ex classmate")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let disallowedKeywords = ["classes", "semester", "courses", "studies"]
+        for text in pool {
+            let lower = text.lowercased()
+            XCTAssertFalse(disallowedKeywords.contains(where: { lower.contains($0) }),
+                           "Prompt '\(text)' contains disallowed school content")
+        }
+    }
 }

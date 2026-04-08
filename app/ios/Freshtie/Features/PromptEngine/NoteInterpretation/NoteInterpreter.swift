@@ -110,6 +110,14 @@ enum NoteInterpreter {
         let currentColleaguePatterns = ["colleague", "coworker", "co-worker", "teammate", "team mate"]
         if currentColleaguePatterns.contains(where: { lower.contains($0) }) { return .currentColleague }
 
+        // "cousin of X", "friend of X" = identity (this person IS someone's relation),
+        // not a family-event context. Guard before bare-word match so it falls to isIdentityBackground.
+        let familyIdentityOfPatterns = [
+            "cousin of ", "brother of ", "sister of ", "uncle of ", "aunt of ",
+            "nephew of ", "niece of ", "friend of ",
+        ]
+        if familyIdentityOfPatterns.contains(where: { lower.contains($0) }) { return nil }
+
         // Extended family relation (NOT identity like "son of X" — that's identityBackground)
         let familyRelationPatterns = ["cousin", "uncle", "aunt", "nephew", "niece",
                                       "brother-in-law", "sister-in-law"]
@@ -125,8 +133,12 @@ enum NoteInterpreter {
     // MARK: - Identity Background Detection
 
     private static func isIdentityBackground(_ lower: String) -> Bool {
-        // "son of X", "daughter of X" — pure identity, no conversation hook
-        let familyIdentityPhrases = ["son of ", "daughter of ", "child of ", "kid of "]
+        // "son of X", "cousin of X" etc. — pure identity, no conversation hook
+        let familyIdentityPhrases = [
+            "son of ", "daughter of ", "child of ", "kid of ",
+            "cousin of ", "brother of ", "sister of ",
+            "uncle of ", "aunt of ", "nephew of ", "niece of ", "friend of ",
+        ]
         if familyIdentityPhrases.contains(where: { lower.contains($0) }) { return true }
 
         // "he is from X", "originally from X" — location as background fact
@@ -175,6 +187,16 @@ enum NoteInterpreter {
     // MARK: - Ongoing Topic Detection
 
     private static func detectOngoingTopic(in lower: String) -> TopicType? {
+        // Work activity / busyness — checked FIRST to prevent "working hard" from reaching
+        // the keyword pipeline where "working" triggers professional/new-role prompts.
+        let workActivityPhrases = [
+            "working hard", "working very hard", "working really hard",
+            "busy at work", "very busy with work", "hectic at work", "hectic schedule",
+            "long hours", "lots of work", "overloaded with work",
+            "been very busy", "been really busy", "so busy",
+        ]
+        if workActivityPhrases.contains(where: { lower.contains($0) }) { return .workActivity }
+
         let travelPhrases = ["trip to", "traveling to", "travelling to", "visiting", "planning a trip"]
         if travelPhrases.contains(where: { lower.contains($0) }) { return .travel }
 
