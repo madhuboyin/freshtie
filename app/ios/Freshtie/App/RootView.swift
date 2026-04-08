@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Top-level tab container.
 ///
@@ -9,6 +10,8 @@ import SwiftUI
 ///
 /// PersonView also presents CaptureView as a sheet via its own @State.
 struct RootView: View {
+    @Environment(\.modelContext) private var modelContext
+
     var body: some View {
         TabView {
             HomeView()
@@ -27,6 +30,9 @@ struct RootView: View {
                 }
         }
         .tint(AppColors.accent)
+        .onAppear {
+            DuplicateContactMerger.runIfNeeded(in: modelContext)
+        }
     }
 }
 
