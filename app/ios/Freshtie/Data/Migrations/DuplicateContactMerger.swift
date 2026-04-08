@@ -10,8 +10,8 @@ import Foundation
 /// notes from the duplicates onto it, then delete the duplicates.
 enum DuplicateContactMerger {
 
-    // v4: bumped to handle normalized name matching for similar names
-    private static let didRunKey = "didRunDuplicateMerge_v4"
+    // v5: bumped to handle similar names with different contact IDs
+    private static let didRunKey = "didRunDuplicateMerge_v5"
 
     /// Call this once at app launch. Safe to call unconditionally — it skips
     /// immediately after the first successful run.
@@ -49,26 +49,54 @@ enum DuplicateContactMerger {
             let normalizedName = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             byName[normalizedName, default: []].append(person)
         }
+        
+        // NEW: Group ALL people by normalized name to catch same-name contacts with different IDs
+        var bySimilarName: [String: [Person]] = [:]
+        for person in allPeople {
+            let normalizedName = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            bySimilarName[normalizedName, default: []].append(person)
+        }
 
         // Only act on groups that actually have duplicates.
         let identifierDuplicates = byIdentifier.values.filter { $0.count > 1 }
         let nameDuplicates = byName.values.filter { $0.count > 1 }
-        let allDuplicateGroups = identifierDuplicates + nameDuplicates
+        let similarNameDuplicates = bySimilarName.values.filter { $0.count > 1 }
+        let allDuplicateGroups = identifierDuplicates + nameDuplicates + similarNameDuplicates
         
         guard !allDuplicateGroups.isEmpty else {
             print("🔧 DuplicateContactMerger: no duplicates found")
             return
         }
 
-        print("🔧 DuplicateContactMerger: merging \(allDuplicateGroups.count) duplicate group(s) (\(identifierDuplicates.count) by identifier, \(nameDuplicates.count) by name)")
+        print("🔧 DuplicateContactMerger: merging \(allDuplicateGroups.count) duplicate group(s) (\(identifierDuplicates.count) by identifier, \(nameDuplicates.count) by manual name, \(similarNameDuplicates.count) by similar name)")
 
         for group in allDuplicateGroups {
+            // Skip groups that have already been merged (can happen with overlapping groups)
+            let validPeople = group.filter { person in
+                // Check if this person still exists in the context
+                do {
+                    let descriptor = FetchDescriptor<Person>(
+                        predicate: #Predicate { $0.id == person.id }
+                    )
+                    let found = try context.fetch(descriptor)
+                    return !found.isEmpty
+                } catch {
+                    return false
+                }
+            }
+            
+            guard validPeople.count > 1 else { continue }
+            
             // Oldest record is canonical — it's the one the user interacted with first.
-            let sorted = group.sorted { $0.createdAt < $1.createdAt }
+            let sorted = validPeople.sorted { $0.createdAt < $1.createdAt }
             let canonical = sorted[0]
             let duplicates = sorted.dropFirst()
 
+            print("🔧 DuplicateContactMerger: merging \(validPeople.count) entries for '\(canonical.displayName)'")
+
             for duplicate in duplicates {
+                print("🔧 DuplicateContactMerger: merging \(duplicate.displayName) (ID: \(duplicate.id), contactID: \(duplicate.contactIdentifier ?? "nil")) into canonical (ID: \(canonical.id))")
+                
                 // Snapshot notes into a plain array before mutating the relationship,
                 // to avoid iterating a live collection that SwiftData is modifying.
                 let notesToMove = Array(duplicate.notes)
@@ -100,7 +128,22 @@ enum DuplicateContactMerger {
         try context.save()
 
         for group in allDuplicateGroups {
-            let sorted = group.sorted { $0.createdAt < $1.createdAt }
+            // Skip groups that have already been processed
+            let validPeople = group.filter { person in
+                do {
+                    let descriptor = FetchDescriptor<Person>(
+                        predicate: #Predicate { $0.id == person.id }
+                    )
+                    let found = try context.fetch(descriptor)
+                    return !found.isEmpty
+                } catch {
+                    return false
+                }
+            }
+            
+            guard validPeople.count > 1 else { continue }
+            
+            let sorted = validPeople.sorted { $0.createdAt < $1.createdAt }
             for duplicate in sorted.dropFirst() {
                 let identifier = duplicate.contactIdentifier ?? "manual"
                 print("🔧 DuplicateContactMerger: deleting duplicate '\(duplicate.displayName)' (\(duplicate.id)) [identifier: \(identifier)]")

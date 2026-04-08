@@ -131,7 +131,7 @@ struct RootView: View {
     
     private func forceCleanupDuplicates() {
         // Reset the UserDefaults flag to force merger to run again
-        UserDefaults.standard.removeObject(forKey: "didRunDuplicateMerge_v4")
+        UserDefaults.standard.removeObject(forKey: "didRunDuplicateMerge_v5")
         DuplicateContactMerger.runIfNeeded(in: modelContext)
         debugPrintDuplicates()
     }
