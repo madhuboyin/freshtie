@@ -402,28 +402,30 @@ struct HomeView: View {
 
     private func process(_ payload: SharedPersonPayload) {
         print("📱 DEBUG: Processing payload for '\(payload.displayName)', contactID: \(payload.contactIdentifier ?? "none")")
-        
-        // 1. Find or create person
-        var person: Person?
-        
+
+        // 1. Find or create person — use ContactMapper when we have an identifier so
+        //    deduplication is consistent with the contact-picker flow.
+        let person: Person
         if let cid = payload.contactIdentifier {
-            let descriptor = FetchDescriptor<Person>(predicate: #Predicate { $0.contactIdentifier == cid })
-            person = (try? modelContext.fetch(descriptor))?.first
-            print("📱 DEBUG: Found existing person: \(person?.displayName ?? "none")")
-        }
-        
-        if person == nil {
-            person = PersonRepository.createPerson(
+            person = ContactMapper.findOrCreate(
+                contactIdentifier: cid,
                 displayName: payload.displayName,
-                contactIdentifier: payload.contactIdentifier,
-                creationSource: .manual, // Shared counts as manual/intentional
+                creationSource: .shareExtension,
                 in: modelContext
             )
-            print("📱 DEBUG: Created new person: \(person?.displayName ?? "failed")")
+            print("📱 DEBUG: findOrCreate result: \(person.displayName)")
+        } else {
+            person = PersonRepository.createPerson(
+                displayName: payload.displayName,
+                contactIdentifier: nil,
+                creationSource: .shareExtension,
+                in: modelContext
+            )
+            print("📱 DEBUG: Created manual person: \(person.displayName)")
         }
         
         // 2. Add note if present
-        if let person = person, let noteText = payload.noteText {
+        if let noteText = payload.noteText {
             PersonRepository.addNote(
                 rawText: noteText,
                 sourceType: .manualText,
@@ -432,7 +434,7 @@ struct HomeView: View {
             )
             print("📱 DEBUG: Added text note to person: '\(noteText)'")
         }
-        
+
         do {
             try modelContext.save()
             print("📱 DEBUG: Successfully saved person and notes to database")
@@ -442,7 +444,7 @@ struct HomeView: View {
 
         // If the user chose "Record in Freshtie", surface PersonView immediately
         // so the Capture CTA is one tap away.
-        if payload.requiresCapture, let person {
+        if payload.requiresCapture {
             navigateToPerson = person
         }
     }

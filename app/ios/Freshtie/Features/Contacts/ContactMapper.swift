@@ -28,9 +28,25 @@ enum ContactMapper {
     /// The returned Person is already inserted and saved in the provided context.
     @discardableResult
     static func findOrCreate(contact: CNContact, in context: ModelContext) -> Person {
-        let identifier = contact.identifier
+        findOrCreate(
+            contactIdentifier: contact.identifier,
+            displayName: displayName(from: contact),
+            creationSource: .contactPicker,
+            in: context
+        )
+    }
+
+    /// Returns an existing Person whose `contactIdentifier` matches, or creates a new one.
+    /// Use this overload when you have an identifier + name but no CNContact (e.g. Share Extension).
+    @discardableResult
+    static func findOrCreate(
+        contactIdentifier: String,
+        displayName: String,
+        creationSource: PersonCreationSource = .contactPicker,
+        in context: ModelContext
+    ) -> Person {
         var descriptor = FetchDescriptor<Person>(
-            predicate: #Predicate { $0.contactIdentifier == identifier }
+            predicate: #Predicate { $0.contactIdentifier == contactIdentifier }
         )
         descriptor.fetchLimit = 1
 
@@ -39,9 +55,9 @@ enum ContactMapper {
         }
 
         return PersonRepository.createPerson(
-            displayName: displayName(from: contact),
-            contactIdentifier: identifier,
-            creationSource: .contactPicker,
+            displayName: displayName,
+            contactIdentifier: contactIdentifier,
+            creationSource: creationSource,
             in: context
         )
     }
