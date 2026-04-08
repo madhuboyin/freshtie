@@ -10,7 +10,9 @@ import Foundation
 /// notes from the duplicates onto it, then delete the duplicates.
 enum DuplicateContactMerger {
 
-    private static let didRunKey = "didRunDuplicateMerge_v1"
+    // v2: bumped from v1 to force a re-run for installs where v1 ran before
+    // the cascade-delete ordering bug was fixed.
+    private static let didRunKey = "didRunDuplicateMerge_v2"
 
     /// Call this once at app launch. Safe to call unconditionally — it skips
     /// immediately after the first successful run.
@@ -56,9 +58,12 @@ enum DuplicateContactMerger {
             let duplicates = sorted.dropFirst()
 
             for duplicate in duplicates {
-                // Re-parent notes. Assign directly to canonical; SwiftData will
-                // update the inverse relationship and cascade correctly on delete.
-                for note in duplicate.notes {
+                // Snapshot notes into a plain array before mutating the relationship,
+                // to avoid iterating a live collection that SwiftData is modifying.
+                let notesToMove = Array(duplicate.notes)
+
+                // Re-parent each note onto the canonical person.
+                for note in notesToMove {
                     note.person = canonical
                 }
 
@@ -75,9 +80,19 @@ enum DuplicateContactMerger {
                 if duplicate.isPinned {
                     canonical.isPinned = true
                 }
+            }
+        }
 
+        // Save note reassignments BEFORE deleting duplicates. This ensures SwiftData
+        // commits the new person→note links before the cascade-delete rule fires,
+        // so notes are not swept up in the cascade.
+        try context.save()
+
+        for group in duplicateGroups {
+            let sorted = group.sorted { $0.createdAt < $1.createdAt }
+            for duplicate in sorted.dropFirst() {
+                print("🔧 DuplicateContactMerger: deleting duplicate '\(duplicate.displayName)' (\(duplicate.id))")
                 context.delete(duplicate)
-                print("🔧 DuplicateContactMerger: merged '\(duplicate.displayName)' (\(duplicate.id)) → canonical \(canonical.id)")
             }
         }
 
