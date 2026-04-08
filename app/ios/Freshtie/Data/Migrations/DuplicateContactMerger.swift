@@ -70,19 +70,13 @@ enum DuplicateContactMerger {
 
         print("🔧 DuplicateContactMerger: merging \(allDuplicateGroups.count) duplicate group(s) (\(identifierDuplicates.count) by identifier, \(nameDuplicates.count) by manual name, \(similarNameDuplicates.count) by similar name)")
 
+        // Keep track of processed IDs to avoid double-processing overlapping groups
+        var processedIDs: Set<UUID> = []
+        
         for group in allDuplicateGroups {
             // Skip groups that have already been merged (can happen with overlapping groups)
             let validPeople = group.filter { person in
-                // Check if this person still exists in the context
-                do {
-                    let descriptor = FetchDescriptor<Person>(
-                        predicate: #Predicate { $0.id == person.id }
-                    )
-                    let found = try context.fetch(descriptor)
-                    return !found.isEmpty
-                } catch {
-                    return false
-                }
+                !processedIDs.contains(person.id)
             }
             
             guard validPeople.count > 1 else { continue }
@@ -93,6 +87,11 @@ enum DuplicateContactMerger {
             let duplicates = sorted.dropFirst()
 
             print("🔧 DuplicateContactMerger: merging \(validPeople.count) entries for '\(canonical.displayName)'")
+
+            // Mark all IDs as processed
+            for person in validPeople {
+                processedIDs.insert(person.id)
+            }
 
             for duplicate in duplicates {
                 print("🔧 DuplicateContactMerger: merging \(duplicate.displayName) (ID: \(duplicate.id), contactID: \(duplicate.contactIdentifier ?? "nil")) into canonical (ID: \(canonical.id))")
@@ -127,23 +126,25 @@ enum DuplicateContactMerger {
         // so notes are not swept up in the cascade.
         try context.save()
 
+        // Reset processed IDs to track what to delete
+        processedIDs.removeAll()
+        
         for group in allDuplicateGroups {
             // Skip groups that have already been processed
             let validPeople = group.filter { person in
-                do {
-                    let descriptor = FetchDescriptor<Person>(
-                        predicate: #Predicate { $0.id == person.id }
-                    )
-                    let found = try context.fetch(descriptor)
-                    return !found.isEmpty
-                } catch {
-                    return false
-                }
+                !processedIDs.contains(person.id)
             }
             
             guard validPeople.count > 1 else { continue }
             
             let sorted = validPeople.sorted { $0.createdAt < $1.createdAt }
+            
+            // Mark all as processed
+            for person in validPeople {
+                processedIDs.insert(person.id)
+            }
+            
+            // Delete duplicates (everything except the first/canonical one)
             for duplicate in sorted.dropFirst() {
                 let identifier = duplicate.contactIdentifier ?? "manual"
                 print("🔧 DuplicateContactMerger: deleting duplicate '\(duplicate.displayName)' (\(duplicate.id)) [identifier: \(identifier)]")
