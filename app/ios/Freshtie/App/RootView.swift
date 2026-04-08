@@ -11,6 +11,8 @@ import SwiftData
 /// PersonView also presents CaptureView as a sheet via its own @State.
 struct RootView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var showDuplicateAlert = false
+    @State private var duplicateMessage = ""
 
     var body: some View {
         TabView {
@@ -39,6 +41,14 @@ struct RootView: View {
             print("🔧 Force cleaning duplicates...")
             forceCleanupDuplicates()
         }
+        .alert("Duplicate Contacts Found", isPresented: $showDuplicateAlert) {
+            Button("Force Clean") {
+                forceCleanupDuplicates()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(duplicateMessage)
+        }
     }
     
     // MARK: - Debug
@@ -53,32 +63,65 @@ struct RootView: View {
             byIdentifier[cid, default: []].append(person)
         }
         
-        // Group by displayName for manual entries
+        // Group by displayName for manual entries (normalized)
         var byName: [String: [Person]] = [:]
         for person in allPeople {
             guard person.contactIdentifier == nil else { continue }
-            byName[person.displayName, default: []].append(person)
+            let normalizedName = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            byName[normalizedName, default: []].append(person)
+        }
+        
+        // Also check for similar names across ALL people (with and without contact IDs)
+        var bySimilarName: [String: [Person]] = [:]
+        for person in allPeople {
+            let normalizedName = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            bySimilarName[normalizedName, default: []].append(person)
         }
         
         let duplicatesByIdentifier = byIdentifier.values.filter { $0.count > 1 }
         let duplicatesByName = byName.values.filter { $0.count > 1 }
+        let duplicatesBySimilarName = bySimilarName.values.filter { $0.count > 1 }
         
-        if !duplicatesByIdentifier.isEmpty || !duplicatesByName.isEmpty {
+        let totalDuplicateGroups = duplicatesByIdentifier.count + duplicatesByName.count
+        
+        if totalDuplicateGroups > 0 || !duplicatesBySimilarName.isEmpty {
             print("🔍 DUPLICATE CONTACTS FOUND:")
             
+            var alertMessage = "Found duplicates:\n"
+            
             for group in duplicatesByIdentifier {
-                print("📱 Contact ID \(group.first?.contactIdentifier ?? "nil"): \(group.count) duplicates")
+                let contactId = group.first?.contactIdentifier ?? "nil"
+                print("📱 Contact ID \(contactId): \(group.count) duplicates")
+                alertMessage += "Contact ID: \(group.count) entries\n"
                 for person in group {
-                    print("  - \(person.displayName) (created: \(person.createdAt), source: \(person.creationSource))")
+                    print("  - \(person.displayName) (ID: \(person.id), created: \(person.createdAt), source: \(person.creationSource))")
                 }
             }
             
             for group in duplicatesByName {
-                print("👤 Manual name '\(group.first?.displayName ?? "nil")': \(group.count) duplicates")
+                let name = group.first?.displayName ?? "nil"
+                print("👤 Manual name '\(name)': \(group.count) duplicates")
+                alertMessage += "Manual '\(name)': \(group.count) entries\n"
                 for person in group {
                     print("  - ID: \(person.id) (created: \(person.createdAt), source: \(person.creationSource))")
                 }
             }
+            
+            print("🔍 SIMILAR NAMES (potential duplicates):")
+            for group in duplicatesBySimilarName {
+                let normalizedName = group.first?.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) ?? "nil"
+                if group.count > 1 {
+                    print("👥 Similar name '\(normalizedName)': \(group.count) people")
+                    for person in group {
+                        let contactInfo = person.contactIdentifier != nil ? "Contact ID: \(person.contactIdentifier!)" : "Manual"
+                        print("  - '\(person.displayName)' (ID: \(person.id), source: \(person.creationSource), \(contactInfo))")
+                    }
+                }
+            }
+            
+            duplicateMessage = alertMessage
+            showDuplicateAlert = true
+            
         } else {
             print("✅ No duplicate contacts found")
         }
@@ -88,7 +131,7 @@ struct RootView: View {
     
     private func forceCleanupDuplicates() {
         // Reset the UserDefaults flag to force merger to run again
-        UserDefaults.standard.removeObject(forKey: "didRunDuplicateMerge_v3")
+        UserDefaults.standard.removeObject(forKey: "didRunDuplicateMerge_v4")
         DuplicateContactMerger.runIfNeeded(in: modelContext)
         debugPrintDuplicates()
     }

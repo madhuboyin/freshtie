@@ -10,8 +10,8 @@ import Foundation
 /// notes from the duplicates onto it, then delete the duplicates.
 enum DuplicateContactMerger {
 
-    // v3: bumped to handle name-based duplicates for manual entries
-    private static let didRunKey = "didRunDuplicateMerge_v3"
+    // v4: bumped to handle normalized name matching for similar names
+    private static let didRunKey = "didRunDuplicateMerge_v4"
 
     /// Call this once at app launch. Safe to call unconditionally — it skips
     /// immediately after the first successful run.
@@ -45,7 +45,9 @@ enum DuplicateContactMerger {
         var byName: [String: [Person]] = [:]
         for person in allPeople {
             guard person.contactIdentifier == nil else { continue }
-            byName[person.displayName, default: []].append(person)
+            // Normalize the name to catch variations (case, extra spaces)
+            let normalizedName = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            byName[normalizedName, default: []].append(person)
         }
 
         // Only act on groups that actually have duplicates.

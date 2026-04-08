@@ -37,6 +37,9 @@ enum PersonRepository {
         
         // Check for existing manual person with same name if no contactIdentifier
         if contactIdentifier == nil {
+            let normalizedName = trimmedName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            // First try exact match
             var descriptor = FetchDescriptor<Person>(
                 predicate: #Predicate { person in
                     person.contactIdentifier == nil && person.displayName == trimmedName
@@ -45,8 +48,21 @@ enum PersonRepository {
             descriptor.fetchLimit = 1
             
             if let existing = (try? context.fetch(descriptor))?.first {
-                print("📱 PersonRepository: Found existing manual person with name '\(trimmedName)': \(existing.id)")
+                print("📱 PersonRepository: Found existing manual person with exact name '\(trimmedName)': \(existing.id)")
                 return existing
+            }
+            
+            // Then try normalized match for all manual entries
+            let allManualPeople = (try? context.fetch(FetchDescriptor<Person>(
+                predicate: #Predicate { $0.contactIdentifier == nil }
+            ))) ?? []
+            
+            for person in allManualPeople {
+                let existingNormalized = person.displayName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                if existingNormalized == normalizedName {
+                    print("📱 PersonRepository: Found existing manual person with similar name '\(person.displayName)' (normalized match): \(person.id)")
+                    return person
+                }
             }
         }
         
