@@ -10,9 +10,8 @@ import Foundation
 /// notes from the duplicates onto it, then delete the duplicates.
 enum DuplicateContactMerger {
 
-    // v2: bumped from v1 to force a re-run for installs where v1 ran before
-    // the cascade-delete ordering bug was fixed.
-    private static let didRunKey = "didRunDuplicateMerge_v2"
+    // v3: bumped to handle name-based duplicates for manual entries
+    private static let didRunKey = "didRunDuplicateMerge_v3"
 
     /// Call this once at app launch. Safe to call unconditionally — it skips
     /// immediately after the first successful run.
@@ -41,17 +40,27 @@ enum DuplicateContactMerger {
             guard let cid = person.contactIdentifier else { continue }
             byIdentifier[cid, default: []].append(person)
         }
+        
+        // Also group manual entries by display name to catch manual duplicates
+        var byName: [String: [Person]] = [:]
+        for person in allPeople {
+            guard person.contactIdentifier == nil else { continue }
+            byName[person.displayName, default: []].append(person)
+        }
 
         // Only act on groups that actually have duplicates.
-        let duplicateGroups = byIdentifier.values.filter { $0.count > 1 }
-        guard !duplicateGroups.isEmpty else {
+        let identifierDuplicates = byIdentifier.values.filter { $0.count > 1 }
+        let nameDuplicates = byName.values.filter { $0.count > 1 }
+        let allDuplicateGroups = identifierDuplicates + nameDuplicates
+        
+        guard !allDuplicateGroups.isEmpty else {
             print("🔧 DuplicateContactMerger: no duplicates found")
             return
         }
 
-        print("🔧 DuplicateContactMerger: merging \(duplicateGroups.count) duplicate group(s)")
+        print("🔧 DuplicateContactMerger: merging \(allDuplicateGroups.count) duplicate group(s) (\(identifierDuplicates.count) by identifier, \(nameDuplicates.count) by name)")
 
-        for group in duplicateGroups {
+        for group in allDuplicateGroups {
             // Oldest record is canonical — it's the one the user interacted with first.
             let sorted = group.sorted { $0.createdAt < $1.createdAt }
             let canonical = sorted[0]
@@ -88,10 +97,11 @@ enum DuplicateContactMerger {
         // so notes are not swept up in the cascade.
         try context.save()
 
-        for group in duplicateGroups {
+        for group in allDuplicateGroups {
             let sorted = group.sorted { $0.createdAt < $1.createdAt }
             for duplicate in sorted.dropFirst() {
-                print("🔧 DuplicateContactMerger: deleting duplicate '\(duplicate.displayName)' (\(duplicate.id))")
+                let identifier = duplicate.contactIdentifier ?? "manual"
+                print("🔧 DuplicateContactMerger: deleting duplicate '\(duplicate.displayName)' (\(duplicate.id)) [identifier: \(identifier)]")
                 context.delete(duplicate)
             }
         }

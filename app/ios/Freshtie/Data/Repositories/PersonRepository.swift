@@ -33,8 +33,26 @@ enum PersonRepository {
         creationSource: PersonCreationSource = .manual,
         in context: ModelContext
     ) -> Person {
+        let trimmedName = displayName.trimmingCharacters(in: .whitespaces)
+        
+        // Check for existing manual person with same name if no contactIdentifier
+        if contactIdentifier == nil {
+            var descriptor = FetchDescriptor<Person>(
+                predicate: #Predicate { person in
+                    person.contactIdentifier == nil && person.displayName == trimmedName
+                }
+            )
+            descriptor.fetchLimit = 1
+            
+            if let existing = (try? context.fetch(descriptor))?.first {
+                print("📱 PersonRepository: Found existing manual person with name '\(trimmedName)': \(existing.id)")
+                return existing
+            }
+        }
+        
+        print("📱 PersonRepository: Creating new person '\(trimmedName)' with contactId: \(contactIdentifier ?? "nil")")
         let person = Person(
-            displayName: displayName.trimmingCharacters(in: .whitespaces),
+            displayName: trimmedName,
             contactIdentifier: contactIdentifier,
             creationSource: creationSource
         )

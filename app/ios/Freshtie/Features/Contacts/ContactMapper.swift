@@ -51,9 +51,11 @@ enum ContactMapper {
         descriptor.fetchLimit = 1
 
         if let existing = (try? context.fetch(descriptor))?.first {
+            print("📱 ContactMapper: Found existing person for contact \(contactIdentifier): \(existing.displayName)")
             return existing
         }
 
+        print("📱 ContactMapper: Creating new person for contact \(contactIdentifier): \(displayName)")
         return PersonRepository.createPerson(
             displayName: displayName,
             contactIdentifier: contactIdentifier,
