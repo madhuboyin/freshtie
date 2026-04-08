@@ -175,4 +175,58 @@ enum PromptLibrary {
         "How’s the team doing?",
         "How’s everything going at work?"
     ]
+
+    // MARK: - Contextual-Soft Pools (ConversationalHandle-driven)
+    //
+    // These pools sit between specific intent prompts and fully generic prompts.
+    // They feel connected to the note without overclaiming or making strong assumptions.
+    // Selected by PromptMapper when ConversationalHandle is set but specificity is low.
+
+    /// Recovery / post-surgery check-in — "got operated", "recovering".
+    static let recoveryCheckin = [
+        "How are you feeling now?",
+        "How has recovery been going?",
+        "Hope you’re doing better — how have things been?",
+        "How are you holding up?",
+        "How’s everything been lately?"
+    ]
+
+    /// Property / place support — "looks after my place", "property".
+    static let propertySupportCheckin = [
+        "How have things been going on that front?",
+        "How’s everything going with the place there?",
+        "How have things been lately on that front?",
+        "How are things holding up over there?",
+        "How’s everything been on your side?"
+    ]
+
+    /// Location anchor — person is from or associated with a place.
+    /// The {entity} token is substituted with the location name when available.
+    static let locationAnchor = [
+        "How have things been in {entity}?",
+        "How’s life been there lately?",
+        "What’s new with you these days?",
+        "How are things going over there?",
+        "How have things been on your side?"
+    ]
+
+    /// Direct family relation ("my cousin", "my uncle") — gentle, identity-aware framing.
+    /// Must NOT contain spouse, kids, household, or home references.
+    static let familyRelationSoft = [
+        "How have things been with you lately?",
+        "What’s new with you these days?",
+        "How’s everything been on your side?",
+        "How have things been going?",
+        "What have you been up to lately?"
+    ]
+
+    /// Shared-connection anchor — person identified via a third party ("cousin of X", "son of X").
+    /// Soft neutral framing with no assumption about the user’s relationship with them.
+    static let softCatchUp = [
+        "How have things been lately?",
+        "What’s new with you these days?",
+        "How’s everything been going?",
+        "What have you been up to?",
+        "How are things going?"
+    ]
 }

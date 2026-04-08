@@ -46,6 +46,49 @@ enum Promptability {
     case low     // Background/identity only — generic pool only.
 }
 
+// MARK: - Conversational Handle
+
+/// The safest practical conversational direction encoded in a note.
+///
+/// Unlike PromptAngle (which describes the semantic category of the note),
+/// ConversationalHandle represents what the person can naturally be asked about —
+/// the "what could I ask about?" layer used to produce contextual-soft prompts
+/// before falling all the way back to generic.
+///
+/// Selection order in PromptMapper:
+///   1. Highly specific prompt  (specific SpecificityLevel, event-rich)
+///   2. Contextual-soft prompt  (ConversationalHandle drives pool selection)
+///   3. Generic fallback        (only when handle == .generic)
+enum ConversationalHandle {
+    /// Person had a medical procedure or surgery — check in on recovery.
+    case recoveryCheckin
+    /// Person manages or helps with a property — check in on that situation.
+    case propertySupportCheckin
+    /// Person is associated with a location — light location-aware framing.
+    case locationAnchor
+    /// Person is an old contact — gentle reconnect framing.
+    case oldConnectionCatchup
+    /// Person is identified via a shared person ("cousin of X", "son of X") — soft neutral framing.
+    case sharedConnectionAnchor
+    /// Person is a direct family relation ("my cousin", "my uncle") — gentle family-aware framing.
+    /// Must NOT produce prompts about spouse, kids, or household.
+    case familyRelationSoft
+    /// Person is busy at work — soft effort-neutral check-in.
+    case busyWorkCheckin
+    /// Person had a career update — professional framing.
+    case careerUpdate
+    /// Person relocated — relocation-aware framing.
+    case relocationUpdate
+    /// Person is traveling — travel-aware framing.
+    case travelUpdate
+    /// Person had a family life event — event-aware framing.
+    case familyEventFollowup
+    /// Person has a general life update — soft check-in.
+    case lifeUpdateCheckin
+    /// No safe directional hook available — pure generic fallback.
+    case generic
+}
+
 // MARK: - Prompt Angle
 
 /// The safest and most relevant conversational direction encoded in a note.
@@ -69,7 +112,7 @@ enum PromptAngle {
     case familyEventFollowUp
     /// Health, general life update — soft situation check-in.
     case lifeUpdateCheckIn
-    /// Where-from, whose relative — background fact with minimal prompt hook.
+    /// Where-from, whose relative — background fact with a soft anchor.
     case backgroundSoftAnchor
     /// No meaningful direction — pure safe generic output.
     case genericCatchUp
@@ -79,13 +122,16 @@ enum PromptAngle {
 
 /// Controls how directly the Prompt Composer references note context.
 ///
-/// Hierarchy: specific → contextual → neutral → generic
+/// Hierarchy (high → low): specific → contextual → contextualSoft → neutral → generic
 /// Wrong specificity is worse than generic — prefer downgrading over misfiring.
 enum SpecificityLevel {
     /// High-confidence, event-rich note — prompt can reference the topic directly.
     case specific
     /// Note gives relational or activity context — prompt is note-aware but softer.
     case contextual
+    /// Note provides a soft directional hook but not a clear event —
+    /// prompts feel connected without overclaiming. Sits between contextual and neutral.
+    case contextualSoft
     /// Note suggests a possible direction but evidence is thin — lightly connected prompts.
     case neutral
     /// Almost no safe direction available — pure generic fallback.
@@ -101,6 +147,9 @@ struct NoteInterpretationResult {
     let promptability: Promptability    // backward-compat; prefer specificityLevel for routing
     let promptAngle: PromptAngle        // conversational direction derived from note meaning
     let specificityLevel: SpecificityLevel // how pointed the final prompt should be
+    /// The safest practical "what can I ask about?" direction.
+    /// Used by PromptMapper to select a contextual-soft pool before falling back to generic.
+    let conversationalHandle: ConversationalHandle
     let topEntity: String?
     let temporalState: TemporalState
 }

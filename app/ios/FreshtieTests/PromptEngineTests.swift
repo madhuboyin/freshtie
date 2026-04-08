@@ -400,13 +400,20 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertEqual(result.promptability, .low)
     }
 
-    func testSonOfProducesGenericOnly() {
+    func testSonOfProducesLocationAnchorNotFamilyPrompts() {
+        // "son of X" + "from Dubai" → locationAnchor handle → location-aware contextual-soft prompts
         let note = makeNote("he is son of venkat alla and from dubai")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let genericTexts = Set(PromptLibrary.generic)
-        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) }, "son-of note must only use generic pool")
-        let familyTexts = Set(PromptLibrary.family)
-        XCTAssertFalse(pool.allSatisfy { familyTexts.contains($0) }, "son-of note must NOT use family/kids pool")
+        // Must not produce family/kids/household prompts
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        // Must produce location-aware or neutral prompts (not generic)
+        let locationTexts = Set(PromptLibrary.locationAnchor.map {
+            $0.replacingOccurrences(of: "{entity}", with: "Dubai")
+        } + PromptLibrary.locationAnchor.filter { !$0.contains("{entity}") })
+        let softTexts = Set(PromptLibrary.softCatchUp)
+        let validTexts = locationTexts.union(softTexts)
+        XCTAssertTrue(pool.allSatisfy { validTexts.contains($0) },
+            "son-of + location note should use location-anchor or soft catch-up prompts")
     }
 
     func testIsFromLocationIsIdentityBackground() {
@@ -415,11 +422,18 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertEqual(result.promptability, .low)
     }
 
-    func testIsFromLocationProducesGenericOnly() {
+    func testIsFromLocationProducesContextualSoftNotGeneric() {
+        // "is from Dubai" (lowercase) → entity nil → location anchor without specific city
+        // → at least produces soft location prompts, not family/relocation
         let note = makeNote("he is from dubai")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let genericTexts = Set(PromptLibrary.generic)
-        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) })
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        assertNoPrompt(in: pool, contains: relocationTerms)
+        // Pool should be from the locationAnchor or softCatchUp set (not family or relocation)
+        let allowedTexts = Set(PromptLibrary.locationAnchor.filter { !$0.contains("{entity}") }
+            + PromptLibrary.softCatchUp + PromptLibrary.generic)
+        XCTAssertTrue(pool.allSatisfy { allowedTexts.contains($0) },
+            "location-background note should use locationAnchor (entity-free) or generic prompts")
     }
 
     // MARK: - NoteInterpreter: life events
@@ -477,12 +491,14 @@ final class PromptEngineTests: XCTestCase {
         XCTAssertEqual(result.promptability, .low)
     }
 
-    func testCousinOfProducesGenericNotFamilyPrompts() {
+    func testCousinOfProducesSoftCatchUpNotFamilyPrompts() {
+        // "cousin of sush" → sharedConnectionAnchor handle → softCatchUp prompts (not family/kids)
         let note = makeNote("he is cousin of sush")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let genericTexts = Set(PromptLibrary.generic)
-        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) }, "cousin-of note must use generic pool only")
         assertNoPrompt(in: pool, contains: familyPromptTerms)
+        let softTexts = Set(PromptLibrary.softCatchUp)
+        XCTAssertTrue(pool.allSatisfy { softTexts.contains($0) },
+            "cousin-of note should use softCatchUp pool, not family/household prompts")
     }
 
     /// "he is son of venkat alla and from dubai" — already covered by testSonOfProducesGenericOnly,
@@ -633,13 +649,17 @@ final class PromptEngineTests: XCTestCase {
             "contextual old-connection angle must produce classmateCatchUp prompts")
     }
 
-    func testNeutralIdentityProducesGenericPool() {
-        // identity background → neutral → generic pool
+    func testIdentityWithEntityProducesLocationAnchorPool() {
+        // "he is from Dubai" (capital D) → entity="Dubai" → locationAnchor handle → location prompts
         let note = makeNote("he is from Dubai")
         let pool = PromptEngine.resolvedPool(from: [note])
-        let genericTexts = Set(PromptLibrary.generic)
-        XCTAssertTrue(pool.allSatisfy { genericTexts.contains($0) },
-            "neutral background angle must produce generic prompts")
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        assertNoPrompt(in: pool, contains: relocationTerms)
+        let locationTexts = Set(PromptLibrary.locationAnchor.map {
+            $0.replacingOccurrences(of: "{entity}", with: "Dubai")
+        } + PromptLibrary.locationAnchor.filter { !$0.contains("{entity}") })
+        XCTAssertTrue(pool.allSatisfy { locationTexts.contains($0) },
+            "identity-with-entity note should use locationAnchor prompts")
     }
 
     func testSpecificCareerUpdateProducesProfessionalPool() {
@@ -649,5 +669,123 @@ final class PromptEngineTests: XCTestCase {
         // No raw {entity} token must remain
         XCTAssertFalse(pool.contains(where: { $0.contains("{entity}") }),
             "Entity substitution must resolve before prompts reach the pool")
+    }
+
+    // MARK: - Contextual-Soft: previously failing examples
+
+    /// "he is my cousin" → familyRelationSoft handle → contextual-soft, not generic.
+    func testMyCousin_producesFamilyRelationSoftNotGeneric() {
+        let note = makeNote("he is my cousin")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        let softTexts = Set(PromptLibrary.familyRelationSoft)
+        XCTAssertTrue(pool.allSatisfy { softTexts.contains($0) },
+            "direct family relation should produce familyRelationSoft prompts")
+    }
+
+    func testMyCousin_conversationalHandle() {
+        let result = NoteInterpreter.interpret(rawText: "he is my cousin", noteDate: Date())
+        XCTAssertEqual(result.conversationalHandle, .familyRelationSoft)
+        XCTAssertEqual(result.promptAngle, .socialConnectionAnchor)
+    }
+
+    /// "he is from dubai" (lowercase, no entity) → location background with generic handle.
+    func testIsFromDubaiLowercase_usesLocationAnchorOrGeneric() {
+        let note = makeNote("he is from dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        assertNoPrompt(in: pool, contains: relocationTerms)
+        // No {entity} token must leak
+        XCTAssertFalse(pool.contains(where: { $0.contains("{entity}") }))
+    }
+
+    func testIsFromDubaiUppercase_conversationalHandle() {
+        let result = NoteInterpreter.interpret(rawText: "he is from Dubai", noteDate: Date())
+        XCTAssertEqual(result.conversationalHandle, .locationAnchor)
+        XCTAssertEqual(result.topEntity, "Dubai")
+    }
+
+    /// "he got operated lately" → ongoingTopic/health → recoveryCheckin handle → recovery prompts.
+    func testGotOperated_producesRecoveryPrompts() {
+        let note = makeNote("he got operated lately")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let healthTexts = Set(PromptLibrary.health)
+        XCTAssertTrue(pool.allSatisfy { healthTexts.contains($0) },
+            "'got operated' should route to health/recovery pool")
+        assertNoPrompt(in: pool, contains: ["new role", "new company", "family", "kids"])
+    }
+
+    func testGotOperated_interpretation() {
+        let result = NoteInterpreter.interpret(rawText: "he got operated lately", noteDate: Date())
+        XCTAssertEqual(result.kind, .ongoingTopic)
+        XCTAssertEqual(result.topic, .health)
+        XCTAssertEqual(result.conversationalHandle, .recoveryCheckin)
+    }
+
+    /// "he is cousin of sush" → sharedConnectionAnchor handle → soft catch-up, not generic or family.
+    func testCousinOf_conversationalHandle() {
+        let result = NoteInterpreter.interpret(rawText: "he is cousin of sush", noteDate: Date())
+        XCTAssertEqual(result.conversationalHandle, .sharedConnectionAnchor)
+    }
+
+    /// "he is from bangalore. He looks after my place in bangalore property"
+    /// → propertySupportCheckin handle → property-support prompts, not generic.
+    func testPropertySupport_producesPropertyPrompts() {
+        let note = makeNote("he is from bangalore. He looks after my place in bangalore property")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        let propertyTexts = Set(PromptLibrary.propertySupportCheckin)
+        XCTAssertTrue(pool.allSatisfy { propertyTexts.contains($0) },
+            "property-support note should use propertySupportCheckin pool")
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+    }
+
+    func testPropertySupport_interpretation() {
+        let result = NoteInterpreter.interpret(
+            rawText: "he is from bangalore. He looks after my place in bangalore property",
+            noteDate: Date()
+        )
+        XCTAssertEqual(result.conversationalHandle, .propertySupportCheckin)
+        XCTAssertEqual(result.kind, .ongoingTopic)
+    }
+
+    /// "he is son of venkat alla and from Dubai" → locationAnchor handle (entity=Dubai).
+    func testSonOfWithLocation_conversationalHandle() {
+        let result = NoteInterpreter.interpret(
+            rawText: "he is son of venkat alla and from Dubai",
+            noteDate: Date()
+        )
+        XCTAssertEqual(result.conversationalHandle, .locationAnchor)
+        XCTAssertEqual(result.topEntity, "Dubai")
+    }
+
+    func testSonOfWithLocation_noFamilyKidsPrompts() {
+        let note = makeNote("he is son of venkat alla and from Dubai")
+        let pool = PromptEngine.resolvedPool(from: [note])
+        assertNoPrompt(in: pool, contains: familyPromptTerms)
+        XCTAssertFalse(pool.contains(where: { $0.contains("{entity}") }),
+            "Entity substitution must resolve before prompts reach UI")
+    }
+
+    // MARK: - ConversationalHandle: all new pools have ≥5 entries, no raw {entity} in non-location pools
+
+    func testAllContextualSoftPoolsHaveSufficientVariants() {
+        XCTAssertGreaterThanOrEqual(PromptLibrary.recoveryCheckin.count, 3)
+        XCTAssertGreaterThanOrEqual(PromptLibrary.propertySupportCheckin.count, 3)
+        XCTAssertGreaterThanOrEqual(PromptLibrary.locationAnchor.count, 3)
+        XCTAssertGreaterThanOrEqual(PromptLibrary.familyRelationSoft.count, 3)
+        XCTAssertGreaterThanOrEqual(PromptLibrary.softCatchUp.count, 3)
+    }
+
+    func testNonLocationContextualSoftPoolsHaveNoEntityToken() {
+        let nonLocationPools: [[String]] = [
+            PromptLibrary.recoveryCheckin,
+            PromptLibrary.propertySupportCheckin,
+            PromptLibrary.familyRelationSoft,
+            PromptLibrary.softCatchUp,
+        ]
+        for pool in nonLocationPools {
+            XCTAssertFalse(pool.contains(where: { $0.contains("{entity}") }),
+                "Only locationAnchor pool should contain {entity} tokens")
+        }
     }
 }

@@ -89,11 +89,12 @@ enum PromptGoldenCorpus {
                 "new place", "packing", "new city",
                 "trip", "travel", "flight",
             ],
-            requiredDirection: nil,
+            requiredDirection: ["there", "things", "new", "what's", "dubai"],
             rationale: """
-            Bug class: location background mistaken for travel, relocation, or family topic.
-            "he is from Dubai" is identity background — where the person is originally from.
-            Generic prompts are the correct output. No specific family, move, or travel prompts.
+            Location-background note with a named entity (Dubai).
+            Must produce contextual-soft location-anchor prompts ("How have things been in Dubai?",
+            "How's life been there lately?") — not travel, relocation, or family prompts.
+            Previously fell back to generic; now expected to produce note-connected output.
             """
         ),
 
@@ -103,12 +104,12 @@ enum PromptGoldenCorpus {
             disallowedTerms: [
                 "family", "kids", "children", "wife", "husband", "everyone at home",
             ],
-            requiredDirection: nil,
+            requiredDirection: ["there", "things", "new", "what's"],
             rationale: """
-            Bug class: family identity reference mistaken for own family-life topic.
-            "son of X" identifies whose son this person is — it is a memory note, not a
-            conversation hook about the user's own family, kids, or household.
-            Must output generic prompts only.
+            "son of X" is an identity note — not a conversation hook about family/kids.
+            The "from Dubai" part provides a location entity, so the engine should produce
+            contextual-soft location-anchor prompts rather than generic or family prompts.
+            Family/kids/household prompts must never appear.
             """
         ),
 
@@ -118,12 +119,12 @@ enum PromptGoldenCorpus {
             disallowedTerms: [
                 "family", "kids", "children", "everyone at home", "wife", "husband", "spouse",
             ],
-            requiredDirection: nil,
+            requiredDirection: ["things", "new", "up to", "lately", "going"],
             rationale: """
-            Bug class: relationship identity mistaken for active family topic.
-            "cousin of sush" is a memory note about who this person is related to.
-            The engine must not infer that the user wants to ask about kids, home, or spouse.
-            Must output generic prompts, not family/household prompts.
+            "cousin of sush" is a memory note — no family/household prompts allowed.
+            No entity extracted (lowercase "sush"), so the engine uses the sharedConnectionAnchor
+            handle and produces soft catch-up prompts.
+            Previously fell back to generic; now expected to produce contextual-soft output.
             """
         ),
 
@@ -224,6 +225,54 @@ enum PromptGoldenCorpus {
             Positive fixture: future life event.
             "wedding next month" is a fresh future signal — must produce life-event-before
             prompts ("are you excited?", "how are the preparations?").
+            """
+        ),
+
+        // ── F. Contextual-soft: new failing examples now fixed ────────────────────
+
+        PromptGoldenFixture(
+            name: "F16_my_cousin",
+            rawNote: "he is my cousin",
+            disallowedTerms: [
+                "family", "kids", "children", "everyone at home", "wife", "husband",
+                "how's the family", "how are the kids",
+            ],
+            requiredDirection: ["things", "new", "up to", "lately", "side"],
+            rationale: """
+            "my cousin" is a direct family-relation note.
+            Must produce familyRelationSoft prompts ("How have things been with you lately?",
+            "What's new with you these days?") — NOT family/kids/home prompts.
+            Previously produced generic; now expected to produce contextual-soft output.
+            """
+        ),
+
+        PromptGoldenFixture(
+            name: "F17_got_operated",
+            rawNote: "he got operated lately",
+            disallowedTerms: [
+                "family", "kids", "new role", "new company", "new place",
+            ],
+            requiredDirection: ["feeling", "recovery", "doing", "better", "holding"],
+            rationale: """
+            "got operated" signals a recent medical procedure.
+            Must produce recovery check-in prompts ("How are you feeling now?",
+            "How has recovery been going?") — not generic.
+            Previously fell to weakSignal and generic; now routes through ongoingTopic/health.
+            """
+        ),
+
+        PromptGoldenFixture(
+            name: "F18_property_support",
+            rawNote: "he is from bangalore. He looks after my place in bangalore property",
+            disallowedTerms: [
+                "family", "kids", "new role", "new company", "trip", "travel",
+            ],
+            requiredDirection: ["front", "place", "there", "holding", "side"],
+            rationale: """
+            "looks after my place" + "property" signals a property-support role.
+            Must produce propertySupportCheckin prompts ("How have things been going on that front?",
+            "How's everything going with the place there?") — not generic.
+            Property support detection fires before "is from" identity-background swallows the note.
             """
         ),
 

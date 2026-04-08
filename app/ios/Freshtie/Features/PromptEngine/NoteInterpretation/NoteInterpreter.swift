@@ -3,11 +3,12 @@ import Foundation
 /// Converts raw note text into structured semantic meaning.
 ///
 /// Priority order (first match wins):
-///   1. Relationship context — catches "degree class mate" BEFORE school keywords fire.
-///   2. Identity background — "son of X", "is from Dubai" → low promptability, generic only.
-///   3. Life events — joined company, moved city, had baby, got married.
-///   4. Ongoing topics — trip planning, health recovery.
-///   5. Weak signal — delegate to the existing keyword pipeline.
+///   1. Relationship context  — catches "degree class mate" BEFORE school keywords fire.
+///   2. Property support      — catches "looks after my place" BEFORE "is from" identity fires.
+///   3. Identity background   — "son of X", "is from Dubai" → background fact with soft anchor.
+///   4. Life events           — joined company, moved city, had baby, got married.
+///   5. Ongoing topics        — trip planning, health recovery, work busyness.
+///   6. Weak signal           — delegate to the existing keyword pipeline.
 enum NoteInterpreter {
 
     static func interpret(_ note: Note, now: Date = Date()) -> NoteInterpretationResult {
@@ -16,67 +17,101 @@ enum NoteInterpreter {
 
     /// Visible for testing.
     static func interpret(rawText: String, noteDate: Date, now: Date = Date()) -> NoteInterpretationResult {
-        let lower  = rawText.lowercased()
-        let entity = KeywordExtractor.extractTopEntity(from: rawText)
+        let lower   = rawText.lowercased()
+        let entity  = KeywordExtractor.extractTopEntity(from: rawText)
         let temporal = TemporalLogic.state(for: rawText, noteDate: noteDate, now: now)
 
         // 1. Relationship context
         if let rel = detectRelationship(in: lower) {
+            let angle   = deriveAngle(kind: .relationshipContext, relationship: rel, topic: .unknown)
+            let spec    = deriveSpecificity(kind: .relationshipContext, topic: .unknown, relationship: rel)
+            let handle  = deriveConversationalHandle(kind: .relationshipContext, relationship: rel,
+                                                     topic: .unknown, lower: lower, entity: entity)
             return NoteInterpretationResult(
                 kind: .relationshipContext,
                 relationship: rel,
                 topic: .unknown,
                 promptability: .medium,
-                promptAngle: deriveAngle(kind: .relationshipContext, relationship: rel, topic: .unknown),
-                specificityLevel: deriveSpecificity(kind: .relationshipContext, topic: .unknown, relationship: rel),
+                promptAngle: angle,
+                specificityLevel: spec,
+                conversationalHandle: handle,
                 topEntity: entity,
                 temporalState: temporal
             )
         }
 
-        // 2. Identity background
+        // 2. Property / support context — checked BEFORE identity background so that a note
+        //    like "he is from Bangalore. He looks after my place" routes to propertySupportCheckin
+        //    rather than being swallowed by the "is from" identity-background pattern.
+        if detectPropertySupport(in: lower) {
+            return NoteInterpretationResult(
+                kind: .ongoingTopic,
+                relationship: .unknown,
+                topic: .unknown,
+                promptability: .medium,
+                promptAngle: .backgroundSoftAnchor,
+                specificityLevel: .contextualSoft,
+                conversationalHandle: .propertySupportCheckin,
+                topEntity: entity,
+                temporalState: temporal
+            )
+        }
+
+        // 3. Identity background
         if isIdentityBackground(lower) {
+            let handle = deriveIdentityHandle(lower: lower, entity: entity)
+            let spec: SpecificityLevel = handle == .generic ? .neutral : .contextualSoft
             return NoteInterpretationResult(
                 kind: .identityBackground,
                 relationship: .unknown,
                 topic: .locationBackground,
                 promptability: .low,
                 promptAngle: .backgroundSoftAnchor,
-                specificityLevel: .neutral,
+                specificityLevel: spec,
+                conversationalHandle: handle,
                 topEntity: entity,
                 temporalState: temporal
             )
         }
 
-        // 3. Life events
+        // 4. Life events
         if let topic = detectLifeEvent(in: lower) {
+            let angle  = deriveAngle(kind: .lifeEvent, relationship: .unknown, topic: topic)
+            let handle = deriveConversationalHandle(kind: .lifeEvent, relationship: .unknown,
+                                                    topic: topic, lower: lower, entity: entity)
             return NoteInterpretationResult(
                 kind: .lifeEvent,
                 relationship: .unknown,
                 topic: topic,
                 promptability: .high,
-                promptAngle: deriveAngle(kind: .lifeEvent, relationship: .unknown, topic: topic),
+                promptAngle: angle,
                 specificityLevel: .specific,
+                conversationalHandle: handle,
                 topEntity: entity,
                 temporalState: temporal
             )
         }
 
-        // 4. Ongoing topics
+        // 5. Ongoing topics
         if let topic = detectOngoingTopic(in: lower) {
+            let angle  = deriveAngle(kind: .ongoingTopic, relationship: .unknown, topic: topic)
+            let spec   = deriveSpecificity(kind: .ongoingTopic, topic: topic, relationship: .unknown)
+            let handle = deriveConversationalHandle(kind: .ongoingTopic, relationship: .unknown,
+                                                    topic: topic, lower: lower, entity: entity)
             return NoteInterpretationResult(
                 kind: .ongoingTopic,
                 relationship: .unknown,
                 topic: topic,
                 promptability: .high,
-                promptAngle: deriveAngle(kind: .ongoingTopic, relationship: .unknown, topic: topic),
-                specificityLevel: deriveSpecificity(kind: .ongoingTopic, topic: topic, relationship: .unknown),
+                promptAngle: angle,
+                specificityLevel: spec,
+                conversationalHandle: handle,
                 topEntity: entity,
                 temporalState: temporal
             )
         }
 
-        // 5. Weak signal — caller falls back to existing keyword pipeline
+        // 6. Weak signal — caller falls back to existing keyword pipeline
         return NoteInterpretationResult(
             kind: .weakSignal,
             relationship: .unknown,
@@ -84,6 +119,7 @@ enum NoteInterpreter {
             promptability: .low,
             promptAngle: .genericCatchUp,
             specificityLevel: .generic,
+            conversationalHandle: .generic,
             topEntity: entity,
             temporalState: temporal
         )
@@ -121,7 +157,7 @@ enum NoteInterpreter {
             case .travel:                          return .travelUpdate
             case .health, .lifeUpdate:             return .lifeUpdateCheckIn
             case .educationCurrent:                return .lifeUpdateCheckIn
-            default:                               return .genericCatchUp
+            default:                               return .backgroundSoftAnchor
             }
         case .weakSignal:
             return .genericCatchUp
@@ -136,12 +172,12 @@ enum NoteInterpreter {
     ) -> SpecificityLevel {
         switch kind {
         case .lifeEvent:
-            return .specific     // clear events always justify direct prompting
+            return .specific
         case .ongoingTopic:
             switch topic {
-            case .workActivity:     return .contextual   // busyness, not a clear event
-            case .travel:           return .specific     // clear trip direction
-            case .health:           return .contextual   // ongoing situation
+            case .workActivity:     return .contextual
+            case .travel:           return .specific
+            case .health:           return .contextual
             case .educationCurrent: return .contextual
             default:                return .neutral
             }
@@ -150,15 +186,84 @@ enum NoteInterpreter {
             case .oldClassmate, .currentClassmate,
                  .oldColleague, .currentColleague,
                  .familyRelation:
-                return .contextual   // note-aware framing, but not event-specific
+                return .contextual
             case .acquaintance, .unknown:
                 return .neutral
             }
         case .identityBackground:
-            return .neutral          // soft anchor — don't over-prompt
+            return .neutral          // preserved for backward compat; contextualSoft set per-handle above
         case .weakSignal:
             return .generic
         }
+    }
+
+    // MARK: - Conversational Handle Derivation
+
+    /// Derives the safest "what can I ask about?" direction from the classified note.
+    private static func deriveConversationalHandle(
+        kind: NoteKind,
+        relationship: RelationshipType,
+        topic: TopicType,
+        lower: String,
+        entity: String?
+    ) -> ConversationalHandle {
+        switch kind {
+        case .relationshipContext:
+            switch relationship {
+            case .familyRelation:                  return .familyRelationSoft
+            case .oldClassmate, .currentClassmate: return .oldConnectionCatchup
+            case .oldColleague:                    return .oldConnectionCatchup
+            case .currentColleague:                return .busyWorkCheckin
+            case .acquaintance, .unknown:           return .generic
+            }
+        case .identityBackground:
+            return deriveIdentityHandle(lower: lower, entity: entity)
+        case .lifeEvent:
+            switch topic {
+            case .companyOrJob: return .careerUpdate
+            case .relocation:   return .relocationUpdate
+            case .familyEvent:  return .familyEventFollowup
+            default:            return .lifeUpdateCheckin
+            }
+        case .ongoingTopic:
+            switch topic {
+            case .health:           return .recoveryCheckin
+            case .travel:           return .travelUpdate
+            case .workActivity:     return .busyWorkCheckin
+            case .educationCurrent: return .lifeUpdateCheckin
+            default:                return .lifeUpdateCheckin
+            }
+        case .weakSignal:
+            return .generic
+        }
+    }
+
+    /// Maps an identity-background note to the most useful conversational handle.
+    ///
+    /// Priority:
+    ///   "cousin of X", "son of X" etc. + location entity present → locationAnchor
+    ///   "cousin of X", "son of X" etc. + no entity              → sharedConnectionAnchor
+    ///   "is from X", "originally from X" + entity present       → locationAnchor
+    ///   "is from X", "originally from X" + no entity            → generic
+    static func deriveIdentityHandle(lower: String, entity: String?) -> ConversationalHandle {
+        // Third-party relation phrases: "son of X", "cousin of X", "friend of X"
+        let sharedRelationPhrases = [
+            "son of ", "daughter of ", "child of ", "kid of ",
+            "cousin of ", "brother of ", "sister of ",
+            "uncle of ", "aunt of ", "nephew of ", "niece of ", "friend of ",
+        ]
+        if sharedRelationPhrases.contains(where: { lower.contains($0) }) {
+            // If the note also names a location entity, use that as the soft anchor.
+            return entity != nil ? .locationAnchor : .sharedConnectionAnchor
+        }
+
+        // Location-as-background: "is from X", "originally from X", etc.
+        let locationPhrases = [" is from ", "originally from ", "born in ", "grew up in ", "native of "]
+        if locationPhrases.contains(where: { lower.contains($0) }) {
+            return entity != nil ? .locationAnchor : .generic
+        }
+
+        return .generic
     }
 
     // MARK: - Relationship Detection
@@ -212,6 +317,22 @@ enum NoteInterpreter {
         return nil
     }
 
+    // MARK: - Property / Support Detection
+
+    /// Returns true when the note indicates the person manages or supports a property or place.
+    ///
+    /// Checked BEFORE `isIdentityBackground` so that notes like
+    /// "he is from Bangalore. He looks after my place there" do not get swallowed by
+    /// the generic "is from" identity pattern.
+    private static func detectPropertySupport(in lower: String) -> Bool {
+        let supportVerbs = ["looks after", "takes care of", "manages my", "caretaker of"]
+        let propertyNouns = ["my place", "my property", "my flat", "my apartment",
+                             "my house", "my home", "the property", "the place"]
+        let hasSupportVerb   = supportVerbs.contains(where:   { lower.contains($0) })
+        let hasPropertyNoun  = propertyNouns.contains(where:  { lower.contains($0) })
+        return hasSupportVerb && hasPropertyNoun
+    }
+
     // MARK: - Identity Background Detection
 
     private static func isIdentityBackground(_ lower: String) -> Bool {
@@ -223,8 +344,8 @@ enum NoteInterpreter {
         ]
         if familyIdentityPhrases.contains(where: { lower.contains($0) }) { return true }
 
-        // "he is from X", "originally from X" — location as background fact
-        // Intentionally specific to avoid catching "recovering from surgery"
+        // "he is from X", "originally from X" — location as background fact.
+        // Intentionally specific to avoid catching "recovering from surgery".
         let locationBackgroundPhrases = [" is from ", "originally from ", "born in ", "grew up in ", "native of "]
         if locationBackgroundPhrases.contains(where: { lower.contains($0) }) { return true }
 
@@ -282,7 +403,13 @@ enum NoteInterpreter {
         let travelPhrases = ["trip to", "traveling to", "travelling to", "visiting", "planning a trip"]
         if travelPhrases.contains(where: { lower.contains($0) }) { return .travel }
 
-        let healthPhrases = ["recovering from", "surgery", "in hospital", "fell sick", "health issue", "treatment"]
+        // Health / recovery — includes surgical / medical procedure notes.
+        let healthPhrases = [
+            "recovering from", "surgery", "in hospital", "fell sick",
+            "health issue", "treatment",
+            "got operated", "had operation", "had an operation", "had surgery",
+            "operated", "underwent surgery", "medical procedure",
+        ]
         if healthPhrases.contains(where: { lower.contains($0) }) { return .health }
 
         let educationPhrases = ["studying", "enrolled in", "doing a course", "in school", "at university", "at college"]
