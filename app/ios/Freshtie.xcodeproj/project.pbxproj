@@ -54,6 +54,8 @@
 		CAFEBABECAFEBABE000000F1 /* ConfidenceScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F0 /* ConfidenceScorer.swift */; };
 		CAFEBABECAFEBABE000000F3 /* PromptLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F2 /* PromptLibrary.swift */; };
 		CAFEBABECAFEBABE000000F5 /* PromptLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */; };
+		CAFEBABECAFEBABE00000100 /* PromptGoldenFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FF /* PromptGoldenFixtures.swift */; };
+		CAFEBABECAFEBABE00000102 /* PromptGoldenFixtureRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE00000101 /* PromptGoldenFixtureRunnerTests.swift */; };
 		CAFEBABECAFEBABE000000F9 /* NoteInterpretationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000F8 /* NoteInterpretationResult.swift */; };
 		CAFEBABECAFEBABE000000FB /* NoteInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */; };
 		CAFEBABECAFEBABE000000FD /* PromptMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFEBABECAFEBABE000000FC /* PromptMapper.swift */; };
@@ -166,6 +168,8 @@
 		CAFEBABECAFEBABE000000FA /* NoteInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInterpreter.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000FC /* PromptMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptMapper.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptLibraryTests.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE000000FF /* PromptGoldenFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptGoldenFixtures.swift; sourceTree = "<group>"; };
+		CAFEBABECAFEBABE00000101 /* PromptGoldenFixtureRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptGoldenFixtureRunnerTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptEngineTests.swift; sourceTree = "<group>"; };
 		CAFEBABECAFEBABE0000006F /* FreshtieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshtieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFEBABECAFEBABE00000070 /* HomeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEmptyState.swift; sourceTree = "<group>"; };
@@ -454,6 +458,8 @@
 			children = (
 				CAFEBABECAFEBABE00000065 /* PromptEngineTests.swift */,
 				CAFEBABECAFEBABE000000F4 /* PromptLibraryTests.swift */,
+				CAFEBABECAFEBABE000000FF /* PromptGoldenFixtures.swift */,
+				CAFEBABECAFEBABE00000101 /* PromptGoldenFixtureRunnerTests.swift */,
 			);
 			path = FreshtieTests;
 			sourceTree = "<group>";
@@ -740,6 +746,8 @@
 			files = (
 				CAFEBABECAFEBABE00000066 /* PromptEngineTests.swift in Sources */,
 				CAFEBABECAFEBABE000000F5 /* PromptLibraryTests.swift in Sources */,
+				CAFEBABECAFEBABE00000100 /* PromptGoldenFixtures.swift in Sources */,
+				CAFEBABECAFEBABE00000102 /* PromptGoldenFixtureRunnerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
